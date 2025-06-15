@@ -15,12 +15,6 @@
     align-items: center;
 }
 
-.page-title .icon {
-    margin-right: 10px;
-    font-size: 28px;
-    color: var(--primary-color);
-}
-
 /* 配置卡片 */
 .config-card {
     background: var(--card-bg);
@@ -100,10 +94,6 @@
     text-align: center;
     padding: 20px;
     color: var(--text-muted);
-}
-
-.no-rules .icon {
-    margin-right: 8px;
 }
 
 /* 规则操作按钮 */
@@ -251,11 +241,6 @@
     display: flex;
     align-items: center;
 }
-
-.btn-save .icon {
-    margin-right: 8px;
-}
-
 .btn-save:hover {
     background: var(--success-dark-color);
 }

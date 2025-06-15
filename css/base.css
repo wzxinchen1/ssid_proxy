@@ -100,6 +100,7 @@ html, body {
 }
 
 .btn-icon {
+    padding: 8px 12px;
     background: none;
     border: none;
     color: white;
@@ -176,6 +177,7 @@ html, body {
 }
 
 .btn-small {
+    padding: 6px 10px;
     background: rgba(255, 255, 255, 0.15);
     border: none;
     color: white;
@@ -323,19 +325,3 @@ html, body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
-.icon {
-    font-family: 'Font Awesome 6 Free';
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-}
-
-.icon-refresh:before { content: "\e901"; }
-.icon-settings:before { content: "\e902"; }
-.icon-chart:before { content: "\e903"; }
-.icon-power:before { content: "\e904"; }

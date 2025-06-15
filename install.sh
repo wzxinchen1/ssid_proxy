@@ -48,7 +48,6 @@ cp "$SRC_DIR/index.html" /www/luci-static/resources/ssid-proxy/index.html
 
 # CSS 文件
 cp "$SRC_DIR/css/base.css" /www/luci-static/resources/ssid-proxy/css/base.css
-cp "$SRC_DIR/css/regular.css" /www/luci-static/resources/ssid-proxy/css/regular.css
 cp "$SRC_DIR/css/style.css" /www/luci-static/resources/ssid-proxy/css/style.css
 cp "$SRC_DIR/css/pages/config.css" /www/luci-static/resources/ssid-proxy/css/pages/config.css
 cp "$SRC_DIR/css/pages/logs.css" /www/luci-static/resources/ssid-proxy/css/pages/

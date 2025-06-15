@@ -635,13 +635,6 @@ $('#refresh-page-btn').click(function() {
    - `.btn-primary`：主按钮
    - `.btn-secondary`：次按钮
 
-6. **图标系统**
-   - `.icon`：图标基础类
-   - `.icon-refresh`：刷新图标
-   - `.icon-settings`：设置图标
-   - `.icon-chart`：图表图标
-   - `.icon-power`：电源图标
-
 ### 布局特点
 - 固定高度顶部导航栏(70px)和底部监控栏(60px)
 - 主内容区域自适应剩余高度
