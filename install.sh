@@ -86,7 +86,7 @@ cp "$SRC_DIR/api/status.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/
 # 步骤7: 复制主控制器
 echo ">> 步骤7: 复制主控制器"
 cp "$SRC_DIR/ssid-proxy.lua" /usr/lib/lua/luci/controller/ssid-proxy/ssid-proxy.lua
-cp "$SRC_DIR/api/" /usr/lib/lua/luci/controller/ssid-proxy/ssid-proxy.lua/
+cp "$SRC_DIR/api/" /usr/lib/lua/luci/controller/ssid-proxy/
 
 # 步骤8: 设置文件权限
 echo ">> 步骤7: 设置文件权限"
