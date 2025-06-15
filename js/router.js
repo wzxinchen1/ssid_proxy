@@ -24,6 +24,10 @@ const routes = {
     'monitor': {
         title: '高级监控',
         resources: ['monitor']
+    },
+    'nodes': {
+        title: '服务器节点',
+        resources: ['nodes']
     }
 };
 
