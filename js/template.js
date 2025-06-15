@@ -85,6 +85,7 @@ class Template {
   _processVForElements(template, root, vForElements, data) {
     for (let i = 0; i < vForElements.length; i++) {
       const el = vForElements[i];
+      const parent = el.parentNode.cloneNode();
       const element = el.cloneNode(true);
       const vForValue = element.getAttribute('v-for');
       const [itemVar, listVar] = vForValue.split(' in ');
@@ -97,8 +98,6 @@ class Template {
       // 移除 v-for 属性
       element.removeAttribute('v-for');
 
-      // 克隆并插入元素
-      const parent = element.parentNode.cloneNode();
       const fragment = document.createDocumentFragment();
 
       for (const item of list) {
