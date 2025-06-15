@@ -45,6 +45,16 @@
     z-index: 1000;
 }
 
+/* 弹窗内容居中 */
+#edit-node-modal .modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 90%;
+    margin: 0 auto;
+}
+
 /* 弹窗按钮间距 */
 .modal-actions {
     display: flex;
