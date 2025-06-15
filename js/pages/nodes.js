@@ -14,7 +14,7 @@ async function initNodesPage(componentContext) {
             const row = e.target.closest('tr');
             const nodeId = row.dataset.id;
             const nodeData = getNodeDataFromRow(row);
-            
+
             // 填充弹窗表单
             document.getElementById('edit-node-id').value = nodeData.id;
             document.getElementById('edit-node-name').value = nodeData.name;
@@ -22,7 +22,7 @@ async function initNodesPage(componentContext) {
             document.getElementById('edit-node-port').value = nodeData.port;
             document.getElementById('edit-node-protocol').value = nodeData.protocol;
             document.getElementById('edit-node-status').value = nodeData.status;
-            
+
             // 显示弹窗
             document.getElementById('edit-node-modal').style.display = 'block';
         }
@@ -30,14 +30,10 @@ async function initNodesPage(componentContext) {
 }
 
 async function loadNodesData(componentContext) {
-    try {
-        const data = await apiRequest('nodes', 'GET');
-        // 确保数据是数组
-        const nodes = Array.isArray(data) ? data : [];
-        componentContext.render({ nodes });
-    } catch (error) {
-        showError(error.message);
-    }
+    const data = await apiRequest('nodes', 'GET');
+    // 确保数据是数组
+    const nodes = Array.isArray(data) ? data : [];
+    componentContext.render({ nodes });
 }
 
 
