@@ -1,8 +1,8 @@
 -- 文件路径: /usr/lib/lua/luci/controller/ssid-proxy/api/monitor.lua
 
 module("luci.controller.ssid-proxy.api.monitor", package.seeall)
-
-function api_monitor()
+local M = {}
+function M.api_monitor()
     local http = require "luci.http"
     local sys = require "luci.sys"
     local uci = require "luci.model.uci".cursor()
@@ -100,3 +100,5 @@ function api_monitor()
     http.prepare_content("application/json")
     http.write_json({success = true, data = data})
 end
+
+return M

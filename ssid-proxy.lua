@@ -2,6 +2,11 @@
 -- 文件路径: /usr/lib/lua/luci/controller/ssid-proxy/ssid-proxy.lua
 
 module("luci.controller.ssid-proxy.ssid-proxy", package.seeall)
+-- 引入API模块
+require "luci.controller.ssid-proxy.api.status"
+require "luci.controller.ssid-proxy.api.config"
+local monitor = require "luci.controller.ssid-proxy.api.monitor"
+require "luci.controller.ssid-proxy.api.nodes"
 
 function index()
     -- 主菜单入口
@@ -24,8 +29,4 @@ function serve_index()
     http.redirect("/luci-static/resources/ssid-proxy/index.html")
 end
 
--- 引入API模块
-require "luci.controller.ssid-proxy.api.status"
-require "luci.controller.ssid-proxy.api.config"
-require "luci.controller.ssid-proxy.api.monitor"
-require "luci.controller.ssid-proxy.api.nodes"
+api_monitor = monitor.api_monitor
