@@ -85,7 +85,8 @@ class Template {
    * @param {object} data - 数据对象
    */
   _processVForElements(template, root, vForElements, data) {
-    for (const element of vForElements) {
+    for (const el of vForElements) {
+      const element = el.cloneNode(true);
       const vForValue = element.getAttribute('v-for');
       const [itemVar, listVar] = vForValue.split(' in ');
       let list = data[listVar.trim()] || [];
