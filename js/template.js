@@ -13,13 +13,8 @@ class Template {
     // 检查是否有 v-for
     this.hasVFor = this.templateString.includes('v-for');
     this.vForElements = [];
-    this.vForParentNodes = []; // 新增：缓存 vForElement 的 parentNode
     if (this.hasVFor) {
       this.vForElements = this._findVForElements(this.domTree);
-      // 缓存 parentNode
-      this.vForElements.forEach(el => {
-        this.vForParentNodes.push(el.parentNode);
-      });
     }
   }
 
@@ -103,7 +98,7 @@ class Template {
       element.removeAttribute('v-for');
 
       // 克隆并插入元素
-      const parent = this.vForParentNodes[i]; // 使用缓存的 parentNode
+      const parent = element.parentNode.cloneNode();
       const fragment = document.createDocumentFragment();
 
       for (const item of list) {
