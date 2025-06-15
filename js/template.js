@@ -40,9 +40,10 @@ class Template {
   render(data) {
     // 克隆 DOM 树
     const clonedTree = this.domTree.cloneNode(true);
-
+    this.compile();
     // 处理 v-for 元素
     if (this.hasVFor) {
+      this.vForElements = this._findVForElements(this.domTree);
       this._processVForElements(this.templateString, clonedTree, this.vForElements, data);
     }
 
