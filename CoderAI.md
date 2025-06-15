@@ -899,8 +899,8 @@ showToast('保存失败，请重试', 'error');
 `template.js` 是一个轻量级模板引擎，支持单向数据绑定、事件绑定和 `v-for` 循环功能。它通过编译模板字符串生成可渲染的 DOM 结构，并支持动态数据注入。
 
 ## 核心功能
-1. **单向数据绑定**：使用 `@变量名` 语法替换为数据对象中的值。
-2. **事件绑定**：使用 `@事件名="函数名"` 语法绑定事件。
+1. **单向数据绑定**：使用 `{{变量名}}` 语法替换为数据对象中的值。
+2. **事件绑定**：使用 `事件名="函数名"` 语法绑定事件。
 3. **`v-for` 循环**：支持 `v-for="item in items"` 语法动态生成重复元素。
 
 ---
@@ -928,7 +928,7 @@ const engine = new TemplateEngine();
 
 **示例：**
 ```javascript
-const compiled = engine.compile('<div>@title</div>');
+const compiled = engine.compile('<div>{{title}}</div>');
 ```
 
 ##### `render(compiledTemplate, data)`

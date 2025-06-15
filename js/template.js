@@ -1,8 +1,8 @@
 /**
  * 简易模板引擎
  * 支持功能：
- * 1. 单向绑定（@变量名）
- * 2. 事件绑定（@事件名="函数名"）
+ * 1. 单向绑定（{{变量名}}）
+ * 2. 事件绑定（事件名="函数名"）
  * 3. v-for 循环（v-for="item in items"）
  */
 
@@ -19,12 +19,12 @@ class TemplateEngine {
     // 解析模板为 DOM 树
     const parser = new DOMParser();
     const doc = parser.parseFromString(template, 'text/html');
-    const domTree = doc;
+    const domTree = doc.body.firstChild;
     
     // 记录 v-for 元素
     let vForElements = [];
     if (hasVFor) {
-      vForElements = this._findVForElements(domTree.body.firstChild);
+      vForElements = this._findVForElements(domTree);
     }
     
     return {
@@ -109,10 +109,10 @@ class TemplateEngine {
       for (const item of list) {
         const clone = element.cloneNode(true);
         
-        // 替换 @变量名
+        // 替换 {{变量名}}
         const textNodes = this._findTextNodes(clone);
         for (const node of textNodes) {
-          node.textContent = node.textContent.replace(/@([\w.]+)/g, (_, key) => {
+          node.textContent = node.textContent.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
             return this._getValueFromPath(item, key.trim());
           });
         }
@@ -134,24 +134,21 @@ class TemplateEngine {
     // 处理文本节点的单向绑定
     const textNodes = this._findTextNodes(element);
     for (const node of textNodes) {
-      node.textContent = node.textContent.replace(/@([\w.]+)/g, (_, key) => {
+      node.textContent = node.textContent.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
         return this._getValueFromPath(data, key.trim());
       });
     }
 
     // 处理事件绑定（仅对元素节点操作）
     if (element.nodeType === Node.ELEMENT_NODE) {
-      const elementsWithEvents = element.querySelectorAll('[^@]');
+      const elementsWithEvents = element.querySelectorAll('[onclick], [onchange], [oninput], [onsubmit]');
       for (const el of elementsWithEvents) {
         const attributes = Array.from(el.attributes);
         for (const attr of attributes) {
-          if (attr.name.startsWith('@')) {
-            const eventName = attr.name.slice(1);
+          if (attr.name.startsWith('on')) {
             const handlerName = attr.value;
-
             // 替换为 window.函数名
-            el.setAttribute(`on${eventName}`, `window.${handlerName}`);
-            el.removeAttribute(attr.name);
+            el.setAttribute(attr.name, `window.${handlerName}`);
           }
         }
       }
