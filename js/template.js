@@ -138,19 +138,21 @@ class TemplateEngine {
         return this._getValueFromPath(data, key.trim());
       });
     }
-    
-    // 处理事件绑定
-    const elementsWithEvents = element.querySelectorAll('[^@]');
-    for (const el of elementsWithEvents) {
-      const attributes = Array.from(el.attributes);
-      for (const attr of attributes) {
-        if (attr.name.startsWith('@')) {
-          const eventName = attr.name.slice(1);
-          const handlerName = attr.value;
-          
-          // 替换为 window.函数名
-          el.setAttribute(`on${eventName}`, `window.${handlerName}`);
-          el.removeAttribute(attr.name);
+
+    // 处理事件绑定（仅对元素节点操作）
+    if (element.nodeType === Node.ELEMENT_NODE) {
+      const elementsWithEvents = element.querySelectorAll('[^@]');
+      for (const el of elementsWithEvents) {
+        const attributes = Array.from(el.attributes);
+        for (const attr of attributes) {
+          if (attr.name.startsWith('@')) {
+            const eventName = attr.name.slice(1);
+            const handlerName = attr.value;
+
+            // 替换为 window.函数名
+            el.setAttribute(`on${eventName}`, `window.${handlerName}`);
+            el.removeAttribute(attr.name);
+          }
         }
       }
     }

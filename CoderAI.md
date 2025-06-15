@@ -67,6 +67,7 @@ ssid-proxy/
 ├── js/                     # JavaScript脚本
 │   ├── utils.js            # 工具函数
 │   ├── router.js           # 路由系统
+│   ├── template.js         # 模板引擎
 │   ├── global.js           # 全局状态管理
 │   └── pages/              # 页面专属逻辑
 │       ├── config.js       # 配置页逻辑
@@ -892,10 +893,10 @@ showToast('配置保存成功');
 // 显示错误消息
 showToast('保存失败，请重试', 'error');
 ```
-# Template Engine 调用文档
+# Template 调用文档
 
 ## 概述
-`template-engine.js` 是一个轻量级模板引擎，支持单向数据绑定、事件绑定和 `v-for` 循环功能。它通过编译模板字符串生成可渲染的 DOM 结构，并支持动态数据注入。
+`template.js` 是一个轻量级模板引擎，支持单向数据绑定、事件绑定和 `v-for` 循环功能。它通过编译模板字符串生成可渲染的 DOM 结构，并支持动态数据注入。
 
 ## 核心功能
 1. **单向数据绑定**：使用 `@变量名` 语法替换为数据对象中的值。
