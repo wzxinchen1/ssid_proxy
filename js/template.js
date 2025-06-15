@@ -30,12 +30,7 @@ class Template {
     templateElement.innerHTML = this.templateString;
     this.domTree = templateElement.content.firstElementChild;
 
-    return {
-      template: this.templateString,
-      domTree,
-      vForElements,
-      hasVFor,
-    };
+    return undefined;
   }
 
   /**
