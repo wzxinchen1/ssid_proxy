@@ -12,8 +12,12 @@ async function initNodesPage() {
 async function loadNodesData() {
     try {
         const response = await apiRequest('nodes', 'GET');
-        if (response.success && Array.isArray(response.data)) {
-            renderNodesTable(response.data);
+        if (response.success) {
+            // 确保数据是数组
+            const nodes = Array.isArray(response.data) ? response.data : [response.data];
+            renderNodesTable(nodes);
+        } else {
+            showError(response.error || '加载节点数据失败');
         }
     } catch (error) {
         showError(error.message);
@@ -23,6 +27,13 @@ async function loadNodesData() {
 function renderNodesTable(nodes) {
     const tableBody = document.getElementById('nodes-table-body');
     tableBody.innerHTML = '';
+
+    if (!nodes || nodes.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="6" style="text-align: center;">暂无节点数据</td>';
+        tableBody.appendChild(row);
+        return;
+    }
 
     nodes.forEach(node => {
         const row = document.createElement('tr');
