@@ -14,7 +14,7 @@ async function loadNodesData() {
         const response = await apiRequest('nodes', 'GET');
         if (response.success) {
             // 确保数据是数组
-            const nodes = Array.isArray(response.data) ? response.data : [response.data];
+            const nodes = Array.isArray(response.data) ? response.data : [];
             renderNodesTable(nodes);
         } else {
             showError(response.error || '加载节点数据失败');
@@ -52,17 +52,42 @@ function renderNodesTable(nodes) {
     });
 }
 
-function editNode(nodeId) {
-    // 实现编辑节点逻辑
-    console.log('编辑节点:', nodeId);
+async function editNode(nodeId) {
+    try {
+        const response = await apiRequest(`nodes/${nodeId}`, 'GET');
+        if (response.success) {
+            const node = response.data;
+            document.getElementById('node-name').value = node.name;
+            document.getElementById('node-address').value = node.address;
+            document.getElementById('node-port').value = node.port;
+            document.getElementById('node-protocol').value = node.protocol;
+            document.getElementById('node-id').value = nodeId;
+        } else {
+            showError(response.error || '加载节点数据失败');
+        }
+    } catch (error) {
+        showError(error.message);
+    }
 }
 
-function deleteNode(nodeId) {
-    // 实现删除节点逻辑
-    console.log('删除节点:', nodeId);
+async function deleteNode(nodeId) {
+    if (confirm('确定要删除此节点吗？')) {
+        try {
+            const response = await apiRequest(`nodes/${nodeId}`, 'DELETE');
+            if (response.success) {
+                await loadNodesData();
+                showToast('节点删除成功');
+            } else {
+                showError(response.error || '删除节点失败');
+            }
+        } catch (error) {
+            showError(error.message);
+        }
+    }
 }
 
 async function saveNode() {
+    const nodeId = document.getElementById('node-id').value;
     const name = document.getElementById('node-name').value.trim();
     const address = document.getElementById('node-address').value.trim();
     const port = document.getElementById('node-port').value.trim();
@@ -74,7 +99,9 @@ async function saveNode() {
     }
 
     try {
-        const response = await apiRequest('nodes', 'POST', {
+        const method = nodeId ? 'PUT' : 'POST';
+        const endpoint = nodeId ? `nodes/${nodeId}` : 'nodes';
+        const response = await apiRequest(endpoint, method, {
             name,
             address,
             port,
@@ -83,10 +110,11 @@ async function saveNode() {
 
         if (response.success) {
             document.getElementById('add-node-form').reset();
+            document.getElementById('node-id').value = '';
             await loadNodesData();
-            showToast('节点保存成功');
+            showToast(nodeId ? '节点更新成功' : '节点保存成功');
         } else {
-            showError(response.error || '保存节点失败');
+            showError(response.error || (nodeId ? '更新节点失败' : '保存节点失败'));
         }
     } catch (error) {
         showError(error.message);
