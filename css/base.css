@@ -1,3 +1,37 @@
+:root {
+  /* 颜色变量 */
+  --page-bg: #ffffff;
+  --card-bg: #ffffff;
+  --card-header-bg: #f8f9fa;
+  --input-bg: #ffffff;
+  --border-color: #dee2e6;
+  --table-header-bg: #f1f3f5;
+  --table-row-even-bg: #f8f9fa;
+  --table-row-hover-bg: #e9ecef;
+  
+  /* 文字颜色 */
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #868e96;
+  
+  /* 状态颜色 */
+  --status-inactive: #adb5bd;
+  --status-active: #40c057;
+  
+  /* 按钮颜色 */
+  --button-bg: #e9ecef;
+  --button-hover-bg: #dee2e6;
+  
+  /* 主题颜色 */
+  --primary-color: #3b82f6;
+  --primary-dark-color: #2563eb;
+  --danger-color: #ef4444;
+  --success-color: #22c55e;
+  --success-dark-color: #16a34a;
+  --secondary-color: #64748b;
+  --secondary-dark-color: #475569;
+}
+
 /* SSID代理系统 - 全局基础样式 */
 /* 非响应式设计，固定布局 */
 
