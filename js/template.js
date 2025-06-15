@@ -44,7 +44,7 @@ class Template {
     const clonedTree = this.domTree.cloneNode(true);
 
     // 处理 v-for 元素
-    if (hasVFor) {
+    if (this.hasVFor) {
       this._processVForElements(this.templateString, clonedTree, this.vForElements, data);
     }
 
