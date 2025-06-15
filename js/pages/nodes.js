@@ -15,9 +15,9 @@ async function initNodesPage() {
             const nodeId = row.dataset.id;
             const nodeData = getNodeDataFromRow(row);
             
-            // 在点击的行下方插入编辑行
+            // 替换当前行为编辑行
             const editRow = createEditRow(nodeData);
-            row.after(editRow);
+            row.replaceWith(editRow);
         }
     });
 }
@@ -76,41 +76,26 @@ function getNodeDataFromRow(row) {
 function createEditRow(nodeData) {
     const editRow = document.createElement('tr');
     editRow.className = 'edit-row';
+    editRow.dataset.id = nodeData.id;
     editRow.innerHTML = `
-        <td colspan="6">
-            <form class="edit-form">
-                <input type="hidden" name="id" value="${nodeData.id}">
-                <div class="form-group">
-                    <label>名称</label>
-                    <input type="text" name="name" value="${escapeHTML(nodeData.name)}" required>
-                </div>
-                <div class="form-group">
-                    <label>地址</label>
-                    <input type="text" name="address" value="${escapeHTML(nodeData.address)}" required>
-                </div>
-                <div class="form-group">
-                    <label>端口</label>
-                    <input type="number" name="port" value="${nodeData.port}" required>
-                </div>
-                <div class="form-group">
-                    <label>协议</label>
-                    <select name="protocol" required>
-                        <option value="socks5" ${nodeData.protocol === 'socks5' ? 'selected' : ''}>SOCKS5</option>
-                        <option value="http" ${nodeData.protocol === 'http' ? 'selected' : ''}>HTTP</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>状态</label>
-                    <select name="status" required>
-                        <option value="active" ${nodeData.status === 'active' ? 'selected' : ''}>启用</option>
-                        <option value="inactive" ${nodeData.status === 'inactive' ? 'selected' : ''}>禁用</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary cancel-btn">取消</button>
-                    <button type="submit" class="btn btn-primary">保存</button>
-                </div>
-            </form>
+        <td><input type="text" name="name" value="${escapeHTML(nodeData.name)}" required></td>
+        <td><input type="text" name="address" value="${escapeHTML(nodeData.address)}" required></td>
+        <td><input type="number" name="port" value="${nodeData.port}" required></td>
+        <td>
+            <select name="protocol" required>
+                <option value="socks5" ${nodeData.protocol === 'socks5' ? 'selected' : ''}>SOCKS5</option>
+                <option value="http" ${nodeData.protocol === 'http' ? 'selected' : ''}>HTTP</option>
+            </select>
+        </td>
+        <td>
+            <select name="status" required>
+                <option value="active" ${nodeData.status === 'active' ? 'selected' : ''}>启用</option>
+                <option value="inactive" ${nodeData.status === 'inactive' ? 'selected' : ''}>禁用</option>
+            </select>
+        </td>
+        <td>
+            <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+            <button type="button" class="btn btn-primary save-btn">保存</button>
         </td>
     `;
     return editRow;
