@@ -96,11 +96,7 @@ class Template {
     for (const element of vForElements) {
       const vForValue = element.getAttribute('v-for');
       const [itemVar, listVar] = vForValue.split(' in ');
-      list = data[listVar.trim()];
-
-      if (!list) {
-        list = [];
-      }
+      let list = data[listVar.trim()] || [];
       if (!Array.isArray(list)) {
         console.error(`v-for 数据 ${listVar} 不是数组`);
         continue;
