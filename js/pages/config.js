@@ -136,7 +136,7 @@ function createRuleRow(rule, index) {
  */
 function getInterfaceOptions(selectedInterface) {
     const interfaces = globalState.interfaces || [];
-    let options = '';
+    let options = '<option value="" disabled selected>选择接口</option>';
 
     interfaces.forEach(iface => {
         const selected = iface.name === selectedInterface ? 'selected' : '';
