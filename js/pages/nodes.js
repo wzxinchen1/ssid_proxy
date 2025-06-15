@@ -53,15 +53,15 @@ function renderNodesTable(nodes) {
 
     const template = new TemplateEngine();
     const compiledTemplate = template.compile(`
-        <tr data-id="@id">
-            <td>@name</td>
-            <td>@address</td>
-            <td>@port</td>
-            <td>@protocol.toUpperCase()</td>
-            <td><span class="status-indicator @status === 'active' ? 'status-active' : 'status-inactive'"></span></td>
+        <tr data-id="{{id}}">
+            <td>{{name}}</td>
+            <td>{{address}}</td>
+            <td>{{port}}</td>
+            <td>{{protocol.toUpperCase()}}</td>
+            <td><span class="status-indicator {{status === 'active' ? 'status-active' : 'status-inactive'}}"></span></td>
             <td>
-                <button class="btn btn-small btn-primary edit-btn" data-id="@id">编辑</button>
-                <button class="btn btn-small btn-warning" data-id="@id" onclick="deleteNode('@id')">删除</button>
+                <button class="btn btn-small btn-primary edit-btn" data-id="{{id}}">编辑</button>
+                <button class="btn btn-small btn-warning" data-id="{{id}}" onclick="deleteNode('{{id}}')">删除</button>
             </td>
         </tr>
     `);
