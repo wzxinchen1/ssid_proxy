@@ -7,31 +7,8 @@
     background-color: #f5f5f5;
 }
 
-/* 模态框样式 */
-#node-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-#node-modal .modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    width: 400px;
-    max-width: 90%;
-}
-
-#node-modal .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-    gap: 10px;
+/* 表单标签不换行 */
+#add-node-form label {
+    white-space: nowrap;
+    margin-right: 5px;
 }
