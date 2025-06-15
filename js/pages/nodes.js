@@ -57,7 +57,7 @@ function renderNodesTable(nodes) {
             <td>{{name}}</td>
             <td>{{address}}</td>
             <td>{{port}}</td>
-            <td>{{protocol.toUpperCase()}}</td>
+            <td>{{protocol}}</td>
             <td><span class="status-indicator {{status === 'active' ? 'status-active' : 'status-inactive'}}"></span></td>
             <td>
                 <button class="btn btn-small btn-primary edit-btn" data-id="{{id}}">编辑</button>
