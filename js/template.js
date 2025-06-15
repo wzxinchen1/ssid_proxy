@@ -43,7 +43,7 @@ class Template {
     this.compile();
     // 处理 v-for 元素
     if (this.hasVFor) {
-      this.vForElements = this._findVForElements(this.domTree);
+      this.vForElements = this._findVForElements(clonedTree);
       this._processVForElements(this.templateString, clonedTree, this.vForElements, data);
     }
 
