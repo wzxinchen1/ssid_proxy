@@ -32,6 +32,7 @@ class TemplateEngine {
     }
 
     return {
+      template,
       domTree,
       vForElements,
       hasVFor,
@@ -52,7 +53,7 @@ class TemplateEngine {
 
     // 处理 v-for 元素
     if (hasVFor) {
-      this._processVForElements(clonedTree, vForElements, data);
+      this._processVForElements(compiled.template, clonedTree, vForElements, data);
     }
 
     // 处理单向绑定和事件绑定
@@ -91,7 +92,7 @@ class TemplateEngine {
    * @param {Array} vForElements - v-for 元素列表
    * @param {object} data - 数据对象
    */
-  _processVForElements(root, vForElements, data) {
+  _processVForElements(template, root, vForElements, data) {
     for (const element of vForElements) {
       const vForValue = element.getAttribute('v-for');
       const cacheKey = template; // 使用 v-for 属性值作为缓存键
