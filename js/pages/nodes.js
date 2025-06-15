@@ -15,6 +15,12 @@ async function initNodesPage() {
             const nodeId = row.dataset.id;
             const nodeData = getNodeDataFromRow(row);
             
+            // 隐藏当前行的操作按钮
+            const actionButtons = row.querySelectorAll('button');
+            actionButtons.forEach(btn => {
+                btn.style.display = 'none';
+            });
+            
             // 在点击的行下方插入编辑行
             const editRow = createEditRow(nodeData);
             row.after(editRow);
@@ -30,6 +36,9 @@ async function initNodesPage() {
             cancelBtn.textContent = '取消';
             cancelBtn.onclick = () => {
                 editRow.remove();
+                actionButtons.forEach(btn => {
+                    btn.style.display = '';
+                });
                 e.target.textContent = '编辑';
                 e.target.classList.remove('save-btn');
                 e.target.classList.add('edit-btn');
