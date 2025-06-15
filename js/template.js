@@ -13,8 +13,13 @@ class Template {
     // 检查是否有 v-for
     this.hasVFor = this.templateString.includes('v-for');
     this.vForElements = [];
+    this.vForParentNodes = []; // 新增：缓存 vForElement 的 parentNode
     if (this.hasVFor) {
       this.vForElements = this._findVForElements(this.domTree);
+      // 缓存 parentNode
+      this.vForElements.forEach(el => {
+        this.vForParentNodes.push(el.parentNode);
+      });
     }
   }
 
@@ -24,7 +29,6 @@ class Template {
    * @returns {object} 编译结果对象
    */
   compile() {
-
     // 解析模板为 DOM 树
     const templateElement = document.createElement("template");
     templateElement.innerHTML = this.templateString;
@@ -39,7 +43,6 @@ class Template {
    * @returns {HTMLElement} 渲染后的 DOM 元素
    */
   render(data) {
-
     // 克隆 DOM 树
     const clonedTree = this.domTree.cloneNode(true);
 
@@ -85,7 +88,8 @@ class Template {
    * @param {object} data - 数据对象
    */
   _processVForElements(template, root, vForElements, data) {
-    for (const el of vForElements) {
+    for (let i = 0; i < vForElements.length; i++) {
+      const el = vForElements[i];
       const element = el.cloneNode(true);
       const vForValue = element.getAttribute('v-for');
       const [itemVar, listVar] = vForValue.split(' in ');
@@ -99,7 +103,7 @@ class Template {
       element.removeAttribute('v-for');
 
       // 克隆并插入元素
-      const parent = element.parentNode;
+      const parent = this.vForParentNodes[i]; // 使用缓存的 parentNode
       const fragment = document.createDocumentFragment();
 
       for (const item of list) {
