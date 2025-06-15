@@ -84,7 +84,7 @@ function api_nodes()
         http.prepare_content("application/json")
         http.write_json({ success = true })
     else
-        http.status(405, "Method Not Allowed")
-        http.write_json({ success = false, error = "Method not allowed" })
+        http.status(405, "Method Not Allowed!!!!!!!!!!!!!!!!!!!!!!!!"+method)
+        http.write_json({ success = false, error = "Method not allowed!!!!!!!!!!!!!!!!!"+method })
     end
 end
