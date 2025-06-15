@@ -93,9 +93,13 @@ class TemplateEngine {
       const [itemVar, listVar] = vForValue.split(' in ');
 
       // 获取列表数据
-      const list = data[listVar.trim()];
+      let list = data[listVar.trim()];
+
+      if (!list) {
+        list = [];
+      }
       if (!Array.isArray(list)) {
-        console.warn(`v-for 数据 ${listVar} 不是数组`);
+        console.error(`v-for 数据 ${listVar} 不是数组`);
         continue;
       }
 
