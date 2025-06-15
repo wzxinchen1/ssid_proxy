@@ -2,6 +2,19 @@
 #nodes-table-container {
     height: calc(100vh - 130px); /* 减去顶部导航栏和底部监控栏的高度 */
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#nodes-table {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#nodes-table-body {
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 #nodes-table-body tr {
