@@ -10,6 +10,8 @@ class Template {
   constructor(templateString) {
     this.templateString = templateString;
     this.compiled = this.compile();
+    // 检查是否有 v-for
+    this.hasVFor = this.templateString.includes('v-for');
   }
 
   /**
@@ -18,17 +20,15 @@ class Template {
    * @returns {object} 编译结果对象
    */
   compile() {
-    // 检查是否有 v-for
-    const hasVFor = this.templateString.includes('v-for');
 
     // 解析模板为 DOM 树
     const templateElement = document.createElement("template");
     templateElement.innerHTML = this.templateString;
-    const domTree = templateElement.content.firstElementChild;
+    this.domTree = templateElement.content.firstElementChild;
 
     // 记录 v-for 元素
     let vForElements = [];
-    if (hasVFor) {
+    if (this.hasVFor) {
       vForElements = this._findVForElements(domTree);
     }
 
@@ -46,10 +46,13 @@ class Template {
    * @returns {HTMLElement} 渲染后的 DOM 元素
    */
   render(data) {
-    const { domTree, vForElements, hasVFor } = this.compiled;
+    let vForElements = [];
+    if (this.hasVFor) {
+      vForElements = this._findVForElements(domTree);
+    }
 
     // 克隆 DOM 树
-    const clonedTree = domTree.cloneNode(true);
+    const clonedTree = this.domTree.cloneNode(true);
 
     // 处理 v-for 元素
     if (hasVFor) {
