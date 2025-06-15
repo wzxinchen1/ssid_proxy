@@ -298,14 +298,14 @@ html, body {
 
 /* 图标字体 */
 @font-face {
-    font-family: 'ssid-icons';
+    font-family: 'Font Awesome 6 Free';
     src: url('assets/fonts/ssid-icons.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
 }
 
 .icon {
-    font-family: 'ssid-icons';
+    font-family: 'Font Awesome 6 Free';
     speak: none;
     font-style: normal;
     font-weight: normal;
