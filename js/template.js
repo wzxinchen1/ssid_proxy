@@ -114,7 +114,8 @@ class Template {
       }
 
       // 替换原始元素
-      element.parentNode.replaceChild(fragment, element);
+      const parentNode = element.parentNode;
+      parentNode.replaceChild(fragment, element);
     }
   }
 
