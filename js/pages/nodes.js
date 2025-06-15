@@ -51,21 +51,24 @@ function renderNodesTable(nodes) {
         return;
     }
 
-    nodes.forEach(node => {
-        const row = document.createElement('tr');
-        row.dataset.id = node.id;
-        row.innerHTML = `
-            <td>${escapeHTML(node.name)}</td>
-            <td>${escapeHTML(node.address)}</td>
-            <td>${node.port}</td>
-            <td>${node.protocol.toUpperCase()}</td>
-            <td><span class="status-indicator ${node.status === 'active' ? 'status-active' : 'status-inactive'}"></span></td>
+    const template = new TemplateEngine();
+    const compiledTemplate = template.compile(`
+        <tr data-id="@id">
+            <td>@name</td>
+            <td>@address</td>
+            <td>@port</td>
+            <td>@protocol.toUpperCase()</td>
+            <td><span class="status-indicator @status === 'active' ? 'status-active' : 'status-inactive'"></span></td>
             <td>
-                <button class="btn btn-small btn-primary edit-btn" data-id="${node.id}">编辑</button>
-                <button class="btn btn-small btn-warning" data-id="${node.id}" onclick="deleteNode('${node.id}')">删除</button>
+                <button class="btn btn-small btn-primary edit-btn" data-id="@id">编辑</button>
+                <button class="btn btn-small btn-warning" data-id="@id" onclick="deleteNode('@id')">删除</button>
             </td>
-        `;
-        tableBody.appendChild(row);
+        </tr>
+    `);
+
+    nodes.forEach(node => {
+        const renderedRow = template.render(compiledTemplate, node);
+        tableBody.appendChild(renderedRow);
     });
 }
 
@@ -109,8 +112,6 @@ async function saveEditedNode() {
         showError(error.message);
     }
 }
-
-// 移除editNode函数，改为直接在表格中编辑
 
 async function deleteNode(nodeId) {
     if (confirm('确定要删除此节点吗？')) {
