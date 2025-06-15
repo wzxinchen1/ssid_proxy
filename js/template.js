@@ -1,7 +1,7 @@
 class TemplateEngine {
     compile(templateString) {
         // 包裹模板字符串以避免意外的文本节点
-        const wrappedTemplate = `<div>${templateString}</div>`;
+        const wrappedTemplate = `<template>${templateString}</template>`;
         const parser = new DOMParser();
         const doc = parser.parseFromString(wrappedTemplate, "text/html");
         const rootNode = doc.body.firstChild;
