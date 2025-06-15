@@ -284,7 +284,7 @@ function toggleServiceStatus() {
 function apiRequest(endpoint, method = 'GET', data = null) {
     return new Promise((resolve, reject) => {
         $.ajax({
-            url: `/api/${endpoint}`,
+            url: `/cgi-bin/luci/api/${endpoint}`,
             method: method,
             data: method === 'GET' ? data : JSON.stringify(data),
             contentType: 'application/json',
