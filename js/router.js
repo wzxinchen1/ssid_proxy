@@ -142,14 +142,13 @@ async function loadPage(page) {
  * @param {string} htmlContent - HTML内容
  */
 function renderPage(page, htmlContent) {
-    // 创建页面容器
-    const pageContainer = $('<div>', {
-        id: `page-${page}`,
-        class: 'page-content'
-    }).html(htmlContent);
+    // 使用模板引擎渲染页面
+    const engine = new TemplateEngine();
+    const compiled = engine.compile(htmlContent);
+    const rendered = engine.render(compiled, { page });
 
     // 添加到DOM
-    $('#page-container').html(pageContainer);
+    $('#page-container').html(rendered);
 }
 
 /**
