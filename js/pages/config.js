@@ -7,10 +7,10 @@
 function initConfigPage() {
     // 加载配置数据
     loadConfigData();
-    
+
     // 绑定事件处理程序
     bindConfigEvents();
-    
+
     // 订阅配置更新
     subscribe('config', handleConfigUpdate);
 }
@@ -20,7 +20,7 @@ function initConfigPage() {
  */
 function loadConfigData() {
     showLoading();
-    
+
     apiRequest('config')
         .then(config => {
             renderConfigPage(config);
@@ -108,7 +108,7 @@ function renderConfigPage(config) {
             </div>
         </div>
     `;
-    
+
     $('#page-container').html(html);
     renderRules(config.rules);
 }
@@ -120,7 +120,10 @@ function renderConfigPage(config) {
 function renderRules(rules) {
     const rulesBody = $('#rules-body');
     rulesBody.empty();
-    
+
+    if (!Array.isArray(rules)) {
+        rules = [];
+    }
     if (!rules || rules.length === 0) {
         rulesBody.html(`
             <tr>
@@ -131,7 +134,7 @@ function renderRules(rules) {
         `);
         return;
     }
-    
+
     rules.forEach((rule, index) => {
         const row = createRuleRow(rule, index);
         rulesBody.append(row);
@@ -147,7 +150,7 @@ function renderRules(rules) {
 function createRuleRow(rule, index) {
     const isEnabled = rule.enabled === '1';
     const isProxyMode = rule.mode === 'proxy';
-    
+
     return `
         <tr data-index="${index}">
             <td>
@@ -197,18 +200,18 @@ function createRuleRow(rule, index) {
 function getInterfaceOptions(selectedInterface) {
     // 从全局状态获取接口列表
     const interfaces = globalState.monitorData.interfaces || [];
-    
+
     let options = '';
     interfaces.forEach(iface => {
         const selected = iface.name === selectedInterface ? 'selected' : '';
         options += `<option value="${iface.name}" ${selected}>${iface.name}</option>`;
     });
-    
+
     // 添加默认选项
     if (!selectedInterface || !interfaces.some(i => i.name === selectedInterface)) {
         options += `<option value="${selectedInterface}" selected>${selectedInterface}</option>`;
     }
-    
+
     return options;
 }
 
@@ -218,20 +221,20 @@ function getInterfaceOptions(selectedInterface) {
 function bindConfigEvents() {
     // 添加规则按钮
     $(document).on('click', '#add-rule-btn', addNewRule);
-    
+
     // 删除规则按钮
     $(document).on('click', '.btn-remove-rule', removeRule);
-    
+
     // 规则启用开关
     $(document).on('change', '.rule-enabled', toggleRuleStatus);
-    
+
     // 规则模式切换
     $(document).on('change', '.rule-mode', updateRuleMode);
-    
+
     // 规则移动按钮
     $(document).on('click', '.btn-move-up', moveRuleUp);
     $(document).on('click', '.btn-move-down', moveRuleDown);
-    
+
     // 保存按钮
     $(document).on('click', '#save-config-btn', saveConfig);
     $(document).on('click', '#apply-config-btn', applyConfig);
@@ -249,13 +252,13 @@ function addNewRule() {
         mode: 'proxy',
         proxy_server: 'socks5://127.0.0.1:1080'
     };
-    
+
     // 添加到当前配置
     currentConfig.rules.push(newRule);
-    
+
     // 重新渲染规则列表
     renderRules(currentConfig.rules);
-    
+
     // 滚动到新规则
     const lastRow = $('#rules-body tr:last');
     $('html, body').animate({
@@ -269,11 +272,11 @@ function addNewRule() {
 function removeRule() {
     const row = $(this).closest('tr');
     const index = row.data('index');
-    
+
     if (confirm('确定要删除此规则吗？')) {
         // 从规则数组中移除
         currentConfig.rules.splice(index, 1);
-        
+
         // 重新渲染规则列表
         renderRules(currentConfig.rules);
     }
@@ -286,7 +289,7 @@ function toggleRuleStatus() {
     const row = $(this).closest('tr');
     const index = row.data('index');
     const isEnabled = $(this).is(':checked');
-    
+
     // 更新规则状态
     currentConfig.rules[index].enabled = isEnabled ? '1' : '0';
 }
@@ -298,10 +301,10 @@ function updateRuleMode() {
     const row = $(this).closest('tr');
     const index = row.data('index');
     const mode = $(this).val();
-    
+
     // 更新规则模式
     currentConfig.rules[index].mode = mode;
-    
+
     // 更新代理服务器输入框状态
     const proxyInput = row.find('.rule-proxy');
     if (mode === 'proxy') {
@@ -317,12 +320,12 @@ function updateRuleMode() {
 function moveRuleUp() {
     const row = $(this).closest('tr');
     const index = row.data('index');
-    
+
     if (index > 0) {
         // 交换规则位置
-        [currentConfig.rules[index], currentConfig.rules[index - 1]] = 
-        [currentConfig.rules[index - 1], currentConfig.rules[index]];
-        
+        [currentConfig.rules[index], currentConfig.rules[index - 1]] =
+            [currentConfig.rules[index - 1], currentConfig.rules[index]];
+
         // 重新渲染规则列表
         renderRules(currentConfig.rules);
     }
@@ -334,12 +337,12 @@ function moveRuleUp() {
 function moveRuleDown() {
     const row = $(this).closest('tr');
     const index = row.data('index');
-    
+
     if (index < currentConfig.rules.length - 1) {
         // 交换规则位置
-        [currentConfig.rules[index], currentConfig.rules[index + 1]] = 
-        [currentConfig.rules[index + 1], currentConfig.rules[index]];
-        
+        [currentConfig.rules[index], currentConfig.rules[index + 1]] =
+            [currentConfig.rules[index + 1], currentConfig.rules[index]];
+
         // 重新渲染规则列表
         renderRules(currentConfig.rules);
     }
@@ -351,7 +354,7 @@ function moveRuleDown() {
 function saveConfig() {
     // 收集表单数据
     collectFormData();
-    
+
     // 发送保存请求
     saveConfigToBackend(false);
 }
@@ -362,7 +365,7 @@ function saveConfig() {
 function applyConfig() {
     // 收集表单数据
     collectFormData();
-    
+
     // 发送保存请求
     saveConfigToBackend(true);
 }
@@ -384,15 +387,15 @@ function collectFormData() {
     currentConfig.global.enabled = $('#global-enabled').is(':checked') ? '1' : '0';
     currentConfig.global.log_level = $('#log-level').val();
     currentConfig.global.log_retention = $('#log-retention').val();
-    
+
     // 收集规则数据
-    $('#rules-body tr').each(function() {
+    $('#rules-body tr').each(function () {
         const index = $(this).data('index');
         const rule = currentConfig.rules[index];
-        
+
         rule.interface = $(this).find('.rule-interface').val();
         rule.mode = $(this).find('.rule-mode').val();
-        
+
         if (rule.mode === 'proxy') {
             rule.proxy_server = $(this).find('.rule-proxy').val();
         } else {
@@ -407,16 +410,16 @@ function collectFormData() {
  */
 function saveConfigToBackend(apply) {
     showLoading();
-    
+
     const data = {
         config: currentConfig,
         apply: apply
     };
-    
+
     apiRequest('config', 'POST', data)
         .then(response => {
             showToast('配置保存成功');
-            
+
             if (apply) {
                 showToast('配置已应用');
             }
@@ -435,7 +438,7 @@ function handleConfigUpdate(config) {
     if (config.theme) {
         document.documentElement.setAttribute('data-theme', config.theme);
     }
-    
+
     // 更新刷新间隔
     if (config.refreshInterval) {
         // 如果当前页面是配置页，更新UI
