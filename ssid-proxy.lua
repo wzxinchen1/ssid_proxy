@@ -27,7 +27,5 @@ end
 -- 引入API模块
 require "luci.controller.ssid-proxy.api.status"
 require "luci.controller.ssid-proxy.api.config"
-require "luci.controller.ssid-proxy.api.logs"
 require "luci.controller.ssid-proxy.api.monitor"
-require "luci.controller.ssid-proxy.api.service"
 require "luci.controller.ssid-proxy.api.nodes"
