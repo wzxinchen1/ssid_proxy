@@ -19,7 +19,7 @@ class TemplateEngine {
     // 解析模板为 DOM 树
     const templateElement = document.createElement("template");
     templateElement.innerHTML = template;
-    const domTree = templateElement.firstChild;
+    const domTree = templateElement.firstElementChild;
 
     // 记录 v-for 元素
     let vForElements = [];
