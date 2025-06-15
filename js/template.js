@@ -6,9 +6,11 @@
  * 3. v-for 循环（v-for="item in items"）
  */
 
-class TemplateEngine {
-  constructor() {
+class Template {
+  constructor(templateString) {
+    this.templateString = templateString;
     this._vForCache = new Map(); // 缓存 v-for 解析结果
+    this.compiled = this.compile(templateString);
   }
 
   /**
@@ -41,19 +43,18 @@ class TemplateEngine {
 
   /**
    * 渲染模板
-   * @param {object} compiled - 编译结果对象
    * @param {object} data - 数据对象
    * @returns {HTMLElement} 渲染后的 DOM 元素
    */
-  render(compiled, data) {
-    const { domTree, vForElements, hasVFor } = compiled;
+  render(data) {
+    const { domTree, vForElements, hasVFor } = this.compiled;
 
     // 克隆 DOM 树
     const clonedTree = domTree.cloneNode(true);
 
     // 处理 v-for 元素
     if (hasVFor) {
-      this._processVForElements(compiled.template, clonedTree, vForElements, data);
+      this._processVForElements(this.templateString, clonedTree, vForElements, data);
     }
 
     // 处理单向绑定和事件绑定
