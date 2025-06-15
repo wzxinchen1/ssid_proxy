@@ -15,9 +15,29 @@ async function initNodesPage() {
             const nodeId = row.dataset.id;
             const nodeData = getNodeDataFromRow(row);
             
-            // 替换当前行为编辑行
+            // 在点击的行下方插入编辑行
             const editRow = createEditRow(nodeData);
-            row.replaceWith(editRow);
+            row.after(editRow);
+            
+            // 将编辑按钮变为保存按钮
+            e.target.textContent = '保存';
+            e.target.classList.remove('edit-btn');
+            e.target.classList.add('save-btn');
+            
+            // 添加取消按钮
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn btn-small btn-secondary cancel-btn';
+            cancelBtn.textContent = '取消';
+            cancelBtn.onclick = () => {
+                editRow.remove();
+                e.target.textContent = '编辑';
+                e.target.classList.remove('save-btn');
+                e.target.classList.add('edit-btn');
+            };
+            
+            // 将取消按钮插入操作列
+            const actionsCell = row.cells[5];
+            actionsCell.insertBefore(cancelBtn, e.target.nextSibling);
         }
     });
 }
@@ -76,7 +96,6 @@ function getNodeDataFromRow(row) {
 function createEditRow(nodeData) {
     const editRow = document.createElement('tr');
     editRow.className = 'edit-row';
-    editRow.dataset.id = nodeData.id;
     editRow.innerHTML = `
         <td><input type="text" name="name" value="${escapeHTML(nodeData.name)}" required></td>
         <td><input type="text" name="address" value="${escapeHTML(nodeData.address)}" required></td>
@@ -95,7 +114,7 @@ function createEditRow(nodeData) {
         </td>
         <td>
             <button type="button" class="btn btn-secondary cancel-btn">取消</button>
-            <button type="button" class="btn btn-primary save-btn">保存</button>
+            <button type="submit" class="btn btn-primary save-btn">保存</button>
         </td>
     `;
     return editRow;

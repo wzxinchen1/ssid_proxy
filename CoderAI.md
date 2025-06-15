@@ -902,3 +902,4 @@ showToast('保存失败，请重试', 'error');
 5. 禁止使用 .then的链式调用，改用 await，如果已有代码存在这种情况，就改掉它
 6. 基础样式、基础js逻辑写到base.css或utils.js或router.js中
 7. apirequest 返回的是数据，不是原始响应，不要调用.success
+8. 项目中引入了 jquery，请使用 jquery操作
