@@ -2,7 +2,9 @@
 
 module("luci.controller.ssid-proxy.api.status", package.seeall)
 
-function api_status()
+local M = {}
+
+function M.api_status()
     local sys = require "luci.sys"
     local nixio = require "nixio"
     
@@ -66,3 +68,5 @@ function api_status()
     luci.http.prepare_content("application/json")
     luci.http.write_json({success = true, data = data})
 end
+
+return M

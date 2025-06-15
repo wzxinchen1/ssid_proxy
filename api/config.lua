@@ -1,8 +1,8 @@
 -- 文件路径: /usr/lib/lua/luci/controller/ssid-proxy/api/config.lua
 
 module("luci.controller.ssid-proxy.api.config", package.seeall)
-
-function api_config()
+local M = {}
+function M.api_config()
     local uci = require "luci.model.uci".cursor()
     local http = require "luci.http"
     
@@ -110,3 +110,5 @@ function apply_configuration()
     -- 重启服务
     sys.exec("/etc/init.d/ssid-proxy restart >/dev/null 2>&1")
 end
+
+return M

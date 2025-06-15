@@ -2,7 +2,8 @@
 
 module("luci.controller.ssid-proxy.api.nodes", package.seeall)
 
-function api_nodes()
+local M = {}
+function M.api_nodes()
     local http = require "luci.http"
     local json = require "luci.jsonc"
     local uci = require "luci.model.uci".cursor()
@@ -48,3 +49,5 @@ function api_nodes()
         http.status(405, "Method Not Allowed")
     end
 end
+
+return M

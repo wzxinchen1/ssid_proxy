@@ -3,10 +3,10 @@
 
 module("luci.controller.ssid-proxy.ssid-proxy", package.seeall)
 -- 引入API模块
-require "luci.controller.ssid-proxy.api.status"
-require "luci.controller.ssid-proxy.api.config"
+local status = require "luci.controller.ssid-proxy.api.status"
+local config= require "luci.controller.ssid-proxy.api.config"
 local monitor = require "luci.controller.ssid-proxy.api.monitor"
-require "luci.controller.ssid-proxy.api.nodes"
+local nodes= require "luci.controller.ssid-proxy.api.nodes"
 
 function index()
     -- 主菜单入口
@@ -30,3 +30,6 @@ function serve_index()
 end
 
 api_monitor = monitor.api_monitor
+api_status = status.api_status
+api_nodes = nodes.api_nodes
+api_config = config.api_config
