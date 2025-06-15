@@ -53,6 +53,10 @@
     max-width: 600px;
     width: 90%;
     margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* 弹窗按钮间距 */
