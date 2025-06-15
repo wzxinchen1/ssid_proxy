@@ -13,8 +13,6 @@ async function loadNodesData() {
         const response = await apiRequest('nodes', 'GET');
         if (response.success && Array.isArray(response.data)) {
             renderNodesTable(response.data);
-        } else {
-            showError('加载节点数据失败');
         }
     } catch (error) {
         showError(error.message);
