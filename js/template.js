@@ -1,190 +1,91 @@
-/**
- * 简易模板引擎
- * 支持功能：
- * 1. 单向绑定（{{变量名}}）
- * 2. 事件绑定（事件名="函数名"）
- * 3. v-for 循环（v-for="item in items"）
- */
-
 class TemplateEngine {
-  /**
-   * 编译模板
-   * @param {string} template - 模板字符串
-   * @returns {object} 编译结果对象
-   */
-  compile(template) {
-    // 检查是否有 v-for
-    const hasVFor = template.includes('v-for');
-    
-    // 解析模板为 DOM 树
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(template, 'text/html');
-    const domTree = doc.body.firstChild;
-    
-    // 记录 v-for 元素
-    let vForElements = [];
-    if (hasVFor) {
-      vForElements = this._findVForElements(domTree);
-    }
-    
-    return {
-      domTree,
-      vForElements,
-      hasVFor,
-    };
-  }
-  
-  /**
-   * 渲染模板
-   * @param {object} compiled - 编译结果对象
-   * @param {object} data - 数据对象
-   * @returns {HTMLElement} 渲染后的 DOM 元素
-   */
-  render(compiled, data) {
-    const { domTree, vForElements, hasVFor } = compiled;
-    
-    // 克隆 DOM 树
-    const clonedTree = domTree.cloneNode(true);
-    
-    // 处理 v-for 元素
-    if (hasVFor) {
-      this._processVForElements(clonedTree, vForElements, data);
-    }
-    
-    // 处理单向绑定和事件绑定
-    this._processBindings(clonedTree, data);
-    
-    return clonedTree;
-  }
-  
-  /**
-   * 查找所有 v-for 元素
-   * @param {HTMLElement} element - 根元素
-   * @returns {Array} v-for 元素列表
-   */
-  _findVForElements(element) {
-    const vForElements = [];
-    
-    // 递归查找 v-for 属性
-    const walk = (node) => {
-      if (node.hasAttribute('v-for')) {
-        vForElements.push(node);
-      }
-      
-      // 遍历子节点
-      for (const child of node.children) {
-        walk(child);
-      }
-    };
-    
-    walk(element);
-    return vForElements;
-  }
-  
-  /**
-   * 处理 v-for 元素
-   * @param {HTMLElement} root - 根元素
-   * @param {Array} vForElements - v-for 元素列表
-   * @param {object} data - 数据对象
-   */
-  _processVForElements(root, vForElements, data) {
-    for (const element of vForElements) {
-      const vForValue = element.getAttribute('v-for');
-      const [itemVar, listVar] = vForValue.split(' in ');
-      
-      // 获取列表数据
-      const list = data[listVar.trim()];
-      if (!Array.isArray(list)) {
-        console.warn(`v-for 数据 ${listVar} 不是数组`);
-        continue;
-      }
-      
-      // 移除 v-for 属性
-      element.removeAttribute('v-for');
-      
-      // 克隆并插入元素
-      const parent = element.parentNode;
-      const fragment = document.createDocumentFragment();
-      
-      for (const item of list) {
-        const clone = element.cloneNode(true);
-        
-        // 替换 {{变量名}}
-        const textNodes = this._findTextNodes(clone);
-        for (const node of textNodes) {
-          node.textContent = node.textContent.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
-            return this._getValueFromPath(item, key.trim());
-          });
-        }
-        
-        fragment.appendChild(clone);
-      }
-      
-      // 替换原始元素
-      parent.replaceChild(fragment, element);
-    }
-  }
-  
-  /**
-   * 处理单向绑定和事件绑定
-   * @param {HTMLElement} element - 根元素
-   * @param {object} data - 数据对象
-   */
-  _processBindings(element, data) {
-    // 处理文本节点的单向绑定
-    const textNodes = this._findTextNodes(element);
-    for (const node of textNodes) {
-      node.textContent = node.textContent.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
-        return this._getValueFromPath(data, key.trim());
-      });
+    compile(templateString) {
+        // 包裹模板字符串以避免意外的文本节点
+        const wrappedTemplate = `<div>${templateString}</div>`;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(wrappedTemplate, "text/html");
+        const rootNode = doc.body.firstChild;
+
+        // 提取模板内容
+        const templateContent = rootNode.innerHTML;
+        return {
+            template: templateContent,
+            dataBindings: this.extractBindings(templateContent),
+            loops: this.extractLoops(rootNode),
+        };
     }
 
-    // 处理事件绑定（仅对元素节点操作）
-    if (element.nodeType === Node.ELEMENT_NODE) {
-      const elementsWithEvents = element.querySelectorAll('[onclick], [onchange], [oninput], [onsubmit]');
-      for (const el of elementsWithEvents) {
-        const attributes = Array.from(el.attributes);
-        for (const attr of attributes) {
-          if (attr.name.startsWith('on')) {
-            const handlerName = attr.value;
-            // 替换为 window.函数名
-            el.setAttribute(attr.name, `window.${handlerName}`);
-          }
+    extractBindings(template) {
+        // 提取 {{变量名}} 格式的绑定
+        const regex = /\{\{([^}]+)\}\}/g;
+        const bindings = [];
+        let match;
+        while ((match = regex.exec(template))) {
+            bindings.push(match[1].trim());
         }
-      }
+        return bindings;
     }
-  }
-  
-  /**
-   * 查找所有文本节点
-   * @param {HTMLElement} element - 根元素
-   * @returns {Array} 文本节点列表
-   */
-  _findTextNodes(element) {
-    const textNodes = [];
-    const walk = (node) => {
-      if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
-        textNodes.push(node);
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        for (const child of node.childNodes) {
-          walk(child);
+
+    extractLoops(node) {
+        const loops = [];
+        // 查找所有带 v-for 属性的元素
+        const elements = node.querySelectorAll('[v-for]');
+        elements.forEach(element => {
+            const vForValue = element.getAttribute('v-for');
+            const match = vForValue.match(/(\w+)\s+in\s+([\w.]+)/);
+            if (match) {
+                loops.push({
+                    element: element.outerHTML,
+                    itemVar: match[1], // 循环项变量名（如 item）
+                    itemsPath: match[2], // 数据路径（如 items）
+                });
+                // 移除 v-for 属性，避免重复处理
+                element.removeAttribute('v-for');
+            }
+        });
+        return loops;
+    }
+
+    render(compiledTemplate, data) {
+        let renderedTemplate = compiledTemplate.template;
+
+        // 处理 v-for 循环
+        compiledTemplate.loops.forEach(loop => {
+            const items = this.evaluateBinding(loop.itemsPath, data) || [];
+            let loopContent = '';
+            items.forEach(item => {
+                let itemTemplate = loop.element;
+                // 替换循环项中的绑定
+                const itemBindings = this.extractBindings(itemTemplate);
+                itemBindings.forEach(binding => {
+                    const value = this.evaluateBinding(binding, { ...data, [loop.itemVar]: item });
+                    itemTemplate = itemTemplate.replace(new RegExp(`\\{\\{${binding}\\}\\}`, "g"), value);
+                });
+                loopContent += itemTemplate;
+            });
+            // 替换原始模板中的循环部分
+            renderedTemplate = renderedTemplate.replace(loop.element, loopContent);
+        });
+
+        // 处理普通绑定
+        compiledTemplate.dataBindings.forEach(binding => {
+            const value = this.evaluateBinding(binding, data);
+            renderedTemplate = renderedTemplate.replace(new RegExp(`\\{\\{${binding}\\}\\}`, "g"), value);
+        });
+
+        // 再次解析为 DOM 节点
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(renderedTemplate, "text/html");
+        return doc.body.firstChild;
+    }
+
+    evaluateBinding(binding, data) {
+        // 支持简单的表达式，例如 protocol.toUpperCase()
+        try {
+            return new Function("data", `return data.${binding}`)(data);
+        } catch (e) {
+            console.error(`Failed to evaluate binding: ${binding}`, e);
+            return "";
         }
-      }
-    };
-    
-    walk(element);
-    return textNodes;
-  }
-  
-  /**
-   * 根据路径获取对象值
-   * @param {object} obj - 数据对象
-   * @param {string} path - 路径（如 'user.name'）
-   * @returns {any} 值
-   */
-  _getValueFromPath(obj, path) {
-    return path.split('.').reduce((acc, key) => {
-      return acc ? acc[key] : undefined;
-    }, obj);
-  }
+    }
 }

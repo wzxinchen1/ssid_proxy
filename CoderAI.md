@@ -1028,11 +1028,26 @@ window.handleClick = () => {
 
 ### 使用引擎
 ```javascript
+const template = `
+  <div>
+    <h1>{{title}}</h1>
+    <ul>
+      <li v-for="item in items">{{item}}</li>
+    </ul>
+  </div>
+`;
+
+const data = {
+  title: "My List",
+  items: ["Item 1", "Item 2", "Item 3"]
+};
+
 const engine = new TemplateEngine();
 const compiled = engine.compile(template);
 const rendered = engine.render(compiled, data);
 
 document.body.appendChild(rendered);
+
 ```
 
 ---
