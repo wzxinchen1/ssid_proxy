@@ -892,6 +892,155 @@ showToast('配置保存成功');
 // 显示错误消息
 showToast('保存失败，请重试', 'error');
 ```
+# Template Engine 调用文档
+
+## 概述
+`template-engine.js` 是一个轻量级模板引擎，支持单向数据绑定、事件绑定和 `v-for` 循环功能。它通过编译模板字符串生成可渲染的 DOM 结构，并支持动态数据注入。
+
+## 核心功能
+1. **单向数据绑定**：使用 `@变量名` 语法替换为数据对象中的值。
+2. **事件绑定**：使用 `@事件名="函数名"` 语法绑定事件。
+3. **`v-for` 循环**：支持 `v-for="item in items"` 语法动态生成重复元素。
+
+---
+
+## API 文档
+
+### 1. `TemplateEngine` 类
+#### 构造函数
+```javascript
+const engine = new TemplateEngine();
+```
+- 初始化模板引擎实例。
+
+#### 方法
+##### `compile(templateString)`
+编译模板字符串，生成一个可渲染的中间结构。
+
+**参数：**
+| 参数名          | 类型   | 必填 | 说明         |
+|-----------------|--------|------|--------------|
+| `templateString` | string | 是   | 模板字符串   |
+
+**返回值：**
+- 返回一个编译后的中间结构，用于后续渲染。
+
+**示例：**
+```javascript
+const compiled = engine.compile('<div>@title</div>');
+```
+
+##### `render(compiledTemplate, data)`
+将编译后的模板与数据结合，生成最终的 DOM 元素。
+
+**参数：**
+| 参数名              | 类型   | 必填 | 说明         |
+|---------------------|--------|------|--------------|
+| `compiledTemplate`  | object | 是   | 编译后的模板 |
+| `data`              | object | 是   | 数据对象     |
+
+**返回值：**
+- 返回一个 `HTMLElement`，可直接插入到 DOM 中。
+
+**示例：**
+```javascript
+const rendered = engine.render(compiled, { title: 'Hello World' });
+document.body.appendChild(rendered);
+```
+
+---
+
+## 模板语法
+
+### 1. 单向数据绑定
+使用 `@变量名` 语法，引擎会从 `data` 对象中查找对应的值并替换。
+
+**示例：**
+```html
+<div>@title</div>
+```
+- 如果 `data` 为 `{ title: 'Hello' }`，则渲染结果为 `<div>Hello</div>`。
+
+---
+
+### 2. 事件绑定
+使用 `@事件名="函数名"` 语法，引擎会将事件绑定到 `window.函数名`。
+
+**示例：**
+```html
+<button @click="handleClick">点击</button>
+```
+- 假设 `window.handleClick` 已定义，渲染后会绑定点击事件。
+
+---
+
+### 3. `v-for` 循环
+使用 `v-for="item in items"` 语法，引擎会遍历 `data.items` 并重复生成元素。
+
+**示例：**
+```html
+<ul>
+  <li v-for="item in items">@item.name</li>
+</ul>
+```
+- 如果 `data` 为 `{ items: [{ name: 'A' }, { name: 'B' }] }`，则渲染结果为：
+  ```html
+  <ul>
+    <li>A</li>
+    <li>B</li>
+  </ul>
+  ```
+
+---
+
+## 完整示例
+
+### 模板定义
+```javascript
+const template = `
+  <div>
+    <h1>@title</h1>
+    <ul>
+      <li v-for="item in items">@item.name</li>
+    </ul>
+    <button @click="handleClick">点击我</button>
+  </div>
+`;
+```
+
+### 数据定义
+```javascript
+const data = {
+  title: '模板引擎示例',
+  items: [
+    { name: '项目1' },
+    { name: '项目2' },
+    { name: '项目3' },
+  ],
+};
+
+// 确保函数已加载到 window
+window.handleClick = () => {
+  console.log('按钮被点击');
+};
+```
+
+### 使用引擎
+```javascript
+const engine = new TemplateEngine();
+const compiled = engine.compile(template);
+const rendered = engine.render(compiled, data);
+
+document.body.appendChild(rendered);
+```
+
+---
+
+## 注意事项
+1. **事件函数必须全局可用**：事件绑定的函数必须定义在 `window` 对象上。
+2. **数据对象必须完整**：模板中使用的变量必须在 `data` 对象中定义，否则会替换为空字符串。
+3. **`v-for` 仅支持简单语法**：目前仅支持 `item in items` 格式，不支持索引或复杂表达式。
+
 上面这个项目的文档，http 接口的文档是接下来要实现的功能，js和css文档是你需要调用的API，注意，如果你发现没有合适的API，请一定要告诉我！！！
 
 # 非常重要的关键点
