@@ -13,6 +13,9 @@ async function initConfigPage() {
 
     // 订阅配置更新
     subscribe('config', handleConfigUpdate);
+
+    // 加载网络接口列表
+    await loadInterfaces();
 }
 
 /**
@@ -178,6 +181,25 @@ function bindConfigEvents() {
 
     // 高级选项切换
     $(document).on('click', '#adv-toggle', toggleAdvancedOptions);
+}
+
+/**
+ * 加载网络接口列表
+ */
+async function loadInterfaces() {
+    try {
+        const response = await apiRequest('config');
+        if (response.interfaces && Array.isArray(response.interfaces)) {
+            const interfaceSelect = $('#new-rule-interface');
+            interfaceSelect.empty();
+            interfaceSelect.append('<option value="" disabled selected>选择接口</option>');
+            response.interfaces.forEach(iface => {
+                interfaceSelect.append(`<option value="${iface}">${iface}</option>`);
+            });
+        }
+    } catch (error) {
+        showError(`加载接口列表失败: ${error.message}`);
+    }
 }
 
 /**
