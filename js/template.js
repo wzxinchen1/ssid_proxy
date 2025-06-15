@@ -7,6 +7,10 @@
  */
 
 class TemplateEngine {
+  constructor() {
+    this._vForCache = new Map(); // 缓存 v-for 解析结果
+  }
+
   /**
    * 编译模板
    * @param {string} template - 模板字符串
@@ -90,7 +94,15 @@ class TemplateEngine {
   _processVForElements(root, vForElements, data) {
     for (const element of vForElements) {
       const vForValue = element.getAttribute('v-for');
-      const [itemVar, listVar] = vForValue.split(' in ');
+      const cacheKey = `${vForValue}`; // 使用 v-for 属性值作为缓存键
+
+      // 检查缓存
+      if (this._vForCache.has(cacheKey)) {
+        const [itemVar, listVar] = this._vForCache.get(cacheKey);
+      } else {
+        const [itemVar, listVar] = vForValue.split(' in ');
+        this._vForCache.set(cacheKey, [itemVar, listVar]);
+      }
 
       // 获取列表数据
       let list = data[listVar.trim()];
