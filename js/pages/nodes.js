@@ -46,7 +46,7 @@ async function initNodesPage() {
             
             // 将取消按钮插入操作列
             const actionsCell = row.cells[5];
-            actionsCell.insertBefore(cancelBtn, e.target.nextSibling);
+            actionsCell.appendChild(cancelBtn);
         }
     });
 }
@@ -122,7 +122,7 @@ function createEditRow(nodeData) {
             </select>
         </td>
         <td>
-            <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+            <button type="button" class="btn btn-secondary cancel-btn" onclick="this.closest('tr').remove(); document.querySelector('tr[data-id=\'${nodeData.id}\'] button.edit-btn').style.display = '';">取消</button>
             <button type="submit" class="btn btn-primary save-btn">保存</button>
         </td>
     `;
