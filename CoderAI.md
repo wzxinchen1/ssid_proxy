@@ -1104,3 +1104,4 @@ document.body.appendChild(rendered);
 6. 基础样式、基础js逻辑写到base.css或utils.js或router.js中
 7. apirequest 返回的是数据，不是原始响应，不要调用.success
 8. 项目中引入了 jquery，请使用 jquery操作
+9. 不要到处 try catch
