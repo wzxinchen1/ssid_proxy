@@ -1,11 +1,11 @@
-async function initNodesPage() {
+async function initNodesPage(componentContext) {
     // 加载节点数据
-    await loadNodesData();
+    await loadNodesData(componentContext);
 
     // 绑定表单提交事件
     document.getElementById('add-node-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        await saveNode();
+        await saveNode(componentContext);
     });
 
     // 绑定表格编辑事件
@@ -29,48 +29,18 @@ async function initNodesPage() {
     });
 }
 
-async function loadNodesData() {
+async function loadNodesData(componentContext) {
     try {
         const data = await apiRequest('nodes', 'GET');
         // 确保数据是数组
         const nodes = Array.isArray(data) ? data : [];
-        renderNodesTable(nodes);
+        componentContext.render({ nodes });
     } catch (error) {
         showError(error.message);
     }
 }
 
-function renderNodesTable(nodes) {
-    const tableBody = document.getElementById('nodes-table-body');
-    tableBody.innerHTML = '';
 
-    if (!nodes || nodes.length === 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="6" style="text-align: center;">暂无节点数据</td>';
-        tableBody.appendChild(row);
-        return;
-    }
-
-    const template = new TemplateEngine();
-    const compiledTemplate = template.compile(`
-        <tr data-id="{{id}}">
-            <td>{{name}}</td>
-            <td>{{address}}</td>
-            <td>{{port}}</td>
-            <td>{{protocol}}</td>
-            <td><span class="status-indicator {{status === 'active' ? 'status-active' : 'status-inactive'}}"></span></td>
-            <td>
-                <button class="btn btn-small btn-primary edit-btn" data-id="{{id}}">编辑</button>
-                <button class="btn btn-small btn-warning" data-id="{{id}}" onclick="deleteNode('{{id}}')">删除</button>
-            </td>
-        </tr>
-    `);
-
-    nodes.forEach(node => {
-        const renderedRow = template.render(compiledTemplate, node);
-        tableBody.appendChild(renderedRow);
-    });
-}
 
 function getNodeDataFromRow(row) {
     return {
@@ -83,7 +53,7 @@ function getNodeDataFromRow(row) {
     };
 }
 
-async function saveEditedNode() {
+async function saveEditedNode(componentContext) {
     const nodeId = document.getElementById('edit-node-id').value;
     const name = document.getElementById('edit-node-name').value.trim();
     const address = document.getElementById('edit-node-address').value.trim();
@@ -106,18 +76,18 @@ async function saveEditedNode() {
         });
 
         document.getElementById('edit-node-modal').style.display = 'none';
-        await loadNodesData();
+        await loadNodesData(componentContext);
         showToast('节点更新成功');
     } catch (error) {
         showError(error.message);
     }
 }
 
-async function deleteNode(nodeId) {
+async function deleteNode(nodeId, componentContext) {
     if (confirm('确定要删除此节点吗？')) {
         try {
             await apiRequest(`nodes/${nodeId}`, 'DELETE');
-            await loadNodesData();
+            await loadNodesData(componentContext);
             showToast('节点删除成功');
         } catch (error) {
             showError(error.message);
@@ -125,7 +95,7 @@ async function deleteNode(nodeId) {
     }
 }
 
-async function saveNode() {
+async function saveNode(componentContext) {
     const nodeId = document.getElementById('node-id').value;
     const name = document.getElementById('node-name').value.trim();
     const address = document.getElementById('node-address').value.trim();
@@ -149,7 +119,7 @@ async function saveNode() {
 
         document.getElementById('add-node-form').reset();
         document.getElementById('node-id').value = '';
-        await loadNodesData();
+        await loadNodesData(componentContext);
         showToast(nodeId ? '节点更新成功' : '节点保存成功');
     } catch (error) {
         showError(error.message);
