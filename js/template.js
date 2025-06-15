@@ -33,7 +33,7 @@ class Template {
     }
 
     return {
-      this.templateString,
+      template: this.templateString,
       domTree,
       vForElements,
       hasVFor,
