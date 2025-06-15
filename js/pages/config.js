@@ -36,7 +36,7 @@ function loadConfigData() {
  */
 function renderConfig(config) {
     currentConfig = config;
-    
+
     // 更新全局设置
     $('#global-enabled').prop('checked', config.global.enabled === '1');
     $('#log-level').val(config.global.log_level);
@@ -51,6 +51,11 @@ function renderConfig(config) {
  * @param {Array} rules - 规则数组
  */
 function renderRules(rules) {
+
+    if (!Array.isArray(rules)) {
+        rules = [];
+    }
+
     const rulesBody = $('#rules-list');
     rulesBody.empty();
 
@@ -130,7 +135,7 @@ function createRuleRow(rule, index) {
 function getInterfaceOptions(selectedInterface) {
     const interfaces = globalState.interfaces || [];
     let options = '';
-    
+
     interfaces.forEach(iface => {
         const selected = iface.name === selectedInterface ? 'selected' : '';
         options += `<option value="${iface.name}" ${selected}>${iface.name}</option>`;
@@ -255,7 +260,7 @@ function moveRuleUp() {
     const index = row.data('index');
 
     if (index > 0) {
-        [currentConfig.rules[index], currentConfig.rules[index - 1]] = 
+        [currentConfig.rules[index], currentConfig.rules[index - 1]] =
             [currentConfig.rules[index - 1], currentConfig.rules[index]];
         renderRules(currentConfig.rules);
     }
@@ -269,7 +274,7 @@ function moveRuleDown() {
     const index = row.data('index');
 
     if (index < currentConfig.rules.length - 1) {
-        [currentConfig.rules[index], currentConfig.rules[index + 1]] = 
+        [currentConfig.rules[index], currentConfig.rules[index + 1]] =
             [currentConfig.rules[index + 1], currentConfig.rules[index]];
         renderRules(currentConfig.rules);
     }
@@ -282,17 +287,17 @@ function saveConfig() {
     collectFormData();
 
     showLoading();
-    
+
     apiRequest('config', 'POST', {
         config: currentConfig,
         apply: true
     })
-    .then(() => {
-        showToast('配置保存并应用成功');
-    })
-    .catch(error => {
-        showError(`保存配置失败: ${error.message}`);
-    });
+        .then(() => {
+            showToast('配置保存并应用成功');
+        })
+        .catch(error => {
+            showError(`保存配置失败: ${error.message}`);
+        });
 }
 
 /**
@@ -312,13 +317,13 @@ function collectFormData() {
     currentConfig.global.log_level = $('#log-level').val();
     currentConfig.global.log_retention = $('#log-retention').val();
 
-    $('#rules-list tr').each(function() {
+    $('#rules-list tr').each(function () {
         const index = $(this).data('index');
         const rule = currentConfig.rules[index];
 
         rule.interface = $(this).find('.rule-interface').val();
         rule.mode = $(this).find('.rule-mode').val();
-        
+
         if (rule.mode === 'proxy') {
             rule.proxy_server = $(this).find('.rule-proxy').val();
         } else {
