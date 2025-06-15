@@ -1,0 +1,336 @@
+#!/bin/sh
+
+# SSID代理核心脚本
+# 版本: 3.0
+# 功能: 基于网络接口的代理管理
+
+CONFIG="/etc/ssid-proxy/config.json"
+ENABLED_FLAG="/etc/ssid-proxy/enabled"
+LOG="/var/log/ssid-proxy.log"
+CONNECTION_LOG="/var/log/ssid-proxy-connections.log"
+REQUEST_LOG="/var/log/ssid-proxy-requests.log"
+IPTABLES="/usr/sbin/iptables"
+CONNTRACK="/usr/sbin/conntrack"
+IP="/usr/sbin/ip"
+
+# 从配置读取日志级别
+LOG_LEVEL="info"
+[ -f /etc/config/ssid-proxy ] && {
+    LOG_LEVEL=$(uci -q get ssid-proxy.@global[0].log_level) || LOG_LEVEL="info"
+}
+
+# 日志函数
+log() {
+    local level="$1"
+    local message="$2"
+    
+    # 定义日志级别权重
+    declare -A levels=([debug]=0 [info]=1 [warning]=2 [error]=3)
+    local level_weight=${levels[$level]}
+    local config_weight=${levels[$LOG_LEVEL]}
+    
+    # 如果配置的日志级别高于当前消息级别，则不记录
+    [ "$config_weight" -gt "$level_weight" ] && return
+    
+    # 添加日志级别前缀
+    local prefix
+    case "$level" in
+        debug) prefix="DEBUG" ;;
+        info) prefix="INFO " ;;
+        warning) prefix="WARN " ;;
+        error) prefix="ERROR" ;;
+        *) prefix="?????" ;;
+    esac
+    
+    # 记录到日志文件
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - [$prefix] $message" >> $LOG
+    
+    # 同时记录到系统日志
+    logger -t ssid-proxy "[$prefix] $message"
+}
+
+# 记录连接信息
+log_connection() {
+    local src_ip=$1
+    local dst_ip=$2
+    local dst_port=$3
+    local protocol=$4
+    local action=$5
+    local interface=$6
+    
+    # 获取地理信息（如果可用）
+    local geo_info=""
+    if [ -x "/usr/bin/geoiplookup" ]; then
+        geo_info=$(geoiplookup $dst_ip 2>/dev/null | awk -F': ' 'NR==1 {print $2}')
+    fi
+    
+    # 记录连接
+    local timestamp=$(date +%s)
+    echo "$timestamp|$src_ip|$dst_ip|$dst_port|$protocol|$action|$interface|$geo_info" >> $CONNECTION_LOG
+}
+
+# 记录请求信息
+log_request() {
+    local src_ip=$1
+    local dst=$2
+    local port=$3
+    local protocol=$4
+    local status=$5
+    local interface=$6
+    
+    # 解析域名（如果是IP则跳过）
+    local domain=""
+    if [[ $dst =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        domain=$dst
+    elif [ -x "/usr/bin/host" ]; then
+        domain=$(host "$dst" 2>/dev/null | awk '/has address/ {print $4; exit}')
+    fi
+    
+    # 记录请求
+    echo "$(date '+%Y-%m-%d %H:%M:%S')|$src_ip|$dst|$port|$protocol|$status|$interface|$domain" >> $REQUEST_LOG
+}
+
+# 安全初始化
+safe_init() {
+    # 清除旧规则
+    $IPTABLES -t nat -F SSID_PROXY 2>/dev/null
+    $IPTABLES -t nat -D PREROUTING -j SSID_PROXY 2>/dev/null
+    $IPTABLES -t nat -X SSID_PROXY 2>/dev/null
+    
+    # 检查是否启用
+    if [ ! -f "$ENABLED_FLAG" ]; then
+        log "info" "代理已禁用，所有规则已清除"
+        return
+    fi
+    
+    # 创建新链
+    $IPTABLES -t nat -N SSID_PROXY
+    $IPTABLES -t nat -I PREROUTING -j SSID_PROXY
+    
+    # 添加默认直通规则
+    $IPTABLES -t nat -A SSID_PROXY -j RETURN
+    
+    log "info" "防火墙链初始化完成"
+}
+
+# 获取接口类型
+get_interface_type() {
+    local interface=$1
+    
+    # 检查无线接口
+    if [ -d "/sys/class/net/$interface/wireless" ]; then
+        echo "wireless"
+        return
+    fi
+    
+    # 检查网桥接口
+    if [ -d "/sys/class/net/$interface/bridge" ]; then
+        echo "bridge"
+        return
+    fi
+    
+    # 检查VLAN接口
+    if [ -f "/proc/net/vlan/$interface" ]; then
+        echo "vlan"
+        return
+    fi
+    
+    # 默认为有线接口
+    echo "ethernet"
+}
+
+# 获取接口上的客户端IP
+get_interface_clients() {
+    local interface=$1
+    local interface_type=$(get_interface_type "$interface")
+    
+    case $interface_type in
+        wireless|ethernet|vlan)
+            # 使用ARP表获取活跃设备
+            $IP neigh show dev $interface | awk '/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ {print $1}' | sort | uniq
+            ;;
+        bridge)
+            # 获取网桥下的所有接口
+            local bridge_interfaces=$(ls /sys/class/net/$interface/brif 2>/dev/null)
+            for iface in $bridge_interfaces; do
+                $IP neigh show dev $iface | awk '/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ {print $1}'
+            done | sort | uniq
+            ;;
+        *)
+            log "warning" "未知接口类型: $interface_type ($interface)"
+            echo ""
+            ;;
+    esac
+}
+
+# 应用代理规则
+apply_rules() {
+    # 安全初始化
+    safe_init
+    
+    # 如果未启用，直接返回
+    if [ ! -f "$ENABLED_FLAG" ]; then
+        return
+    fi
+    
+    # 读取配置
+    jq -c '.rules[]' $CONFIG 2>/dev/null | while read rule; do
+        local interface=$(echo "$rule" | jq -r '.interface // ""')
+        local mode=$(echo "$rule" | jq -r '.mode')
+        local proxy=$(echo "$rule" | jq -r '.proxy_server // ""')
+        
+        # 检查接口是否存在
+        if ! $IP link show dev "$interface" >/dev/null 2>&1; then
+            log "warning" "接口 $interface 不存在，跳过规则"
+            continue
+        fi
+        
+        # 获取该接口的客户端IP
+        local ips=$(get_interface_clients "$interface")
+        
+        if [ -z "$ips" ]; then
+            log "debug" "接口 '$interface' 当前没有连接的客户端"
+            continue
+        fi
+        
+        for ip in $ips; do
+            # 跳过无效IP
+            if ! echo "$ip" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+                log "warning" "跳过无效IP地址: $ip"
+                continue
+            fi
+            
+            case $mode in
+                "proxy")
+                    if [ -n "$proxy" ]; then
+                        # 提取代理服务器和端口
+                        local proxy_ip=$(echo $proxy | sed 's/.*\/\///; s/:.*//')
+                        local proxy_port=$(echo $proxy | sed 's/.*://')
+                        
+                        # 添加透明代理规则（插入在默认规则之前）
+                        $IPTABLES -t nat -I SSID_PROXY -s $ip -p tcp -j DNAT \
+                                  --to-destination $proxy_ip:$proxy_port \
+                                  -m comment --comment "INTERFACE-PROXY:$interface"
+                        
+                        log "info" "为 $ip (接口: $interface) 应用代理规则到 $proxy"
+                        log_connection "$ip" "$proxy_ip" "$proxy_port" "TCP" "PROXY" "$interface"
+                    fi
+                    ;;
+                "block")
+                    $IPTABLES -t nat -I SSID_PROXY -s $ip -j DROP \
+                              -m comment --comment "INTERFACE-PROXY:$interface"
+                    log "info" "已阻止 $ip (接口: $interface) 的网络访问"
+                    log_connection "$ip" "0.0.0.0" "0" "ALL" "BLOCK" "$interface"
+                    ;;
+                "direct")
+                    # 确保直连设备不被代理（优先级最高）
+                    $IPTABLES -t nat -I SSID_PROXY -s $ip -j RETURN \
+                              -m comment --comment "INTERFACE-PROXY:$interface"
+                    log "info" "为 $ip (接口: $interface) 设置直连模式"
+                    ;;
+            esac
+        done
+    done
+}
+
+# 监控活跃连接
+monitor_connections() {
+    # 如果未启用，直接返回
+    if [ ! -f "$ENABLED_FLAG" ]; then
+        return
+    fi
+    
+    # 检查conntrack是否可用
+    if [ ! -x "$CONNTRACK" ]; then
+        log "warning" "conntrack 不可用，无法监控活跃连接"
+        return
+    fi
+    
+    # 获取所有标记为INTERFACE-PROXY的连接
+    $CONNTRACK -L -p tcp --label "INTERFACE-PROXY:*" 2>/dev/null | while read line; do
+        # 解析连接信息
+        local src_ip=$(echo "$line" | grep -o 'src=[^ ]*' | cut -d= -f2)
+        local dst_ip=$(echo "$line" | grep -o 'dst=[^ ]*' | cut -d= -f2)
+        local dst_port=$(echo "$line" | grep -o 'dport=[^ ]*' | cut -d= -f2)
+        local state=$(echo "$line" | grep -o 'state=[^ ]*' | cut -d= -f2)
+        local label=$(echo "$line" | grep -o 'label=INTERFACE-PROXY:[^ ]*' | cut -d: -f2)
+        local bytes=$(echo "$line" | grep -o 'bytes=[^ ]*' | cut -d= -f2)
+        local age=$(echo "$line" | grep -o 'age=[^ ]*' | cut -d= -f2)
+        
+        # 获取接口名称
+        local interface="unknown"
+        if [ -n "$label" ]; then
+            interface=$label
+        else
+            # 通过源IP确定接口
+            interface=$($IP route get $src_ip 2>/dev/null | awk '/dev/ {print $3}')
+        fi
+        
+        # 记录请求
+        log_request "$src_ip" "$dst_ip" "$dst_port" "TCP" "$state" "$interface"
+        
+        # 记录连接状态
+        log "debug" "活跃连接: $src_ip → $dst_ip:$dst_port (状态: $state, 接口: $interface, 流量: $bytes 字节)"
+        
+    done
+}
+
+# 清理旧日志
+cleanup_logs() {
+    # 保留最近7天的日志
+    local max_days=7
+    
+    # 主日志清理
+    if [ -f "$LOG" ]; then
+        log "debug" "清理旧的主日志"
+        awk -v max_days=$max_days 'BEGIN { cutoff = systime() - max_days*86400 } 
+        $1 ~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}/ {
+            log_date = $1 " " $2
+            gsub(/[-:]/, " ", log_date)
+            log_ts = mktime(log_date)
+            if (log_ts > cutoff) print
+        }' $LOG > $LOG.tmp && mv $LOG.tmp $LOG
+    fi
+    
+    # 连接日志清理
+    if [ -f "$CONNECTION_LOG" ]; then
+        log "debug" "清理旧的连接日志"
+        awk -v max_days=$max_days -F'|' 'BEGIN { cutoff = systime() - max_days*86400 } 
+        $1 > cutoff { print }' $CONNECTION_LOG > $CONNECTION_LOG.tmp && \
+        mv $CONNECTION_LOG.tmp $CONNECTION_LOG
+    fi
+    
+    # 请求日志清理
+    if [ -f "$REQUEST_LOG" ]; then
+        log "debug" "清理旧的请求日志"
+        awk -v max_days=$max_days -F'|' 'BEGIN { cutoff = systime() - max_days*86400 } 
+        {
+            # 解析日志时间
+            split($1, dt, /[- :]/)
+            log_ts = mktime(dt[1] " " dt[2] " " dt[3] " " dt[4] " " dt[5] " " dt[6])
+            if (log_ts > cutoff) print
+        }' $REQUEST_LOG > $REQUEST_LOG.tmp && \
+        mv $REQUEST_LOG.tmp $REQUEST_LOG
+    fi
+}
+
+# 主循环
+log "info" "接口代理服务启动 (日志级别: $LOG_LEVEL)"
+log "info" "PID: $$"
+
+while true; do
+    # 应用规则
+    apply_rules
+    
+    # 监控活跃连接
+    monitor_connections
+    
+    # 清理旧日志（每天执行一次）
+    current_hour=$(date +%H)
+    if [ "$current_hour" = "03" ]; then
+        cleanup_logs
+    fi
+    
+    # 休眠
+    sleep 10
+done

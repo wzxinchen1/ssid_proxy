@@ -1,0 +1,681 @@
+<%+header%>
+<style>
+.ssid-proxy-status {
+    margin: 1em 0;
+    padding: 1em;
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.ssid-proxy-status h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.5em;
+    color: #333;
+}
+
+.ssid-proxy-log {
+    background: #2d2d2d;
+    color: #f0f0f0;
+    padding: 1em;
+    border-radius: 4px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+    line-height: 1.4;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.3em 0.8em;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-left: 1em;
+}
+
+.status-enabled {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.status-disabled {
+    background-color: #F44336;
+    color: white;
+}
+
+.rules-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.95em;
+}
+
+.rules-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+    padding: 10px;
+    border-bottom: 2px solid #ddd;
+}
+
+.rules-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.rules-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.connections-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9em;
+}
+
+.connections-table th {
+    background-color: #e9f7fe;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #b3e5fc;
+}
+
+.connections-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e1f5fe;
+}
+
+.connections-table tr:nth-child(even) {
+    background-color: #f7fdff;
+}
+
+.connections-table tr:hover {
+    background-color: #e1f5fe;
+}
+
+.alert-message {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-warning {
+    background-color: #fff8e1;
+    border-color: #ffe0b2;
+    color: #7d6608;
+}
+
+.alert-info {
+    background-color: #e1f5fe;
+    border-color: #b3e5fc;
+    color: #01579b;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.refresh-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.85em;
+}
+
+.refresh-btn:hover {
+    background: #45a049;
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    color: #757575;
+    font-style: italic;
+}
+
+.traffic-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+.traffic-in {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+
+.traffic-out {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+}
+
+/* 规则状态指示器 */
+.rule-status {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-active {
+    background-color: #4CAF50;
+    animation: pulse 1.5s infinite;
+}
+
+.status-inactive {
+    background-color: #F44336;
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+/* 模式标签 */
+.mode-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+.mode-proxy {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    border: 1px solid #bbdefb;
+}
+
+.mode-direct {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    border: 1px solid #c8e6c9;
+}
+
+.mode-block {
+    background-color: #ffebee;
+    color: #b71c1c;
+    border: 1px solid #ffcdd2;
+}
+
+/* 接口类型标签 */
+.interface-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    margin-left: 8px;
+}
+
+.tag-wireless {
+    background-color: #f3e5f5;
+    color: #6a1b9a;
+    border: 1px solid #ce93d8;
+}
+
+.tag-ethernet {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    border: 1px solid #90caf9;
+}
+
+.tag-bridge {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    border: 1px solid #a5d6a7;
+}
+
+.tag-vlan {
+    background-color: #fff8e1;
+    color: #7d6608;
+    border: 1px solid #ffe082;
+}
+
+.interface-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.interface-up {
+    background-color: #4CAF50;
+}
+
+.interface-down {
+    background-color: #F44336;
+}
+</style>
+
+<script>
+// 自动刷新页面函数
+function autoRefresh() {
+    setTimeout(function() {
+        window.location.reload();
+    }, 10000); // 10秒刷新一次
+}
+
+// 页面加载完成后启动自动刷新
+document.addEventListener("DOMContentLoaded", function() {
+    autoRefresh();
+});
+</script>
+
+<h2><a id="content" name="content">接口代理状态</a></h2>
+
+<div class="cbi-section">
+    <% 
+    local enabled = nixio.fs.access("/etc/ssid-proxy/enabled")
+    local status = enabled and "已启用" or "已禁用"
+    local badge_class = enabled and "status-enabled" or "status-disabled"
+    
+    -- 自定义字节格式化函数
+    local function format_bytes(bytes)
+        bytes = tonumber(bytes) or 0
+        if bytes <= 0 then
+            return "0 B"
+        end
+        
+        local suffixes = {"B", "KB", "MB", "GB", "TB"}
+        local i = 1
+        while bytes >= 1024 and i < #suffixes do
+            bytes = bytes / 1024
+            i = i + 1
+        end
+        
+        return string.format("%.2f %s", bytes, suffixes[i])
+    end
+    
+    -- 获取接口状态
+    local function get_interface_status(iface)
+        local status = luci.sys.exec("ip link show " .. iface .. " 2>/dev/null | grep 'state UP'")
+        return status ~= "" and "up" or "down"
+    end
+    
+    -- 获取接口类型
+    local function get_interface_type(iface)
+        if nixio.fs.access("/sys/class/net/" .. iface .. "/wireless") then
+            return "wireless"
+        elseif nixio.fs.access("/sys/class/net/" .. iface .. "/bridge") then
+            return "bridge"
+        elseif nixio.fs.access("/proc/net/vlan/" .. iface) then
+            return "vlan"
+        else
+            return "ethernet"
+        end
+    end
+    
+    -- 获取接口类型标签
+    local function get_interface_tag(iface)
+        local iface_type = get_interface_type(iface)
+        local class, text
+        
+        if iface_type == "wireless" then
+            class = "tag-wireless"
+            text = "无线"
+        elseif iface_type == "ethernet" then
+            class = "tag-ethernet"
+            text = "有线"
+        elseif iface_type == "bridge" then
+            class = "tag-bridge"
+            text = "网桥"
+        elseif iface_type == "vlan" then
+            class = "tag-vlan"
+            text = "VLAN"
+        else
+            class = ""
+            text = "其他"
+        end
+        
+        return string.format('<span class="interface-tag %s">%s</span>', class, text)
+    end
+    
+    -- 获取接口状态指示器
+    local function get_interface_status_indicator(iface)
+        local status = get_interface_status(iface)
+        local class = status == "up" and "interface-up" or "interface-down"
+        local title = status == "up" and "接口已启用" or "接口已禁用"
+        
+        return string.format(
+            '<span class="interface-status %s" title="%s"></span>',
+            class, title
+        )
+    end
+    %>
+    
+    <div class="section-header">
+        <h3>服务状态: <span class="status-badge <%= badge_class %>"><%= status %></span></h3>
+        <button class="refresh-btn" onclick="window.location.reload()">刷新状态</button>
+    </div>
+    
+    <% if not enabled then %>
+        <div class="alert-message alert-warning">
+            <p><strong>服务已禁用</strong> - 代理功能当前未激活。请在<a href="<%=url('admin/services/ssid-proxy/config')%>">配置页面</a>启用服务。</p>
+        </div>
+    <% end %>
+    
+    <!-- 活跃连接部分 -->
+    <div class="ssid-proxy-status">
+        <div class="section-header">
+            <h3>活跃代理连接</h3>
+            <span>每10秒自动刷新</span>
+        </div>
+        
+        <%
+        local connections = luci.sys.exec("conntrack -L -p tcp 2>/dev/null | grep 'INTERFACE-PROXY' | awk '{print $4,$5,$6,$7,$8,$9}'")
+        %>
+        
+        <% if connections and #connections > 0 then %>
+            <table class="connections-table">
+                <thead>
+                    <tr>
+                        <th>客户端IP</th>
+                        <th>目标地址</th>
+                        <th>状态</th>
+                        <th>接口</th>
+                        <th>流量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <%
+                    for line in connections:gmatch("[^\n]+") do
+                        local parts = {}
+                        for part in line:gmatch("%S+") do
+                            table.insert(parts, part)
+                        end
+                        
+                        if #parts >= 6 then
+                            local src = parts[1]:gmatch("src=(%S+)")()
+                            local dst = parts[2]:gmatch("dst=(%S+)")()
+                            local sport = parts[1]:gmatch("sport=(%S+)")()
+                            local dport = parts[2]:gmatch("dport=(%S+)")()
+                            local state = parts[6]:gmatch("state=(%S+)")() or "UNKNOWN"
+                            local label = parts[#parts]:gmatch("label=INTERFACE-PROXY:([^ ]+)")() or "unknown"
+                            
+                            -- 状态翻译
+                            local state_trans = {
+                                ["ESTABLISHED"] = "已建立",
+                                ["TIME_WAIT"] = "等待关闭",
+                                ["CLOSE_WAIT"] = "等待关闭",
+                                ["SYN_SENT"] = "正在连接",
+                                ["SYN_RECV"] = "正在连接",
+                                ["FIN_WAIT"] = "正在关闭",
+                                ["LAST_ACK"] = "最后确认"
+                            }
+                            
+                            state = state_trans[state] or state
+                            
+                            -- 获取连接持续时间
+                            local duration = "N/A"
+                            for i=3,#parts do
+                                if parts[i]:match("age=") then
+                                    duration = parts[i]:gsub("age=", "") .. "秒"
+                                    break
+                                end
+                            end
+                            
+                            -- 获取流量信息
+                            local bytes_in = "0"
+                            local bytes_out = "0"
+                            for i=3,#parts do
+                                if parts[i]:match("bytes=") then
+                                    local bytes = parts[i]:gsub("bytes=", "")
+                                    bytes_in, bytes_out = bytes:match("(%d+)%D+(%d+)")
+                                    break
+                                end
+                            end
+                            
+                            -- 获取接口类型标签
+                            local iface_tag = get_interface_tag(label)
+                    %>
+                    <tr>
+                        <td><%= src %></td>
+                        <td><%= dst %>:<%= dport %></td>
+                        <td><%= state %></td>
+                        <td>
+                            <%= get_interface_status_indicator(label) %>
+                            <%= label %>
+                            <%= iface_tag %>
+                        </td>
+                        <td>
+                            <span class="traffic-badge traffic-in"><%= format_bytes(bytes_in) %> 入</span>
+                            <span class="traffic-badge traffic-out"><%= format_bytes(bytes_out) %> 出</span>
+                        </td>
+                    </tr>
+                    <% 
+                        end
+                    end 
+                    %>
+                </tbody>
+            </table>
+        <% else %>
+            <div class="no-data">
+                <% if enabled then %>
+                    <p>当前没有活跃的代理连接</p>
+                    <p>当有客户端通过代理连接时，连接信息将显示在这里</p>
+                <% else %>
+                    <p>服务已禁用，无活跃连接</p>
+                <% end %>
+            </div>
+        <% end %>
+    </div>
+    
+    <!-- 配置规则部分 -->
+    <div class="ssid-proxy-status">
+        <div class="section-header">
+            <h3>已配置规则</h3>
+            <a href="<%=url('admin/services/ssid-proxy/config')%>" class="refresh-btn">管理规则</a>
+        </div>
+        <%
+        local uci = require "luci.model.uci".cursor()
+        local rules = {}
+        
+        uci:foreach("ssid-proxy", "rule", function(s)
+            table.insert(rules, {
+                id = s[".name"],
+                interface = s.interface or "未设置",
+                mode = s.mode or "未设置",
+                proxy = s.proxy_server or "未设置",
+                enabled = s.enabled or "1" -- 默认为启用
+            })
+        end)
+        %>
+        
+        <% if #rules > 0 then %>
+            <table class="rules-table">
+                <thead>
+                    <tr>
+                        <th width="5%">状态</th>
+                        <th width="25%">网络接口</th>
+                        <th width="15%">操作模式</th>
+                        <th width="40%">代理服务器</th>
+                        <th width="15%">规则状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for _, rule in ipairs(rules) do 
+                        local iface_tag = get_interface_tag(rule.interface)
+                        local iface_status = get_interface_status(rule.interface)
+                    %>
+                        <tr>
+                            <td>
+                                <span class="rule-status <%= rule.enabled == '1' and 'status-active' or 'status-inactive' %>"
+                                      title="<%= rule.enabled == '1' and '规则已启用' or '规则已禁用' %>"></span>
+                            </td>
+                            <td>
+                                <strong><%= rule.interface %></strong>
+                                <%= iface_tag %>
+                                <div style="font-size:0.8em;color:#666;">
+                                    <%= get_interface_status_indicator(rule.interface) %>
+                                    <%= iface_status == "up" and "已启用" or "已禁用" %>
+                                </div>
+                            </td>
+                            <td>
+                                <% if rule.mode == "proxy" then %>
+                                    <span class="mode-tag mode-proxy">使用代理</span>
+                                <% elseif rule.mode == "direct" then %>
+                                    <span class="mode-tag mode-direct">直连</span>
+                                <% elseif rule.mode == "block" then %>
+                                    <span class="mode-tag mode-block">阻止访问</span>
+                                <% else %>
+                                    <%= rule.mode %>
+                                <% end %>
+                            </td>
+                            <td>
+                                <% if rule.mode == "proxy" then %>
+                                    <code><%= rule.proxy %></code>
+                                <% else %>
+                                    <em>不适用</em>
+                                <% end %>
+                            </td>
+                            <td>
+                                <% if rule.enabled == '1' then %>
+                                    <span style="color: #4CAF50;">已启用</span>
+                                <% else %>
+                                    <span style="color: #F44336;">已禁用</span>
+                                <% end %>
+                            </td>
+                        </tr>
+                    <% end %>
+                </tbody>
+            </table>
+        <% else %>
+            <div class="no-data">
+                <p>尚未配置任何规则</p>
+                <p>请在<a href="<%=url('admin/services/ssid-proxy/config')%>">配置页面</a>添加规则</p>
+            </div>
+        <% end %>
+    </div>
+    
+    <!-- 最近日志部分 -->
+    <div class="ssid-proxy-status">
+        <div class="section-header">
+            <h3>最近日志</h3>
+            <a href="<%=url('admin/services/ssid-proxy/logs')%>" class="refresh-btn">查看完整日志</a>
+        </div>
+        
+        <div class="ssid-proxy-log">
+            <%
+            local logs = luci.sys.exec("tail -n 20 /var/log/ssid-proxy.log 2>/dev/null")
+            if logs and #logs > 0 then
+                -- 为不同日志级别添加颜色
+                logs = logs:gsub("ERROR", "<span style='color: #ff5252;'>ERROR</span>")
+                logs = logs:gsub("WARN", "<span style='color: #ff9800;'>WARN</span>")
+                logs = logs:gsub("INFO", "<span style='color: #4caf50;'>INFO</span>")
+                logs = logs:gsub("DEBUG", "<span style='color: #2196f3;'>DEBUG</span>")
+                %>
+                <%= logs %>
+            <% else %>
+                暂无日志记录
+            <% end %>
+        </div>
+    </div>
+    
+    <!-- 系统状态部分 -->
+    <div class="ssid-proxy-status">
+        <h3>系统状态</h3>
+        <%
+        -- 使用替代方法获取内存信息
+        local mem_total = tonumber(luci.sys.exec("grep 'MemTotal' /proc/meminfo | awk '{print $2}'")) or 0
+        local mem_free = tonumber(luci.sys.exec("grep 'MemFree' /proc/meminfo | awk '{print $2}'")) or 0
+        local mem_available = tonumber(luci.sys.exec("grep 'MemAvailable' /proc/meminfo | awk '{print $2}'")) or mem_free
+        
+        -- 计算已用内存
+        local mem_used = mem_total - mem_available
+        local mem_percent = mem_total > 0 and math.floor((mem_used / mem_total) * 100) or 0
+        
+        -- 获取CPU使用率
+        local cpu_usage = luci.sys.exec("top -bn1 | grep 'CPU:' | sed 's/.*, *\\([0-9.]*\\)%* id.*/\\1/' | awk '{print 100 - $1}'")
+        local uptime = luci.sys.uptime()
+        local days = math.floor(uptime / (24*60*60))
+        local hours = math.floor((uptime % (24*60*60)) / (60*60))
+        local minutes = math.floor((uptime % (60*60)) / 60)
+        %>
+        
+        <table class="rules-table">
+            <tr>
+                <td width="30%"><strong>CPU 使用率</strong></td>
+                <td>
+                    <% if cpu_usage and #cpu_usage > 0 then %>
+                        <%= cpu_usage %>% 
+                        <div style="width: 100%; background: #e0e0e0; border-radius: 3px; margin-top: 5px;">
+                            <div style="width: <%= cpu_usage %>% ; height: 10px; background: #4CAF50; border-radius: 3px;"></div>
+                        </div>
+                    <% else %>
+                        数据不可用
+                    <% end %>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>内存使用</strong></td>
+                <td>
+                    <% if mem_total > 0 then %>
+                        <%= format_bytes(mem_used * 1024) %> / 
+                        <%= format_bytes(mem_total * 1024) %>
+                        (可用: <%= format_bytes(mem_available * 1024) %>)
+                        <div style="width: 100%; background: #e0e0e0; border-radius: 3px; margin-top: 5px;">
+                            <div style="width: <%= mem_percent %>% ; height: 10px; background: #2196F3; border-radius: 3px;"></div>
+                        </div>
+                    <% else %>
+                        数据不可用
+                    <% end %>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>运行时间</strong></td>
+                <td><%= days %>天 <%= hours %>小时 <%= minutes %>分钟</td>
+            </tr>
+            <tr>
+                <td><strong>代理服务状态</strong></td>
+                <td>
+                    <%
+                    local pid = luci.sys.exec("pgrep -f '/usr/sbin/ssid-proxy'")
+                    if pid and #pid > 0 then
+                    %>
+                        <span style="color: #4CAF50;">运行中 (PID: <%= pid:gsub("%s+", "") %>)</span>
+                    <% else %>
+                        <span style="color: #F44336;">未运行</span>
+                    <% end %>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>活动接口</strong></td>
+                <td>
+                    <%
+                    local interfaces = luci.sys.exec("ip -o link show | awk -F': ' '!/lo|^ /{print $2}' | sort | uniq")
+                    for iface in interfaces:gmatch("[^\n]+") do
+                        local status = get_interface_status(iface)
+                        local tag = get_interface_tag(iface)
+                    %>
+                        <div style="margin-bottom: 5px;">
+                            <%= get_interface_status_indicator(iface) %>
+                            <strong><%= iface %></strong>
+                            <%= tag %>
+                            <span style="color: <%= status == 'up' and '#4CAF50' or '#F44336' %>">
+                                (<%= status == 'up' and '已启用' or '已禁用' %>)
+                            </span>
+                        </div>
+                    <% end %>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<%+footer%>

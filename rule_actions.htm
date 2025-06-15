@@ -1,0 +1,183 @@
+<style>
+.rule-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.rule-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background-color: #f5f5f5;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.rule-btn:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-1px);
+}
+
+.rule-btn.delete:hover {
+    background-color: #ffebee;
+    border-color: #ffcdd2;
+    color: #f44336;
+}
+
+.rule-btn.apply:hover {
+    background-color: #e8f5e9;
+    border-color: #c8e6c9;
+    color: #4CAF50;
+}
+
+.rule-btn i {
+    font-size: 14px;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 80px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -40px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+}
+
+.tooltip .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+</style>
+
+<div class="rule-actions">
+    <div class="tooltip">
+        <button class="rule-btn apply" title="应用规则" 
+                onclick="applyRule('<%= section %>')">
+            <i class="icon icon-check"></i>
+        </button>
+        <span class="tooltip-text">应用规则</span>
+    </div>
+    
+    <div class="tooltip">
+        <button class="rule-btn delete" title="删除规则" 
+                onclick="deleteRule('<%= section %>')">
+            <i class="icon icon-trash"></i>
+        </button>
+        <span class="tooltip-text">删除规则</span>
+    </div>
+</div>
+
+<script>
+function applyRule(sid) {
+    // 收集表单数据
+    const formData = new FormData();
+    formData.append('sid', sid);
+    formData.append('interface', document.querySelector(`[name="cbid.ssid-proxy.${sid}.interface"]`).value);
+    formData.append('mode', document.querySelector(`[name="cbid.ssid-proxy.${sid}.mode"]`).value);
+    formData.append('enabled', document.querySelector(`[name="cbid.ssid-proxy.${sid}.enabled"]`).checked ? '1' : '0');
+    
+    const proxyServer = document.querySelector(`[name="cbid.ssid-proxy.${sid}.proxy_server"]`);
+    if (proxyServer) {
+        formData.append('proxy_server', proxyServer.value);
+    }
+    
+    // 发送AJAX请求
+    fetch('<%= luci.dispatcher.build_url("admin/services/ssid-proxy/edit_rule") %>', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('规则已成功更新');
+        } else {
+            showToast('规则更新失败', 'error');
+        }
+    })
+    .catch(error => {
+        showToast('请求失败: ' + error.message, 'error');
+    });
+}
+
+function deleteRule(sid) {
+    if (confirm('确定要删除此规则吗？此操作不可撤销。')) {
+        // 发送AJAX请求
+        fetch('<%= luci.dispatcher.build_url("admin/services/ssid-proxy/delete_rule") %>?sid=' + sid)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('规则已成功删除');
+                // 移除表格行
+                document.querySelector(`tr[data-sid="${sid}"]`).remove();
+            } else {
+                showToast('规则删除失败', 'error');
+            }
+        })
+        .catch(error => {
+            showToast('请求失败: ' + error.message, 'error');
+        });
+    }
+}
+
+function showToast(message, type = 'success') {
+    // 实现一个简单的toast通知
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.padding = '10px 20px';
+    toast.style.background = type === 'success' ? '#4CAF50' : '#F44336';
+    toast.style.color = 'white';
+    toast.style.borderRadius = '4px';
+    toast.style.zIndex = '1000';
+    toast.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.3s';
+    
+    document.body.appendChild(toast);
+    
+    // 显示toast
+    setTimeout(() => {
+        toast.style.opacity = '1';
+    }, 10);
+    
+    // 3秒后隐藏并移除toast
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
+</script>

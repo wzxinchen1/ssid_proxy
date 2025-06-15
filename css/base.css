@@ -1,0 +1,321 @@
+/* SSID代理系统 - 全局基础样式 */
+/* 非响应式设计，固定布局 */
+
+/* 基础重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    display: flex;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    color: #333;
+    background-color: #f5f7fa;
+}
+
+/* 布局容器 */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    min-width: 1200px;
+    overflow: hidden;
+}
+
+/* 顶部导航栏 */
+.app-header {
+    height: 70px;
+    background: linear-gradient(135deg, #1a2a6c, #2a5298);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    position: relative;
+}
+
+.logo {
+    flex: 0 0 250px;
+}
+
+.logo h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.logo p {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 3px;
+}
+
+.main-nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+}
+
+.main-nav li {
+    margin: 0 15px;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.nav-link.active {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+}
+
+.header-actions {
+    flex: 0 0 150px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 主内容区域 */
+.app-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    padding: 20px;
+    background-color: #f0f2f5;
+}
+
+#page-container {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    position: relative;
+    padding: 20px;
+}
+
+/* 全局监控栏 */
+.global-monitor {
+    height: 60px;
+    background: #2c3e50;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.monitor-stats {
+    flex: 1;
+    display: flex;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    margin-right: 30px;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 3px;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #4dabf7;
+}
+
+.monitor-controls {
+    display: flex;
+}
+
+.btn-small {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    padding: 6px 15px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+    transition: background 0.3s;
+}
+
+.btn-small:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.btn-small i {
+    margin-right: 5px;
+}
+
+/* 加载状态 */
+.loading-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 100;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(41, 128, 185, 0.2);
+    border-top: 4px solid #2980b9;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 模态框 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    width: 450px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    padding: 25px;
+}
+
+.modal h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.modal p {
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.btn-secondary {
+    background: #ecf0f1;
+    color: #7f8c8d;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #d5dbdb;
+}
+
+/* 图标字体 */
+@font-face {
+    font-family: 'ssid-icons';
+    src: url('assets/fonts/ssid-icons.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.icon {
+    font-family: 'ssid-icons';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+}
+
+.icon-refresh:before { content: "\e901"; }
+.icon-settings:before { content: "\e902"; }
+.icon-chart:before { content: "\e903"; }
+.icon-power:before { content: "\e904"; }

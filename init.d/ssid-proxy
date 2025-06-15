@@ -1,0 +1,34 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=10
+
+start() {
+    # 检查是否启用
+    if [ ! -f "/etc/ssid-proxy/enabled" ]; then
+        echo "SSID Proxy is disabled. Not starting."
+        return 0
+    fi
+    
+    # 启动服务
+    /usr/sbin/ssid-proxy >/dev/null 2>&1 &
+    echo "SSID Proxy started"
+}
+
+stop() {
+    # 停止服务进程
+    killall ssid-proxy 2>/dev/null
+    
+    # 清除所有规则
+    iptables -t nat -F SSID_PROXY 2>/dev/null
+    iptables -t nat -D PREROUTING -j SSID_PROXY 2>/dev/null
+    iptables -t nat -X SSID_PROXY 2>/dev/null
+    
+    echo "SSID Proxy stopped and all rules cleared"
+}
+
+restart() {
+    stop
+    sleep 1
+    start
+}

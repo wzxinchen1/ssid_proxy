@@ -1,0 +1,152 @@
+#!/bin/sh
+
+# 接口代理配置验证脚本
+# 版本: 2.0
+# 功能: 验证接口代理配置的正确性
+
+CONFIG="/etc/ssid-proxy/config.json"
+IPTABLES="/usr/sbin/iptables"
+IP="/usr/sbin/ip"
+
+# 验证JSON格式
+validate_json() {
+    if ! jq . $CONFIG >/dev/null 2>&1; then
+        echo "错误: JSON配置文件格式无效"
+        return 1
+    fi
+    return 0
+}
+
+# 验证接口存在
+validate_interface() {
+    local interface=$1
+    
+    if [ -z "$interface" ]; then
+        echo "错误: 接口名称不能为空"
+        return 1
+    fi
+    
+    if ! $IP link show dev "$interface" >/dev/null 2>&1; then
+        echo "警告: 接口 '$interface' 不存在，但规则仍将被保存"
+    fi
+    return 0
+}
+
+# 验证代理设置
+validate_proxy() {
+    local proxy=$1
+    
+    if [ -z "$proxy" ]; then
+        echo "错误: 代理模式必须填写代理服务器地址"
+        return 1
+    fi
+    
+    if ! echo "$proxy" | grep -qE '^(socks5|http)://[^:]+:[0-9]+$'; then
+        echo "错误: 代理地址格式无效 - 必须为 socks5://ip:port 或 http://ip:port 格式"
+        return 1
+    fi
+    
+    # 提取代理服务器和端口
+    local proxy_ip=$(echo $proxy | sed 's/.*\/\///; s/:.*//')
+    local proxy_port=$(echo $proxy | sed 's/.*://')
+    
+    # 验证IP地址格式
+    if ! echo "$proxy_ip" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+        echo "错误: 代理服务器IP地址格式无效 - $proxy_ip"
+        return 1
+    fi
+    
+    # 验证端口范围
+    if [ "$proxy_port" -lt 1 ] || [ "$proxy_port" -gt 65535 ]; then
+        echo "错误: 代理端口必须在1-65535范围内 - $proxy_port"
+        return 1
+    fi
+    
+    return 0
+}
+
+# 主验证函数
+validate_config() {
+    # 检查配置文件是否存在
+    if [ ! -f "$CONFIG" ]; then
+        echo "错误: 配置文件不存在 - $CONFIG"
+        return 1
+    fi
+    
+    # 验证JSON格式
+    if ! validate_json; then
+        return 1
+    fi
+    
+    # 检查全局启用状态
+    local enabled=$(jq -r '.enabled' $CONFIG)
+    if [ "$enabled" != "true" ]; then
+        echo "配置验证通过 (服务未启用)"
+        return 0
+    fi
+    
+    # 验证规则
+    local has_errors=0
+    jq -c '.rules[]' $CONFIG 2>/dev/null | while read rule; do
+        local enabled=$(echo "$rule" | jq -r '.enabled')
+        if [ "$enabled" != "true" ]; then
+            continue
+        end
+        
+        local interface=$(echo "$rule" | jq -r '.interface // ""')
+        local mode=$(echo "$rule" | jq -r '.mode')
+        local proxy=$(echo "$rule" | jq -r '.proxy_server // ""')
+        
+        echo "验证规则: 接口=$interface, 模式=$mode"
+        
+        # 验证接口
+        if ! validate_interface "$interface"; then
+            has_errors=1
+        fi
+        
+        # 模式特定验证
+        case $mode in
+            "proxy")
+                if ! validate_proxy "$proxy"; then
+                    has_errors=1
+                fi
+                ;;
+            "direct"|"block")
+                # 这些模式不需要额外验证
+                ;;
+            *)
+                echo "错误: 无效的代理模式 - $mode"
+                has_errors=1
+                ;;
+        esac
+    done
+    
+    # 检查是否有任何规则启用
+    local rule_count=$(jq '.rules | map(select(.enabled == true)) | length' $CONFIG)
+    if [ "$rule_count" -eq 0 ]; then
+        echo "警告: 服务已启用但没有任何规则被激活"
+    fi
+    
+    # 检查iptables是否可用
+    if [ ! -x "$IPTABLES" ]; then
+        echo "警告: iptables 不可用，代理功能将无法正常工作"
+    fi
+    
+    # 检查ip命令是否可用
+    if [ ! -x "$IP" ]; then
+        echo "错误: ip 命令不可用，这是必需的依赖项"
+        has_errors=1
+    fi
+    
+    if [ $has_errors -ne 0 ]; then
+        echo "配置验证失败，请检查以上错误"
+        return 1
+    fi
+    
+    echo "配置验证通过"
+    return 0
+}
+
+# 执行验证
+validate_config
+exit $?

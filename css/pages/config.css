@@ -1,0 +1,381 @@
+/* SSID代理系统 - 规则配置页面样式 */
+/* 非响应式设计，固定布局 */
+
+/* 配置页面容器 */
+.config-page {
+    padding: 20px;
+    min-height: 100%;
+}
+
+/* 页面标题 */
+.page-title {
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+    display: flex;
+    align-items: center;
+}
+
+.page-title i {
+    margin-right: 10px;
+    font-size: 28px;
+    color: #3498db;
+}
+
+/* 配置卡片 */
+.config-card {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.config-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eaeaea;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.config-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.config-actions {
+    display: flex;
+}
+
+.config-body {
+    padding: 20px;
+}
+
+/* 全局设置表单 */
+.global-settings {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.setting-group {
+    margin-bottom: 20px;
+}
+
+.setting-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #34495e;
+}
+
+.setting-control {
+    width: 100%;
+}
+
+/* 规则表格 */
+.rules-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.rules-table th {
+    background-color: #f1f5f9;
+    text-align: left;
+    padding: 12px 15px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.rules-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.rules-table tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.rules-table tr:hover {
+    background-color: #f1f5f9;
+}
+
+/* 规则操作按钮 */
+.rule-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #e2e8f0;
+    background: white;
+}
+
+.action-btn:hover {
+    background: #f1f5f9;
+    transform: translateY(-1px);
+}
+
+.action-btn.edit {
+    color: #3498db;
+}
+
+.action-btn.delete {
+    color: #e74c3c;
+}
+
+.action-btn.apply {
+    color: #2ecc71;
+}
+
+/* 添加规则区域 */
+.add-rule-section {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e0;
+    border-radius: 6px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+.add-rule-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.add-rule-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-left: 10px;
+}
+
+.add-rule-form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.form-group {
+    margin-bottom: 0;
+}
+
+.add-rule-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s;
+    height: 40px;
+}
+
+.add-rule-btn:hover {
+    background: #2980b9;
+}
+
+/* 高级选项区域 */
+.adv-section {
+    margin-top: 20px;
+    background: #f8fafc;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.adv-header {
+    background: #edf2f7;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.adv-title {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-left: 10px;
+}
+
+.adv-icon {
+    transition: transform 0.3s;
+}
+
+.adv-header.active .adv-icon {
+    transform: rotate(90deg);
+}
+
+.adv-content {
+    padding: 15px;
+    display: none;
+}
+
+.adv-header.active + .adv-content {
+    display: block;
+}
+
+/* 表单元素样式 */
+select, input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #2d3748;
+    background: white;
+    transition: border 0.3s;
+}
+
+select:focus, input[type="text"]:focus, input[type="number"]:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-group input {
+    margin-right: 8px;
+}
+
+/* 保存操作栏 */
+.save-actions {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 15px 20px;
+    border-top: 1px solid #eaeaea;
+    display: flex;
+    justify-content: flex-end;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    margin-top: 30px;
+}
+
+.btn-save {
+    background: #2ecc71;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+}
+
+.btn-save i {
+    margin-right: 8px;
+}
+
+.btn-save:hover {
+    background: #27ae60;
+}
+
+.btn-reset {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-right: 15px;
+}
+
+.btn-reset:hover {
+    background: #7f8c8d;
+}
+
+/* 状态指示器 */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-active {
+    background-color: #2ecc71;
+}
+
+.status-inactive {
+    background-color: #e74c3c;
+}
+
+/* 模式标签 */
+.mode-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.mode-proxy {
+    background-color: #d6eaf8;
+    color: #2874a6;
+}
+
+.mode-direct {
+    background-color: #d5f5e3;
+    color: #1d8348;
+}
+
+.mode-block {
+    background-color: #fadbd8;
+    color: #922b21;
+}
+
+/* 接口标签 */
+.interface-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+.tag-wireless {
+    background-color: #f3e5f5;
+    color: #6a1b9a;
+}
+
+.tag-ethernet {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+
+.tag-bridge {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+}
+
+.tag-vlan {
+    background-color: #fff8e1;
+    color: #7d6608;
+}

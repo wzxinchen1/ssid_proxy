@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSID代理系统 - 接口代理管理</title>
+
+    <!-- 全局基础样式 -->
+    <link rel="stylesheet" href="/luci-static/resources/ssid-proxy/css/base.css">
+
+    <!-- 全局组件样式 -->
+    <link rel="stylesheet" href="/luci-static/resources/ssid-proxy/css/style.css">
+
+    <!-- jQuery库 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- 全局工具函数 -->
+    <script src="/luci-static/resources/ssid-proxy/js/utils.js"></script>
+
+    <!-- 路由系统 -->
+    <script src="/luci-static/resources/ssid-proxy/js/router.js"></script>
+
+    <!-- 全局状态管理 -->
+    <script src="/luci-static/resources/ssid-proxy/js/global.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="app-header">
+        <div class="logo">
+            <h1>SSID代理系统</h1>
+            <p>基于网络接口的代理管理</p>
+        </div>
+
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#status" class="nav-link active">状态监控</a></li>
+                <li><a href="#config" class="nav-link">规则配置</a></li>
+                <li><a href="#logs" class="nav-link">日志查看</a></li>
+                <li><a href="#monitor" class="nav-link">高级监控</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-actions">
+            <button id="refresh-btn" class="btn-icon" title="刷新数据">
+                <i class="icon-refresh"></i>
+            </button>
+            <button id="settings-btn" class="btn-icon" title="系统设置">
+                <i class="icon-settings"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="app-content">
+        <div id="page-container">
+            <!-- 页面内容将通过路由动态加载 -->
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>正在加载页面内容...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 全局监控栏 -->
+    <footer class="global-monitor">
+        <div class="monitor-stats">
+            <div class="stat-item">
+                <span class="stat-label">CPU使用率</span>
+                <span class="stat-value" id="cpu-usage">0%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">内存使用</span>
+                <span class="stat-value" id="memory-usage">0%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">活跃连接</span>
+                <span class="stat-value" id="active-connections">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">今日流量</span>
+                <span class="stat-value" id="daily-traffic">0 MB</span>
+            </div>
+        </div>
+
+        <div class="monitor-controls">
+            <button id="monitor-toggle" class="btn-small">
+                <i class="icon-chart"></i> 监控面板
+            </button>
+            <button id="service-toggle" class="btn-small">
+                <i class="icon-power"></i> 服务状态
+            </button>
+        </div>
+    </footer>
+
+    <!-- 页面加载失败提示 -->
+    <div id="error-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>页面加载失败</h2>
+            <p id="error-message">无法加载请求的页面内容</p>
+            <div class="modal-actions">
+                <button id="retry-btn" class="btn-primary">重新加载</button>
+                <button id="close-error-btn" class="btn-secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面专属资源将按需动态加载 -->
+
+    <!-- 初始化应用 -->
+    <script>
+        // 初始化路由系统
+        $(document).ready(function () {
+            // 初始化路由
+            initRouter();
+
+            // 加载初始页面
+            loadPageFromHash();
+
+            // 设置全局监控更新
+            initGlobalMonitor();
+
+            // 绑定事件处理程序
+            bindEventHandlers();
+        });
+
+        function bindEventHandlers() {
+            // 导航链接点击事件
+            $('.nav-link').on('click', function (e) {
+                e.preventDefault();
+                const page = $(this).attr('href').substring(1);
+                navigateTo(page);
+            });
+
+            // 刷新按钮
+            $('#refresh-btn').on('click', function () {
+                refreshCurrentPage();
+            });
+
+            // 错误重试按钮
+            $('#retry-btn').on('click', function () {
+                refreshCurrentPage();
+                $('#error-modal').hide();
+            });
+
+            // 关闭错误弹窗
+            $('#close-error-btn').on('click', function () {
+                $('#error-modal').hide();
+            });
+
+            // 服务开关
+            $('#service-toggle').on('click', function () {
+                toggleServiceStatus();
+            });
+        }
+    </script>
+</body>
+
+</html>

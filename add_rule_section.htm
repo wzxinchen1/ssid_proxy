@@ -1,0 +1,19 @@
+<div class="cbi-section" style="margin-top: 20px;">
+    <h3><%:添加新规则%></h3>
+    <div class="cbi-value">
+        <label class="cbi-value-title"><%:网络接口%></label>
+        <div class="cbi-value-field">
+            <input type="text" id="new_interface_input" 
+                   name="cbid.<%=self.map.config%>.new_interface" 
+                   class="cbi-input-text" 
+                   placeholder="<%:例如: br-lan%>" />
+            <input type="hidden" name="cbi.rts.<%=self.map.config%>.add" value="1" />
+            <input type="hidden" name="cbi.rts.<%=self.map.config%>.add" value="1" />
+            <button class="cbi-button cbi-button-add" 
+        style="padding: 4px 15px;line-height: 20px;white-space: nowrap;" >
+                <%:添加%>
+            </button>
+        </div>
+    </div>
+</div>
+

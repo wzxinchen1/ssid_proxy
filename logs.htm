@@ -1,0 +1,560 @@
+<%+header%>
+<style>
+.log-viewer {
+    background: #2d2d2d;
+    color: #f0f0f0;
+    padding: 1em;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    max-height: 65vh;
+    overflow-y: auto;
+    line-height: 1.5;
+    font-size: 0.95em;
+}
+
+.log-controls {
+    margin: 1em 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.log-controls .control-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+.log-controls label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.log-controls input[type="number"],
+.log-controls select,
+.log-controls input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.95em;
+}
+
+.log-controls .btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.log-controls .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.btn-apply {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-apply:hover {
+    background: #45a049;
+}
+
+.btn-clear {
+    background: #f44336;
+    color: white;
+}
+
+.btn-clear:hover {
+    background: #d32f2f;
+}
+
+.btn-export {
+    background: #2196F3;
+    color: white;
+}
+
+.btn-export:hover {
+    background: #0b7dda;
+}
+
+.btn-refresh {
+    background: #FF9800;
+    color: white;
+}
+
+.btn-refresh:hover {
+    background: #e68a00;
+}
+
+.log-info {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-size: 0.9em;
+}
+
+.log-warning {
+    background: #fff8e1;
+    color: #7d6608;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-size: 0.9em;
+}
+
+.log-highlight {
+    background-color: #ffff00;
+    color: #000;
+    padding: 0 2px;
+}
+
+.log-error {
+    color: #ff5252;
+}
+
+.log-warn {
+    color: #ff9800;
+}
+
+.log-info {
+    color: #4caf50;
+}
+
+.log-debug {
+    color: #2196f3;
+}
+
+.log-ip {
+    color: #ff79c6;
+}
+
+.log-domain {
+    color: #8be9fd;
+}
+
+.log-port {
+    color: #f1fa8c;
+}
+
+.log-protocol {
+    color: #50fa7b;
+}
+
+.log-interface {
+    color: #bd93f9;
+    font-weight: bold;
+}
+
+.log-stats {
+    display: flex;
+    justify-content: space-between;
+    background: #37474f;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+.stats-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stats-value {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.stats-label {
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+.filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.filter-tag {
+    background: #e3f2fd;
+    color: #0d47a1;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+}
+
+.filter-tag .remove {
+    margin-left: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.no-logs {
+    text-align: center;
+    padding: 40px 20px;
+    color: #b0bec5;
+    font-style: italic;
+}
+
+.interface-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    margin: 0 3px;
+}
+
+.tag-wireless {
+    background-color: #f3e5f5;
+    color: #6a1b9a;
+    border: 1px solid #ce93d8;
+}
+
+.tag-ethernet {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    border: 1px solid #90caf9;
+}
+
+.tag-bridge {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    border: 1px solid #a5d6a7;
+}
+
+.tag-vlan {
+    background-color: #fff8e1;
+    color: #7d6608;
+    border: 1px solid #ffe082;
+}
+</style>
+
+<script>
+// 高亮日志中的关键元素
+function highlightLogs() {
+    const logViewer = document.querySelector('.log-viewer');
+    if (!logViewer) return;
+    
+    // 保存原始HTML以便在清除高亮时恢复
+    if (!logViewer.dataset.originalHtml) {
+        logViewer.dataset.originalHtml = logViewer.innerHTML;
+    }
+    
+    // 获取高亮关键词
+    const searchTerm = document.getElementById('search').value.trim();
+    
+    // 恢复原始内容
+    logViewer.innerHTML = logViewer.dataset.originalHtml;
+    
+    // 如果没有搜索词，则返回
+    if (!searchTerm) return;
+    
+    // 创建正则表达式进行不区分大小写的全局搜索
+    const regex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    
+    // 高亮匹配的文本
+    logViewer.innerHTML = logViewer.innerHTML.replace(
+        regex, 
+        match => `<span class="log-highlight">${match}</span>`
+    );
+}
+
+// 应用过滤
+function applyFilters() {
+    const form = document.getElementById('log-filter-form');
+    form.submit();
+}
+
+// 清除日志
+function clearLogs() {
+    if (confirm('确定要清除所有日志吗？此操作不可撤销。')) {
+        document.getElementById('action').value = 'clear';
+        document.getElementById('log-filter-form').submit();
+    }
+}
+
+// 导出日志
+function exportLogs() {
+    alert('日志导出功能将在后台处理，完成后会自动下载。');
+    document.getElementById('action').value = 'export';
+    document.getElementById('log-filter-form').submit();
+}
+
+// 初始化页面
+document.addEventListener('DOMContentLoaded', function() {
+    // 绑定事件
+    document.getElementById('apply-btn').addEventListener('click', applyFilters);
+    document.getElementById('clear-btn').addEventListener('click', clearLogs);
+    document.getElementById('export-btn').addEventListener('click', exportLogs);
+    document.getElementById('refresh-btn').addEventListener('click', function() {
+        document.getElementById('log-filter-form').submit();
+    });
+    document.getElementById('search').addEventListener('keyup', highlightLogs);
+    
+    // 初始高亮
+    highlightLogs();
+    
+    // 显示活动过滤器
+    updateActiveFilters();
+});
+
+// 更新活动过滤器显示
+function updateActiveFilters() {
+    const filterTags = document.getElementById('filter-tags');
+    if (!filterTags) return;
+    
+    filterTags.innerHTML = '';
+    
+    // 获取当前过滤条件
+    const level = document.getElementById('level').value;
+    const search = document.getElementById('search').value;
+    const lines = document.getElementById('lines').value;
+    
+    // 添加级别过滤器标签
+    if (level && level !== 'all') {
+        const tag = document.createElement('div');
+        tag.className = 'filter-tag';
+        tag.innerHTML = `日志级别: ${level.toUpperCase()} <span class="remove" onclick="removeFilter('level')">×</span>`;
+        filterTags.appendChild(tag);
+    }
+    
+    // 添加搜索词标签
+    if (search) {
+        const tag = document.createElement('div');
+        tag.className = 'filter-tag';
+        tag.innerHTML = `搜索: ${search} <span class="remove" onclick="removeFilter('search')">×</span>`;
+        filterTags.appendChild(tag);
+    }
+    
+    // 添加行数标签
+    if (lines && lines !== '100') {
+        const tag = document.createElement('div');
+        tag.className = 'filter-tag';
+        tag.innerHTML = `显示行数: ${lines} <span class="remove" onclick="removeFilter('lines')">×</span>`;
+        filterTags.appendChild(tag);
+    }
+}
+
+// 移除过滤器
+function removeFilter(type) {
+    if (type === 'level') {
+        document.getElementById('level').value = 'all';
+    } else if (type === 'search') {
+        document.getElementById('search').value = '';
+    } else if (type === 'lines') {
+        document.getElementById('lines').value = '100';
+    }
+    applyFilters();
+}
+
+// 获取接口类型标签
+function getInterfaceTag(iface) {
+    if (!iface) return '';
+    
+    // 简化的接口类型检测
+    let type = 'ethernet';
+    if (iface.match(/^wlan/)) type = 'wireless';
+    if (iface.match(/^br-/)) type = 'bridge';
+    if (iface.match(/\.\d+$/)) type = 'vlan';
+    
+    const classes = {
+        wireless: 'tag-wireless',
+        ethernet: 'tag-ethernet',
+        bridge: 'tag-bridge',
+        vlan: 'tag-vlan'
+    };
+    
+    const texts = {
+        wireless: '无线',
+        ethernet: '有线',
+        bridge: '网桥',
+        vlan: 'VLAN'
+    };
+    
+    return `<span class="interface-tag ${classes[type]}">${texts[type]}</span>`;
+}
+</script>
+
+<h2><a id="content" name="content">接口代理日志</a></h2>
+
+<div class="cbi-section">
+    <form id="log-filter-form" method="get" action="<%=url('admin/services/ssid-proxy/logs')%>">
+        <input type="hidden" name="action" id="action" value="view">
+        
+        <div class="log-controls">
+            <div class="control-group">
+                <label for="level">日志级别</label>
+                <select id="level" name="level">
+                    <option value="all" <%= luci.http.formvalue("level") == "all" and "selected" or "" %>>全部级别</option>
+                    <option value="error" <%= luci.http.formvalue("level") == "error" and "selected" or "" %>>错误</option>
+                    <option value="warning" <%= luci.http.formvalue("level") == "warning" and "selected" or "" %>>警告</option>
+                    <option value="info" <%= luci.http.formvalue("level") == "info" and "selected" or "" %>>信息</option>
+                    <option value="debug" <%= luci.http.formvalue("level") == "debug" and "selected" or "" %>>调试</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="search">搜索关键词</label>
+                <input type="text" id="search" name="search" 
+                       placeholder="IP、接口、域名或关键词" 
+                       value="<%= luci.http.formvalue("search") or "" %>">
+            </div>
+            
+            <div class="control-group">
+                <label for="lines">显示行数</label>
+                <input type="number" id="lines" name="lines" min="10" max="5000" 
+                       value="<%= luci.http.formvalue("lines") or 100 %>">
+            </div>
+            
+            <div class="btn-group">
+                <button type="button" id="apply-btn" class="btn btn-apply">应用过滤</button>
+                <button type="button" id="refresh-btn" class="btn btn-refresh">刷新</button>
+                <button type="button" id="clear-btn" class="btn btn-clear">清除日志</button>
+                <button type="button" id="export-btn" class="btn btn-export">导出日志</button>
+            </div>
+        </div>
+    </form>
+    
+    <!-- 活动过滤器标签 -->
+    <div id="filter-tags" class="filter-tags"></div>
+    
+    <%
+    local action = luci.http.formvalue("action")
+    local level = luci.http.formvalue("level") or "all"
+    local search = luci.http.formvalue("search") or ""
+    local lines = tonumber(luci.http.formvalue("lines") or 100)
+    
+    -- 处理清除日志操作
+    if action == "clear" then
+        os.execute("echo '' > /var/log/ssid-proxy.log")
+        luci.http.redirect(luci.dispatcher.build_url("admin/services/ssid-proxy/logs"))
+    end
+    
+    -- 处理导出日志操作
+    if action == "export" then
+        local filename = "interface-proxy-logs-" .. os.date("%Y%m%d-%H%M%S") .. ".log"
+        luci.http.header('Content-Disposition', 'attachment; filename="' .. filename .. '"')
+        luci.http.prepare_content("text/plain")
+        luci.http.write(luci.sys.exec("cat /var/log/ssid-proxy.log"))
+        return
+    end
+    
+    -- 构建日志查看命令
+    local cmd = "tail -n " .. lines .. " /var/log/ssid-proxy.log 2>/dev/null"
+    
+    -- 添加级别过滤
+    if level ~= "all" then
+        cmd = cmd .. " | grep -i '" .. level .. "'"
+    end
+    
+    -- 添加关键词搜索
+    if search ~= "" then
+        cmd = cmd .. " | grep -i '" .. search .. "'"
+    end
+    
+    -- 获取日志
+    local logs = luci.sys.exec(cmd)
+    
+    -- 日志统计
+    local total_lines = tonumber(luci.sys.exec("wc -l < /var/log/ssid-proxy.log")) or 0
+    local error_count = luci.sys.exec("grep -c -i 'ERROR' /var/log/ssid-proxy.log") or 0
+    local warning_count = luci.sys.exec("grep -c -i 'WARN' /var/log/ssid-proxy.log") or 0
+    local log_size = luci.sys.exec("du -h /var/log/ssid-proxy.log | awk '{print $1}'") or "0"
+    %>
+    
+    <div class="log-info">
+        <strong>日志文件信息：</strong> 
+        总行数: <%= total_lines %> | 
+        错误数: <%= error_count %> | 
+        警告数: <%= warning_count %> | 
+        文件大小: <%= log_size %>
+    </div>
+    
+    <% if logs and #logs > 0 then %>
+        <%
+        -- 添加HTML类用于样式化
+        logs = logs:gsub("ERROR", "<span class='log-error'>ERROR</span>")
+        logs = logs:gsub("WARN", "<span class='log-warn'>WARN</span>")
+        logs = logs:gsub("INFO", "<span class='log-info'>INFO</span>")
+        logs = logs:gsub("DEBUG", "<span class='log-debug'>DEBUG</span>")
+        
+        -- 高亮IP地址
+        logs = logs:gsub("(%d+%.%d+%.%d+%.%d+)", "<span class='log-ip'>%1</span>")
+        
+        -- 高亮域名
+        logs = logs:gsub("([%w%-]+%.[%w%.%-]+)", "<span class='log-domain'>%1</span>")
+        
+        -- 高亮端口
+        logs = logs:gsub("(%d{2,5})", "<span class='log-port'>%1</span>")
+        
+        -- 高亮协议
+        logs = logs:gsub("(TCP|UDP|HTTP|HTTPS|SOCKS)", "<span class='log-protocol'>%1</span>")
+        
+        -- 高亮接口名称并添加标签
+        logs = logs:gsub("(接口: )([%w%-%.]+)", function(prefix, iface)
+            return prefix .. "<span class='log-interface'>" .. iface .. "</span>" .. getInterfaceTag(iface)
+        end)
+        
+        -- 高亮接口名称（独立出现）
+        logs = logs:gsub("([%w%-%.]+)(?=</span>)", function(iface)
+            return "<span class='log-interface'>" .. iface .. "</span>" .. getInterfaceTag(iface)
+        end)
+        %>
+        
+        <div class="log-viewer">
+            <%= logs %>
+        </div>
+        
+        <div class="log-stats">
+            <div class="stats-item">
+                <div class="stats-value"><%= logs:match("\n") and #logs:gsub("[^\n]", "") + 1 or 1 %></div>
+                <div class="stats-label">显示行数</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-value"><%= level == "all" and "全部" or level:upper() %></div>
+                <div class="stats-label">日志级别</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-value"><%= search == "" and "无" or search %></div>
+                <div class="stats-label">搜索关键词</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-value"><%= os.date("%Y-%m-%d %H:%M:%S") %></div>
+                <div class="stats-label">最后更新时间</div>
+            </div>
+        </div>
+    <% else %>
+        <div class="no-logs">
+            <p>没有找到匹配的日志记录</p>
+            <p>请尝试调整过滤条件或检查日志文件是否存在</p>
+            <p>日志文件路径: <code>/var/log/ssid-proxy.log</code></p>
+        </div>
+    <% end %>
+    
+    <div class="log-warning">
+        <strong>注意：</strong> 
+        日志文件最多保留最近 7 天的记录，系统会自动清理旧日志。<br>
+        日志文件路径: <code>/var/log/ssid-proxy.log</code> | 
+        当前大小: <code><%= log_size %></code>
+    </div>
+</div>
+
+<%+footer%>

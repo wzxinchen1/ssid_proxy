@@ -1,0 +1,40 @@
+<%
+local data = self:cfgvalue(section) or {}
+%>
+
+<style>
+.adv-container {
+    display: none;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.adv-container h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.no-adv-options {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-style: italic;
+}
+</style>
+
+<div class="adv-container" data-section="<%= section %>" 
+     style="<%= next(data) and 'display:block' or 'display:none' %>">
+    <h4><i class="icon icon-cog"></i> 高级选项设置</h4>
+    
+    <div class="no-adv-options">
+        当前没有可用的高级选项
+    </div>
+</div>

@@ -1,0 +1,33 @@
+<%+header%>
+
+<div class="cbi-value">
+    <label class="cbi-value-title"><%= title %></label>
+    <div class="cbi-value-field">
+        1
+        <input type="text" id="cbid.<%= self.config %>.new_interface" 
+               name="cbid.<%= self.config %>.new_interface" 
+               class="cbi-input-text" 
+               placeholder="<%= translate('输入接口名称') %>" />
+        
+        <button class="cbi-button cbi-button-add" 
+                name="cbi.rts.<%= self.config %>.add" 
+                value="1" 
+                onclick="return validateNewInterface()">
+            <%= translate("添加") %>
+        </button>
+    </div>
+</div>
+
+<script>
+function validateNewInterface() {
+    var input = document.getElementById("cbid.<%= self.config %>.new_interface");
+    if (!input.value.trim()) {
+        alert("<%= translate('接口名称不能为空！') %>");
+        input.focus();
+        return false;
+    }
+    return true;
+}
+</script>
+
+<%+footer%>

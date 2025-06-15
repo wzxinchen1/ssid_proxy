@@ -1,0 +1,218 @@
+<div class="status-page">
+    <!-- 页面标题 -->
+    <div class="page-title">
+        <i class="icon icon-chart"></i>
+        <span>系统状态监控</span>
+        <div class="page-actions">
+            <button class="btn-small" id="refresh-status">
+                <i class="icon icon-refresh"></i> 刷新
+            </button>
+        </div>
+    </div>
+
+    <!-- 服务状态卡片 -->
+    <div class="status-card">
+        <div class="status-header">
+            <div class="status-title">服务状态</div>
+            <div class="status-indicator" id="service-indicator">
+                <div class="indicator-dot"></div>
+                <span>加载中...</span>
+            </div>
+        </div>
+        <div class="status-body">
+            <div class="service-info">
+                <div class="info-item">
+                    <div class="info-label">运行状态</div>
+                    <div class="info-value" id="service-status">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">运行时间</div>
+                    <div class="info-value" id="service-uptime">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">版本信息</div>
+                    <div class="info-value" id="service-version">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">最后更新</div>
+                    <div class="info-value" id="last-update">-</div>
+                </div>
+            </div>
+            <div class="service-actions">
+                <button class="btn" id="service-toggle">
+                    <i class="icon icon-power"></i> 启动服务
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系统资源卡片 -->
+    <div class="status-card">
+        <div class="status-header">
+            <div class="status-title">系统资源</div>
+        </div>
+        <div class="status-body">
+            <div class="resource-grid">
+                <!-- CPU使用率 -->
+                <div class="resource-item">
+                    <div class="resource-header">
+                        <i class="icon icon-cpu"></i>
+                        <span>CPU使用率</span>
+                    </div>
+                    <div class="resource-value" id="cpu-usage">0%</div>
+                    <div class="resource-gauge">
+                        <div class="gauge-bar" id="cpu-gauge"></div>
+                    </div>
+                    <div class="resource-footer">
+                        <span>负载: <span id="cpu-load">-</span></span>
+                    </div>
+                </div>
+
+                <!-- 内存使用 -->
+                <div class="resource-item">
+                    <div class="resource-header">
+                        <i class="icon icon-memory"></i>
+                        <span>内存使用</span>
+                    </div>
+                    <div class="resource-value" id="memory-usage">0%</div>
+                    <div class="resource-gauge">
+                        <div class="gauge-bar" id="memory-gauge"></div>
+                    </div>
+                    <div class="resource-footer">
+                        <span>已用: <span id="memory-used">-</span> / 总计: <span id="memory-total">-</span></span>
+                    </div>
+                </div>
+
+                <!-- 活跃连接 -->
+                <div class="resource-item">
+                    <div class="resource-header">
+                        <i class="icon icon-connection"></i>
+                        <span>活跃连接</span>
+                    </div>
+                    <div class="resource-value" id="active-connections">0</div>
+                    <div class="resource-chart">
+                        <div class="mini-chart" id="connections-chart"></div>
+                    </div>
+                    <div class="resource-footer">
+                        <span>TCP: <span id="tcp-connections">0</span> | UDP: <span id="udp-connections">0</span></span>
+                    </div>
+                </div>
+
+                <!-- 流量统计 -->
+                <div class="resource-item">
+                    <div class="resource-header">
+                        <i class="icon icon-traffic"></i>
+                        <span>今日流量</span>
+                    </div>
+                    <div class="resource-value" id="daily-traffic">0 MB</div>
+                    <div class="resource-footer">
+                        <span>上行: <span id="traffic-up">-</span> | 下行: <span id="traffic-down">-</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 接口状态卡片 -->
+    <div class="status-card">
+        <div class="status-header">
+            <div class="status-title">接口状态</div>
+            <div class="status-actions">
+                <button class="btn-icon" id="collapse-interfaces">
+                    <i class="icon icon-arrow-up"></i>
+                </button>
+            </div>
+        </div>
+        <div class="status-body">
+            <table class="interfaces-table">
+                <thead>
+                    <tr>
+                        <th width="20%">接口名称</th>
+                        <th width="15%">状态</th>
+                        <th width="20%">IP地址</th>
+                        <th width="15%">类型</th>
+                        <th width="15%">客户端数</th>
+                        <th width="15%">今日流量</th>
+                    </tr>
+                </thead>
+                <tbody id="interfaces-list">
+                    <tr>
+                        <td colspan="6" class="loading-row">
+                            <div class="loading-spinner small"></div>
+                            正在加载接口数据...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 活跃连接卡片 -->
+    <div class="status-card">
+        <div class="status-header">
+            <div class="status-title">活跃连接</div>
+            <div class="status-actions">
+                <div class="filter-group">
+                    <input type="text" id="connection-filter" placeholder="过滤连接...">
+                    <button class="btn-icon">
+                        <i class="icon icon-filter"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="status-body">
+            <table class="connections-table">
+                <thead>
+                    <tr>
+                        <th width="15%">源IP</th>
+                        <th width="15%">目标IP</th>
+                        <th width="10%">目标端口</th>
+                        <th width="10%">协议</th>
+                        <th width="15%">接口</th>
+                        <th width="15%">持续时间</th>
+                        <th width="10%">入站流量</th>
+                        <th width="10%">出站流量</th>
+                    </tr>
+                </thead>
+                <tbody id="connections-list">
+                    <tr>
+                        <td colspan="8" class="loading-row">
+                            <div class="loading-spinner small"></div>
+                            正在加载连接数据...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="table-footer">
+                <div class="pagination">
+                    <button class="btn-icon disabled">
+                        <i class="icon icon-arrow-left"></i>
+                    </button>
+                    <span>第 <span id="current-page">1</span> 页，共 <span id="total-pages">1</span> 页</span>
+                    <button class="btn-icon">
+                        <i class="icon icon-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="table-stats">
+                    显示 <span id="shown-connections">0</span> / 总计 <span id="total-connections">0</span> 个连接
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 流量统计图表 -->
+    <div class="status-card">
+        <div class="status-header">
+            <div class="status-title">流量统计</div>
+            <div class="status-actions">
+                <select id="traffic-period">
+                    <option value="hour">最近1小时</option>
+                    <option value="day" selected>最近24小时</option>
+                    <option value="week">最近7天</option>
+                    <option value="month">最近30天</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
