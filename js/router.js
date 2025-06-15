@@ -140,7 +140,7 @@ async function loadPage(page) {
  */
 function renderPage(page, htmlContent) {
     // 使用模板引擎渲染页面
-    const engine = new TemplateEngine(htmlContent);
+    const engine = new Template(htmlContent);
     const rendered = engine.render({ page });
 
     // 添加到DOM

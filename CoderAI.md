@@ -943,10 +943,10 @@ showToast('保存失败，请重试', 'error');
 
 ## API 文档
 
-### 1. `TemplateEngine` 类
+### 1. `Template 类
 #### 构造函数
 ```javascript
-const engine = new TemplateEngine(templateString);
+const engine = new Template(templateString);
 ```
 
 **参数：**
@@ -1077,9 +1077,9 @@ const data = {
   items: ["Item 1", "Item 2", "Item 3"]
 };
 
-const engine = new TemplateEngine();
-const compiled = engine.compile(template);
-const rendered = engine.render(compiled, data);
+const engine = new Template(template);
+const compiled = engine.compile();
+const rendered = engine.render(data);
 
 document.body.appendChild(rendered);
 
