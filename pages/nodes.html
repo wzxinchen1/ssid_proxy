@@ -3,6 +3,18 @@
         <h3>服务器节点管理</h3>
     </div>
     <div class="card-body">
+        <div class="form-group">
+            <form id="add-node-form" class="form-inline">
+                <input type="text" id="node-name" class="form-control" placeholder="节点名称" required>
+                <input type="text" id="node-address" class="form-control" placeholder="服务器地址" required>
+                <input type="number" id="node-port" class="form-control" placeholder="端口号" required>
+                <select id="node-protocol" class="form-control">
+                    <option value="socks5">SOCKS5</option>
+                    <option value="http">HTTP</option>
+                </select>
+                <button type="submit" class="btn btn-primary">添加</button>
+            </form>
+        </div>
         <div class="table-responsive">
             <table class="table table-striped table-hover">
                 <thead class="table-header">
@@ -19,39 +31,6 @@
                     <!-- 动态加载节点数据 -->
                 </tbody>
             </table>
-        </div>
-        <div class="form-group">
-            <button id="add-node-btn" class="btn btn-primary">添加节点</button>
-        </div>
-    </div>
-</div>
-
-<!-- 添加/编辑节点模态框 -->
-<div id="node-modal" class="modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-    <div class="modal-content">
-        <h3 id="modal-title">添加节点</h3>
-        <div class="form-group">
-            <label class="form-label">名称</label>
-            <input type="text" id="node-name" class="form-control" placeholder="节点名称">
-        </div>
-        <div class="form-group">
-            <label class="form-label">地址</label>
-            <input type="text" id="node-address" class="form-control" placeholder="服务器地址">
-        </div>
-        <div class="form-group">
-            <label class="form-label">端口</label>
-            <input type="number" id="node-port" class="form-control" placeholder="端口号">
-        </div>
-        <div class="form-group">
-            <label class="form-label">协议</label>
-            <select id="node-protocol" class="form-control">
-                <option value="socks5">SOCKS5</option>
-                <option value="http">HTTP</option>
-            </select>
-        </div>
-        <div class="modal-actions">
-            <button id="cancel-node-btn" class="btn btn-secondary">取消</button>
-            <button id="save-node-btn" class="btn btn-primary">保存</button>
         </div>
     </div>
 </div>

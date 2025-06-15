@@ -2,10 +2,11 @@ async function initNodesPage() {
     // 加载节点数据
     await loadNodesData();
 
-    // 绑定事件
-    document.getElementById('add-node-btn').addEventListener('click', showAddNodeModal);
-    document.getElementById('save-node-btn').addEventListener('click', saveNode);
-    document.getElementById('cancel-node-btn').addEventListener('click', hideNodeModal);
+    // 绑定表单提交事件
+    document.getElementById('add-node-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await saveNode();
+    });
 }
 
 async function loadNodesData() {
@@ -40,15 +41,6 @@ function renderNodesTable(nodes) {
     });
 }
 
-function showAddNodeModal() {
-    document.getElementById('modal-title').textContent = '添加节点';
-    document.getElementById('node-name').value = '';
-    document.getElementById('node-address').value = '';
-    document.getElementById('node-port').value = '';
-    document.getElementById('node-protocol').value = 'socks5';
-    document.getElementById('node-modal').style.display = 'block';
-}
-
 function editNode(nodeId) {
     // 实现编辑节点逻辑
     console.log('编辑节点:', nodeId);
@@ -79,7 +71,7 @@ async function saveNode() {
         });
 
         if (response.success) {
-            hideNodeModal();
+            document.getElementById('add-node-form').reset();
             await loadNodesData();
             showToast('节点保存成功');
         } else {
@@ -88,8 +80,4 @@ async function saveNode() {
     } catch (error) {
         showError(error.message);
     }
-}
-
-function hideNodeModal() {
-    document.getElementById('node-modal').style.display = 'none';
 }
