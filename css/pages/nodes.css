@@ -30,3 +30,19 @@
     white-space: nowrap;
     margin-right: 5px;
 }
+
+/* 编辑弹窗居中 */
+#edit-node-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+/* 弹窗按钮间距 */
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
