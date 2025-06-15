@@ -1,6 +1,6 @@
 <div class="config-page">
     <div class="page-title">
-        <i class="icon icon-settings"></i>
+        <span class="title-icon"></span>
         <span>接口代理规则配置</span>
     </div>
     
@@ -24,7 +24,7 @@
                 <div class="setting-group">
                     <label class="setting-label">日志级别</label>
                     <div class="setting-control">
-                        <select id="log-level">
+                        <select id="log-level" class="form-control">
                             <option value="error">错误</option>
                             <option value="warning">警告</option>
                             <option value="info">信息</option>
@@ -36,7 +36,7 @@
                 <div class="setting-group">
                     <label class="setting-label">日志保留时间</label>
                     <div class="setting-control">
-                        <select id="log-retention">
+                        <select id="log-retention" class="form-control">
                             <option value="3">3天</option>
                             <option value="7">7天 (推荐)</option>
                             <option value="14">14天</option>
@@ -63,8 +63,8 @@
         <div class="config-header">
             <div class="config-title">代理规则</div>
             <div class="config-actions">
-                <button class="btn-small" id="refresh-rules">
-                    <i class="icon icon-refresh"></i> 刷新
+                <button class="btn btn-small" id="refresh-rules">
+                    <span class="refresh-icon"></span> 刷新
                 </button>
             </div>
         </div>
@@ -93,14 +93,14 @@
             <!-- 添加新规则区域 -->
             <div class="add-rule-section">
                 <div class="add-rule-header">
-                    <i class="icon icon-plus"></i>
+                    <span class="plus-icon"></span>
                     <div class="add-rule-title">添加新规则</div>
                 </div>
                 
                 <div class="add-rule-form">
                     <div class="form-group">
                         <label class="setting-label">网络接口</label>
-                        <select id="new-rule-interface">
+                        <select id="new-rule-interface" class="form-control">
                             <option value="">-- 选择接口 --</option>
                             <!-- 接口将通过JavaScript动态加载 -->
                         </select>
@@ -108,7 +108,7 @@
                     
                     <div class="form-group">
                         <label class="setting-label">代理行为</label>
-                        <select id="new-rule-mode">
+                        <select id="new-rule-mode" class="form-control">
                             <option value="proxy">使用代理</option>
                             <option value="direct">直连 (不经过代理)</option>
                             <option value="block">阻止互联网访问</option>
@@ -117,12 +117,12 @@
                     
                     <div class="form-group" id="proxy-server-group">
                         <label class="setting-label">代理服务器</label>
-                        <input type="text" id="new-rule-proxy" placeholder="socks5://ip:port">
+                        <input type="text" id="new-rule-proxy" class="form-control" placeholder="socks5://ip:port">
                     </div>
                     
                     <div class="form-group">
-                        <button class="add-rule-btn" id="add-rule-btn">
-                            <i class="icon icon-plus"></i> 添加规则
+                        <button class="btn btn-primary add-rule-btn" id="add-rule-btn">
+                            <span class="plus-icon"></span> 添加规则
                         </button>
                     </div>
                 </div>
@@ -131,14 +131,14 @@
             <!-- 高级选项区域 -->
             <div class="adv-section">
                 <div class="adv-header" id="adv-toggle">
-                    <i class="adv-icon icon icon-arrow-right"></i>
+                    <span class="arrow-icon"></span>
                     <div class="adv-title">高级选项</div>
                 </div>
                 <div class="adv-content">
                     <div class="setting-group">
                         <label class="setting-label">规则应用顺序</label>
                         <div class="setting-control">
-                            <select id="rule-order">
+                            <select id="rule-order" class="form-control">
                                 <option value="top">新规则添加到顶部</option>
                                 <option value="bottom">新规则添加到底部</option>
                             </select>
@@ -171,11 +171,11 @@
     
     <!-- 保存操作栏 -->
     <div class="save-actions">
-        <button class="btn-reset" id="reset-btn">
-            <i class="icon icon-undo"></i> 重置更改
+        <button class="btn btn-secondary" id="reset-btn">
+            <span class="undo-icon"></span> 重置更改
         </button>
-        <button class="btn-save" id="save-btn">
-            <i class="icon icon-save"></i> 保存并应用
+        <button class="btn btn-primary" id="save-btn">
+            <span class="save-icon"></span> 保存并应用
         </button>
     </div>
 </div>
