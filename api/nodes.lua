@@ -52,6 +52,23 @@ function api_nodes()
         
         http.prepare_content("application/json")
         http.write_json({ success = true, id = id })
+    elseif method == "PUT" then
+        -- 确保有有效数据
+        if not data or not data.id then
+            http.status(400, "Bad Request")
+            http.write_json({ success = false, error = "Missing node ID" })
+            return
+        end
+        
+        -- 更新节点
+        uci:set("ssid-proxy", data.id, "name", data.name)
+        uci:set("ssid-proxy", data.id, "address", data.address)
+        uci:set("ssid-proxy", data.id, "port", data.port)
+        uci:set("ssid-proxy", data.id, "protocol", data.protocol)
+        uci:commit("ssid-proxy")
+        
+        http.prepare_content("application/json")
+        http.write_json({ success = true, id = data.id })
     elseif method == "DELETE" then
         -- 确保有有效数据
         if not data or not data.id then
