@@ -63,6 +63,7 @@ ssid-proxy/
 │       ├── logs.css        # 日志页样式
 │       ├── monitor.css     # 监控页样式
 │       └── status.css      # 状态页样式
+│       └── nodes.css      # 服务器节点页样式
 ├── js/                     # JavaScript脚本
 │   ├── utils.js            # 工具函数
 │   ├── router.js           # 路由系统
@@ -72,11 +73,13 @@ ssid-proxy/
 │       ├── logs.js         # 日志页逻辑
 │       ├── monitor.js      # 监控页逻辑
 │       └── status.js       # 状态页逻辑
+│       └── nodes.js      # 服务器节点页逻辑
 ├── pages/                  # HTML页面片段
 │   ├── config.html         # 配置页片段
 │   ├── logs.html           # 日志页片段
 │   ├── monitor.html        # 监控页片段
 │   └── status.html         # 状态页片段
+│   └── nodes.html          # 服务器节点页片段
 ├── api/                    # 后端API
 │   ├── config.lua          # 配置API
 │   ├── logs.lua            # 日志API
@@ -897,3 +900,4 @@ showToast('保存失败，请重试', 'error');
 3. 严禁使用任何图标类，比如说 fong awesome，如果代码中有，就在改的时候一起去掉。
 4. 任何修改请直接写到文件，不要发给我
 5. 禁止使用 .then的链式调用，改用 await，如果已有代码存在这种情况，就改掉它
+6. 基础样式、基础js逻辑写到base.css或utils.js或router.js中

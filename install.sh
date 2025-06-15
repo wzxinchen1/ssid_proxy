@@ -53,6 +53,7 @@ cp "$SRC_DIR/css/pages/config.css" /www/luci-static/resources/ssid-proxy/css/pag
 cp "$SRC_DIR/css/pages/logs.css" /www/luci-static/resources/ssid-proxy/css/pages/
 cp "$SRC_DIR/css/pages/monitor.css" /www/luci-static/resources/ssid-proxy/css/pages/
 cp "$SRC_DIR/css/pages/status.css" /www/luci-static/resources/ssid-proxy/css/pages/status.css
+cp "$SRC_DIR/css/pages/nodes.css" /www/luci-static/resources/ssid-proxy/css/pages/
 
 # JavaScript 文件
 cp "$SRC_DIR/js/utils.js" /www/luci-static/resources/ssid-proxy/js/utils.js
@@ -62,12 +63,14 @@ cp "$SRC_DIR/js/pages/config.js" /www/luci-static/resources/ssid-proxy/js/pages/
 cp "$SRC_DIR/js/pages/logs.js" /www/luci-static/resources/ssid-proxy/js/pages/
 cp "$SRC_DIR/js/pages/monitor.js" /www/luci-static/resources/ssid-proxy/js/pages/
 cp "$SRC_DIR/js/pages/status.js" /www/luci-static/resources/ssid-proxy/js/pages/status.js
+cp "$SRC_DIR/js/pages/nodes.js" /www/luci-static/resources/ssid-proxy/js/pages/
 
 # HTML 页面片段
 cp "$SRC_DIR/pages/config.html" /www/luci-static/resources/ssid-proxy/pages/config.html
 cp "$SRC_DIR/pages/logs.html" /www/luci-static/resources/ssid-proxy/pages/
 cp "$SRC_DIR/pages/monitor.html" /www/luci-static/resources/ssid-proxy/pages/
 cp "$SRC_DIR/pages/status.html" /www/luci-static/resources/ssid-proxy/pages/status.html
+cp "$SRC_DIR/pages/nodes.html" /www/luci-static/resources/ssid-proxy/pages/
 
 # 静态资源
 cp -r "$SRC_DIR/assets/" /www/luci-static/resources/ssid-proxy/css/
