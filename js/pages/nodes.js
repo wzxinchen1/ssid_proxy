@@ -10,26 +10,14 @@ async function initNodesPage() {
 
     // 绑定表格编辑事件
     document.getElementById('nodes-table-body').addEventListener('click', async (e) => {
-        if (e.target.classList.contains('edit-cell')) {
-            const cell = e.target;
-            const row = cell.closest('tr');
+        if (e.target.classList.contains('edit-btn')) {
+            const row = e.target.closest('tr');
             const nodeId = row.dataset.id;
-            const field = cell.dataset.field;
-            const newValue = cell.textContent.trim();
-
-            if (newValue) {
-                try {
-                    await apiRequest(`nodes/${nodeId}`, 'PUT', { [field]: newValue });
-                    showToast('节点更新成功');
-                } catch (error) {
-                    showError(error.message);
-                    // 恢复原值
-                    cell.textContent = cell.dataset.originalValue;
-                }
-            } else {
-                // 恢复原值
-                cell.textContent = cell.dataset.originalValue;
-            }
+            const nodeData = getNodeDataFromRow(row);
+            
+            // 在点击的行下方插入编辑行
+            const editRow = createEditRow(nodeData);
+            row.after(editRow);
         }
     });
 }
@@ -60,17 +48,72 @@ function renderNodesTable(nodes) {
         const row = document.createElement('tr');
         row.dataset.id = node.id;
         row.innerHTML = `
-            <td class="edit-cell" data-field="name" data-original-value="${escapeHTML(node.name)}" contenteditable="true">${escapeHTML(node.name)}</td>
-            <td class="edit-cell" data-field="address" data-original-value="${escapeHTML(node.address)}" contenteditable="true">${escapeHTML(node.address)}</td>
-            <td class="edit-cell" data-field="port" data-original-value="${node.port}" contenteditable="true">${node.port}</td>
+            <td>${escapeHTML(node.name)}</td>
+            <td>${escapeHTML(node.address)}</td>
+            <td>${node.port}</td>
             <td>${node.protocol.toUpperCase()}</td>
             <td><span class="status-indicator ${node.status === 'active' ? 'status-active' : 'status-inactive'}"></span></td>
             <td>
+                <button class="btn btn-small btn-primary edit-btn" data-id="${node.id}">编辑</button>
                 <button class="btn btn-small btn-warning" data-id="${node.id}" onclick="deleteNode('${node.id}')">删除</button>
             </td>
         `;
         tableBody.appendChild(row);
     });
+}
+
+function getNodeDataFromRow(row) {
+    return {
+        id: row.dataset.id,
+        name: row.cells[0].textContent,
+        address: row.cells[1].textContent,
+        port: row.cells[2].textContent,
+        protocol: row.cells[3].textContent.toLowerCase(),
+        status: row.cells[4].querySelector('.status-indicator').classList.contains('status-active') ? 'active' : 'inactive'
+    };
+}
+
+function createEditRow(nodeData) {
+    const editRow = document.createElement('tr');
+    editRow.className = 'edit-row';
+    editRow.innerHTML = `
+        <td colspan="6">
+            <form class="edit-form">
+                <input type="hidden" name="id" value="${nodeData.id}">
+                <div class="form-group">
+                    <label>名称</label>
+                    <input type="text" name="name" value="${escapeHTML(nodeData.name)}" required>
+                </div>
+                <div class="form-group">
+                    <label>地址</label>
+                    <input type="text" name="address" value="${escapeHTML(nodeData.address)}" required>
+                </div>
+                <div class="form-group">
+                    <label>端口</label>
+                    <input type="number" name="port" value="${nodeData.port}" required>
+                </div>
+                <div class="form-group">
+                    <label>协议</label>
+                    <select name="protocol" required>
+                        <option value="socks5" ${nodeData.protocol === 'socks5' ? 'selected' : ''}>SOCKS5</option>
+                        <option value="http" ${nodeData.protocol === 'http' ? 'selected' : ''}>HTTP</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>状态</label>
+                    <select name="status" required>
+                        <option value="active" ${nodeData.status === 'active' ? 'selected' : ''}>启用</option>
+                        <option value="inactive" ${nodeData.status === 'inactive' ? 'selected' : ''}>禁用</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary cancel-btn">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </td>
+    `;
+    return editRow;
 }
 
 // 移除editNode函数，改为直接在表格中编辑

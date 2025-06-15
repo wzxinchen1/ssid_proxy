@@ -56,7 +56,7 @@ function api_nodes()
         -- 确保有有效数据
         if not data or not data.id then
             http.status(400, "Bad Request")
-            http.write_json({ success = false, error = "Missing node ID" })
+            http.write_json({ success = false, error = "没有NodeID" })
             return
         end
         
@@ -73,7 +73,7 @@ function api_nodes()
         -- 确保有有效数据
         if not data or not data.id then
             http.status(400, "Bad Request")
-            http.write_json({ success = false, error = "Missing node ID" })
+            http.write_json({ success = false, error = "没有NodeID" })
             return
         end
         
