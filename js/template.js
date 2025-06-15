@@ -12,6 +12,10 @@ class Template {
     this.compiled = this.compile();
     // 检查是否有 v-for
     this.hasVFor = this.templateString.includes('v-for');
+    this.vForElements = [];
+    if (this.hasVFor) {
+      this.vForElements = this._findVForElements(this.domTree);
+    }
   }
 
   /**
@@ -25,12 +29,6 @@ class Template {
     const templateElement = document.createElement("template");
     templateElement.innerHTML = this.templateString;
     this.domTree = templateElement.content.firstElementChild;
-
-    // 记录 v-for 元素
-    let vForElements = [];
-    if (this.hasVFor) {
-      vForElements = this._findVForElements(domTree);
-    }
 
     return {
       template: this.templateString,
@@ -46,17 +44,13 @@ class Template {
    * @returns {HTMLElement} 渲染后的 DOM 元素
    */
   render(data) {
-    let vForElements = [];
-    if (this.hasVFor) {
-      vForElements = this._findVForElements(domTree);
-    }
 
     // 克隆 DOM 树
     const clonedTree = this.domTree.cloneNode(true);
 
     // 处理 v-for 元素
     if (hasVFor) {
-      this._processVForElements(this.templateString, clonedTree, vForElements, data);
+      this._processVForElements(this.templateString, clonedTree, this.vForElements, data);
     }
 
     // 处理单向绑定和事件绑定
