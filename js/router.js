@@ -123,10 +123,7 @@ async function loadPage(page) {
         // 渲染页面内容
         renderPage(page, htmlContent);
 
-        // 初始化页面脚本
-        if (typeof window[`init${capitalize(page)}Page`] === 'function') {
-            window[`init${capitalize(page)}Page`]();
-        }
+        
         hideLoading();
     } catch (error) {
         console.error(`加载页面失败: ${page}`, error);
@@ -149,6 +146,17 @@ function renderPage(page, htmlContent) {
 
     // 添加到DOM
     $('#page-container').html(rendered);
+
+    // 初始化页面脚本
+    if (typeof window[`init${capitalize(page)}Page`] === 'function') {
+        const componentContext = {
+            render: (data) => {
+                const rendered = engine.render(compiled, data);
+                $('#page-container').html(rendered);
+            }
+        };
+        window[`init${capitalize(page)}Page`](componentContext);
+    }
 }
 
 /**
