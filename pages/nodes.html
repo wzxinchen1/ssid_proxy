@@ -4,14 +4,26 @@
     </div>
     <div class="card-body">
         <div class="form-group">
-            <form id="add-node-form" class="form-inline">
-                <input type="text" id="node-name" class="form-control" placeholder="节点名称" required>
-                <input type="text" id="node-address" class="form-control" placeholder="服务器地址" required>
-                <input type="number" id="node-port" class="form-control" placeholder="端口号" required>
-                <select id="node-protocol" class="form-control">
-                    <option value="socks5">SOCKS5</option>
-                    <option value="http">HTTP</option>
-                </select>
+            <form id="add-node-form">
+                <div class="form-row">
+                    <label for="node-name">节点名称</label>
+                    <input type="text" id="node-name" class="form-control" placeholder="节点名称" required>
+                </div>
+                <div class="form-row">
+                    <label for="node-address">服务器地址</label>
+                    <input type="text" id="node-address" class="form-control" placeholder="服务器地址" required>
+                </div>
+                <div class="form-row">
+                    <label for="node-port">端口号</label>
+                    <input type="number" id="node-port" class="form-control" placeholder="端口号" required>
+                </div>
+                <div class="form-row">
+                    <label for="node-protocol">协议</label>
+                    <select id="node-protocol" class="form-control">
+                        <option value="socks5">SOCKS5</option>
+                        <option value="http">HTTP</option>
+                    </select>
+                </div>
                 <button type="submit" class="btn btn-primary">添加</button>
             </form>
         </div>
