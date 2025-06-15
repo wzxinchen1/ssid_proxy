@@ -43,6 +43,7 @@ cp "$SRC_DIR/css/pages/status.css" /www/luci-static/resources/ssid-proxy/css/pag
 cp "$SRC_DIR/css/pages/nodes.css" /www/luci-static/resources/ssid-proxy/css/pages/
 
 # JavaScript 文件
+cp "$SRC_DIR/js/template.js" /www/luci-static/resources/ssid-proxy/js/template.js
 cp "$SRC_DIR/js/utils.js" /www/luci-static/resources/ssid-proxy/js/utils.js
 cp "$SRC_DIR/js/router.js" /www/luci-static/resources/ssid-proxy/js/router.js
 cp "$SRC_DIR/js/global.js" /www/luci-static/resources/ssid-proxy/js/global.js
