@@ -19,12 +19,12 @@ class TemplateEngine {
     // 解析模板为 DOM 树
     const parser = new DOMParser();
     const doc = parser.parseFromString(template, 'text/html');
-    const domTree = doc.body.firstChild;
+    const domTree = doc;
     
     // 记录 v-for 元素
     let vForElements = [];
     if (hasVFor) {
-      vForElements = this._findVForElements(domTree);
+      vForElements = this._findVForElements(domTree.body.firstChild);
     }
     
     return {
