@@ -27,6 +27,7 @@ async function loadConfigData() {
     } catch (error) {
         showError(`加载配置失败: ${error.message}`);
     }
+    hideLoading();
 }
 
 /**
@@ -294,6 +295,7 @@ async function saveConfig() {
     } catch (error) {
         showError(`保存配置失败: ${error.message}`);
     }
+    hideLoading();
 }
 
 /**

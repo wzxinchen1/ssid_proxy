@@ -198,14 +198,31 @@ function copyToClipboard(text) {
 
 /**
  * 显示加载状态
+ * @param {string} selector - 可选，指定在哪个容器内显示加载状态
  */
-function showLoading() {
-    $('#page-container').html(`
-        <div class="loading-container">
-            <div class="loading-spinner"></div>
-            <p>正在加载数据...</p>
-        </div>
-    `);
+function showLoading(selector = '#page-container') {
+    // 创建或更新加载状态元素
+    let loadingElement = $(selector).find('.loading-overlay');
+    
+    if (loadingElement.length === 0) {
+        loadingElement = $(`
+            <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+                <p>正在加载数据...</p>
+            </div>
+        `);
+        $(selector).append(loadingElement);
+    }
+    
+    loadingElement.show();
+}
+
+/**
+ * 隐藏加载状态
+ * @param {string} selector - 可选，指定在哪个容器内隐藏加载状态
+ */
+function hideLoading(selector = '#page-container') {
+    $(selector).find('.loading-overlay').hide();
 }
 
 /**

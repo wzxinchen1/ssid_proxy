@@ -123,6 +123,7 @@ async function loadPage(page) {
         if (typeof window[`init${capitalize(page)}Page`] === 'function') {
             window[`init${capitalize(page)}Page`]();
         }
+        hideLoading();
     } catch (error) {
         console.error(`加载页面失败: ${page}`, error);
         showError(`加载页面失败: ${page}<br>${error.message}`, true);
@@ -199,18 +200,6 @@ async function refreshCurrentPage() {
  */
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
- * 显示页面加载状态
- */
-function showLoading() {
-    $('#page-container').html(`
-        <div class="loading-container">
-            <div class="loading-spinner"></div>
-            <p>正在加载页面内容...</p>
-        </div>
-    `);
 }
 
 /**
