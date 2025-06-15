@@ -91,7 +91,7 @@ function navigateTo(page) {
  * 加载并显示指定页面
  * @param {string} page - 页面名称
  */
-function loadPage(page) {
+async function loadPage(page) {
     if (currentPage == page) {
         return;
     }
@@ -105,31 +105,30 @@ function loadPage(page) {
     isNavigating = true;
     currentPage = page;
 
-    // 更新UI状态
-    updateNavigationUI(page);
-    document.title = `SSID代理系统 - ${routes[page].title}`;
+    try {
+        // 更新UI状态
+        updateNavigationUI(page);
+        document.title = `SSID代理系统 - ${routes[page].title}`;
 
-    // 显示加载状态
-    showLoading();
+        // 显示加载状态
+        showLoading();
 
-    // 加载页面资源
-    loadPageResources(page)
-        .then(htmlContent => {
-            // 渲染页面内容
-            renderPage(page, htmlContent);
+        // 加载页面资源
+        const htmlContent = await loadPageResources(page);
 
-            // 初始化页面脚本
-            if (typeof window[`init${capitalize(page)}Page`] === 'function') {
-                window[`init${capitalize(page)}Page`]();
-            }
-        })
-        .catch(error => {
-            console.error(`加载页面失败: ${page}`, error);
-            showError(`加载页面失败: ${page}<br>${error.message}`, true);
-        })
-        .finally(() => {
-            isNavigating = false;
-        });
+        // 渲染页面内容
+        renderPage(page, htmlContent);
+
+        // 初始化页面脚本
+        if (typeof window[`init${capitalize(page)}Page`] === 'function') {
+            window[`init${capitalize(page)}Page`]();
+        }
+    } catch (error) {
+        console.error(`加载页面失败: ${page}`, error);
+        showError(`加载页面失败: ${page}<br>${error.message}`, true);
+    } finally {
+        isNavigating = false;
+    }
 }
 
 /**
@@ -164,28 +163,33 @@ function updateNavigationUI(activePage) {
 /**
  * 刷新当前页面
  */
-function refreshCurrentPage() {
+async function refreshCurrentPage() {
     if (!currentPage) return;
 
-    // 清除已加载资源状态
-    const pageResources = routes[currentPage].resources || [];
-    pageResources.forEach(resource => {
-        const cssPath = `css/pages/${resource}.css`;
-        const jsPath = `js/pages/${resource}.js`;
+    try {
+        // 清除已加载资源状态
+        const pageResources = routes[currentPage].resources || [];
+        pageResources.forEach(resource => {
+            const cssPath = `css/pages/${resource}.css`;
+            const jsPath = `js/pages/${resource}.js`;
 
-        if (loadedResources.css[cssPath]) {
-            delete loadedResources.css[cssPath];
-            $(`link[href="${cssPath}"]`).remove();
-        }
+            if (loadedResources.css[cssPath]) {
+                delete loadedResources.css[cssPath];
+                $(`link[href="${cssPath}"]`).remove();
+            }
 
-        if (loadedResources.js[jsPath]) {
-            delete loadedResources.js[jsPath];
-            $(`script[src="${jsPath}"]`).remove();
-        }
-    });
+            if (loadedResources.js[jsPath]) {
+                delete loadedResources.js[jsPath];
+                $(`script[src="${jsPath}"]`).remove();
+            }
+        });
 
-    // 重新加载页面
-    loadPage(currentPage);
+        // 重新加载页面
+        await loadPage(currentPage);
+    } catch (error) {
+        console.error('刷新页面失败:', error);
+        showError('刷新页面失败', true);
+    }
 }
 
 /**
