@@ -7,6 +7,31 @@ async function initNodesPage() {
         e.preventDefault();
         await saveNode();
     });
+
+    // 绑定表格编辑事件
+    document.getElementById('nodes-table-body').addEventListener('click', async (e) => {
+        if (e.target.classList.contains('edit-cell')) {
+            const cell = e.target;
+            const row = cell.closest('tr');
+            const nodeId = row.dataset.id;
+            const field = cell.dataset.field;
+            const newValue = cell.textContent.trim();
+
+            if (newValue) {
+                try {
+                    await apiRequest(`nodes/${nodeId}`, 'PUT', { [field]: newValue });
+                    showToast('节点更新成功');
+                } catch (error) {
+                    showError(error.message);
+                    // 恢复原值
+                    cell.textContent = cell.dataset.originalValue;
+                }
+            } else {
+                // 恢复原值
+                cell.textContent = cell.dataset.originalValue;
+            }
+        }
+    });
 }
 
 async function loadNodesData() {
@@ -33,14 +58,14 @@ function renderNodesTable(nodes) {
 
     nodes.forEach(node => {
         const row = document.createElement('tr');
+        row.dataset.id = node.id;
         row.innerHTML = `
-            <td>${escapeHTML(node.name)}</td>
-            <td>${escapeHTML(node.address)}</td>
-            <td>${node.port}</td>
+            <td class="edit-cell" data-field="name" data-original-value="${escapeHTML(node.name)}" contenteditable="true">${escapeHTML(node.name)}</td>
+            <td class="edit-cell" data-field="address" data-original-value="${escapeHTML(node.address)}" contenteditable="true">${escapeHTML(node.address)}</td>
+            <td class="edit-cell" data-field="port" data-original-value="${node.port}" contenteditable="true">${node.port}</td>
             <td>${node.protocol.toUpperCase()}</td>
             <td><span class="status-indicator ${node.status === 'active' ? 'status-active' : 'status-inactive'}"></span></td>
             <td>
-                <button class="btn btn-small" data-id="${node.id}" onclick="editNode('${node.id}')">编辑</button>
                 <button class="btn btn-small btn-warning" data-id="${node.id}" onclick="deleteNode('${node.id}')">删除</button>
             </td>
         `;
@@ -48,18 +73,7 @@ function renderNodesTable(nodes) {
     });
 }
 
-async function editNode(nodeId) {
-    try {
-        const node = await apiRequest(`nodes/${nodeId}`, 'GET');
-        document.getElementById('node-name').value = node.name;
-        document.getElementById('node-address').value = node.address;
-        document.getElementById('node-port').value = node.port;
-        document.getElementById('node-protocol').value = node.protocol;
-        document.getElementById('node-id').value = nodeId;
-    } catch (error) {
-        showError(error.message);
-    }
-}
+// 移除editNode函数，改为直接在表格中编辑
 
 async function deleteNode(nodeId) {
     if (confirm('确定要删除此节点吗？')) {
