@@ -23,6 +23,10 @@ async function loadConfigData() {
 
     try {
         const config = await apiRequest('config');
+        // 确保接口列表被正确加载
+        if (config.interfaces) {
+            globalState.interfaces = config.interfaces.map(name => ({ name }));
+        }
         renderConfig(config);
     } catch (error) {
         showError(`加载配置失败: ${error.message}`);
