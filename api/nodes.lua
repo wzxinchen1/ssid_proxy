@@ -1,15 +1,22 @@
--- 文件路径: /usr/lib/lua/luci/controller/ssid-proxy/api/nodes.lua
+-- 文件路径: E:\桌面\ssid_proxy\api\nodes.lua
 
 module("luci.controller.ssid-proxy.api.nodes", package.seeall)
 
-local M = {}
-function M.api_nodes()
+function api_nodes()
     local http = require "luci.http"
     local json = require "luci.jsonc"
     local uci = require "luci.model.uci".cursor()
     
     local method = http.getenv("REQUEST_METHOD")
-    local data = json.parse(http.read_json() or "")
+    
+    -- 正确获取请求体内容
+    local content = http.content()
+    local data = nil
+    
+    -- 尝试解析JSON数据
+    if content and #content > 0 then
+        data = json.parse(content)
+    end
     
     if method == "GET" then
         -- 获取节点列表
@@ -28,6 +35,13 @@ function M.api_nodes()
         http.prepare_content("application/json")
         http.write_json({ success = true, data = nodes })
     elseif method == "POST" then
+        -- 确保有有效数据
+        if not data then
+            http.status(400, "Bad Request")
+            http.write_json({ success = false, error = "Invalid JSON data" })
+            return
+        end
+        
         -- 添加或更新节点
         local id = data.id or uci:add("ssid-proxy", "node")
         uci:set("ssid-proxy", id, "name", data.name)
@@ -39,6 +53,13 @@ function M.api_nodes()
         http.prepare_content("application/json")
         http.write_json({ success = true, id = id })
     elseif method == "DELETE" then
+        -- 确保有有效数据
+        if not data or not data.id then
+            http.status(400, "Bad Request")
+            http.write_json({ success = false, error = "Missing node ID" })
+            return
+        end
+        
         -- 删除节点
         uci:delete("ssid-proxy", data.id)
         uci:commit("ssid-proxy")
@@ -47,7 +68,6 @@ function M.api_nodes()
         http.write_json({ success = true })
     else
         http.status(405, "Method Not Allowed")
+        http.write_json({ success = false, error = "Method not allowed" })
     end
 end
-
-return M
