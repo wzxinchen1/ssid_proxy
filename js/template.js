@@ -96,16 +96,16 @@ class TemplateEngine {
       const vForValue = element.getAttribute('v-for');
       const cacheKey = `${vForValue}`; // 使用 v-for 属性值作为缓存键
 
+      let list;
       // 检查缓存
       if (this._vForCache.has(cacheKey)) {
         const [itemVar, listVar] = this._vForCache.get(cacheKey);
+        list = data[listVar.trim()];
       } else {
         const [itemVar, listVar] = vForValue.split(' in ');
         this._vForCache.set(cacheKey, [itemVar, listVar]);
+        list = data[listVar.trim()];
       }
-
-      // 获取列表数据
-      let list = data[listVar.trim()];
 
       if (!list) {
         list = [];
