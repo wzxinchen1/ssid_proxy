@@ -94,7 +94,7 @@ class TemplateEngine {
   _processVForElements(root, vForElements, data) {
     for (const element of vForElements) {
       const vForValue = element.getAttribute('v-for');
-      const cacheKey = `${vForValue}`; // 使用 v-for 属性值作为缓存键
+      const cacheKey = template; // 使用 v-for 属性值作为缓存键
 
       let list;
       // 检查缓存
