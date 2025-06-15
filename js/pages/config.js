@@ -4,12 +4,12 @@
  */
 
 // 页面初始化函数
-function initConfigPage() {
+async function initConfigPage() {
     // 绑定事件处理程序
     bindConfigEvents();
 
     // 加载配置数据
-    loadConfigData();
+    await loadConfigData();
 
     // 订阅配置更新
     subscribe('config', handleConfigUpdate);
@@ -18,16 +18,15 @@ function initConfigPage() {
 /**
  * 加载配置数据
  */
-function loadConfigData() {
+async function loadConfigData() {
     showLoading();
 
-    apiRequest('config')
-        .then(config => {
-            renderConfig(config);
-        })
-        .catch(error => {
-            showError(`加载配置失败: ${error.message}`);
-        });
+    try {
+        const config = await apiRequest('config');
+        renderConfig(config);
+    } catch (error) {
+        showError(`加载配置失败: ${error.message}`);
+    }
 }
 
 /**
@@ -51,14 +50,12 @@ function renderConfig(config) {
  * @param {Array} rules - 规则数组
  */
 function renderRules(rules) {
+    const rulesBody = $('#rules-list');
+    rulesBody.empty();
 
     if (!Array.isArray(rules)) {
         rules = [];
     }
-
-    const rulesBody = $('#rules-list');
-    rulesBody.empty();
-
     if (!rules || rules.length === 0) {
         rulesBody.html(`
             <tr>
@@ -283,21 +280,20 @@ function moveRuleDown() {
 /**
  * 保存配置
  */
-function saveConfig() {
+async function saveConfig() {
     collectFormData();
 
     showLoading();
 
-    apiRequest('config', 'POST', {
-        config: currentConfig,
-        apply: true
-    })
-        .then(() => {
-            showToast('配置保存并应用成功');
-        })
-        .catch(error => {
-            showError(`保存配置失败: ${error.message}`);
+    try {
+        await apiRequest('config', 'POST', {
+            config: currentConfig,
+            apply: true
         });
+        showToast('配置保存并应用成功');
+    } catch (error) {
+        showError(`保存配置失败: ${error.message}`);
+    }
 }
 
 /**
@@ -353,8 +349,8 @@ function handleConfigUpdate(config) {
 let currentConfig = {};
 
 // 页面初始化
-$(document).ready(() => {
+$(document).ready(async () => {
     if ($('#page-container').length) {
-        initConfigPage();
+        await initConfigPage();
     }
 });
