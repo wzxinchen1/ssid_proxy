@@ -41,3 +41,48 @@
         </div>
     </div>
 </div>
+
+<!-- 编辑节点弹窗 -->
+<div id="edit-node-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>编辑节点</h3>
+            <span class="close-btn" onclick="document.getElementById('edit-node-modal').style.display = 'none';">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="edit-node-form">
+                <input type="hidden" id="edit-node-id">
+                <div class="form-group">
+                    <label for="edit-node-name">节点名称</label>
+                    <input type="text" id="edit-node-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-node-address">服务器地址</label>
+                    <input type="text" id="edit-node-address" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-node-port">端口号</label>
+                    <input type="number" id="edit-node-port" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-node-protocol">协议</label>
+                    <select id="edit-node-protocol" class="form-control" required>
+                        <option value="socks5">SOCKS5</option>
+                        <option value="http">HTTP</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-node-status">状态</label>
+                    <select id="edit-node-status" class="form-control" required>
+                        <option value="active">启用</option>
+                        <option value="inactive">禁用</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('edit-node-modal').style.display = 'none';">取消</button>
+            <button type="button" class="btn btn-primary" onclick="saveEditedNode()">保存</button>
+        </div>
+    </div>
+</div>

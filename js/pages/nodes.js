@@ -15,38 +15,16 @@ async function initNodesPage() {
             const nodeId = row.dataset.id;
             const nodeData = getNodeDataFromRow(row);
             
-            // 隐藏当前行的操作按钮
-            const actionButtons = row.querySelectorAll('button');
-            actionButtons.forEach(btn => {
-                btn.style.display = 'none';
-            });
+            // 填充弹窗表单
+            document.getElementById('edit-node-id').value = nodeData.id;
+            document.getElementById('edit-node-name').value = nodeData.name;
+            document.getElementById('edit-node-address').value = nodeData.address;
+            document.getElementById('edit-node-port').value = nodeData.port;
+            document.getElementById('edit-node-protocol').value = nodeData.protocol;
+            document.getElementById('edit-node-status').value = nodeData.status;
             
-            // 在点击的行下方插入编辑行
-            const editRow = createEditRow(nodeData);
-            row.after(editRow);
-            
-            // 将编辑按钮变为保存按钮
-            e.target.textContent = '保存';
-            e.target.classList.remove('edit-btn');
-            e.target.classList.add('save-btn');
-            
-            // 添加取消按钮
-            const cancelBtn = document.createElement('button');
-            cancelBtn.className = 'btn btn-small btn-secondary cancel-btn';
-            cancelBtn.textContent = '取消';
-            cancelBtn.onclick = () => {
-                editRow.remove();
-                actionButtons.forEach(btn => {
-                    btn.style.display = '';
-                });
-                e.target.textContent = '编辑';
-                e.target.classList.remove('save-btn');
-                e.target.classList.add('edit-btn');
-            };
-            
-            // 将取消按钮插入操作列
-            const actionsCell = row.cells[5];
-            actionsCell.appendChild(cancelBtn);
+            // 显示弹窗
+            document.getElementById('edit-node-modal').style.display = 'block';
         }
     });
 }
@@ -102,31 +80,34 @@ function getNodeDataFromRow(row) {
     };
 }
 
-function createEditRow(nodeData) {
-    const editRow = document.createElement('tr');
-    editRow.className = 'edit-row';
-    editRow.innerHTML = `
-        <td><input type="text" name="name" value="${escapeHTML(nodeData.name)}" required></td>
-        <td><input type="text" name="address" value="${escapeHTML(nodeData.address)}" required></td>
-        <td><input type="number" name="port" value="${nodeData.port}" required></td>
-        <td>
-            <select name="protocol" required>
-                <option value="socks5" ${nodeData.protocol === 'socks5' ? 'selected' : ''}>SOCKS5</option>
-                <option value="http" ${nodeData.protocol === 'http' ? 'selected' : ''}>HTTP</option>
-            </select>
-        </td>
-        <td>
-            <select name="status" required>
-                <option value="active" ${nodeData.status === 'active' ? 'selected' : ''}>启用</option>
-                <option value="inactive" ${nodeData.status === 'inactive' ? 'selected' : ''}>禁用</option>
-            </select>
-        </td>
-        <td>
-            <button type="button" class="btn btn-secondary cancel-btn" onclick="this.closest('tr').remove(); document.querySelector('tr[data-id=\'${nodeData.id}\'] button.edit-btn').style.display = '';">取消</button>
-            <button type="submit" class="btn btn-primary save-btn">保存</button>
-        </td>
-    `;
-    return editRow;
+async function saveEditedNode() {
+    const nodeId = document.getElementById('edit-node-id').value;
+    const name = document.getElementById('edit-node-name').value.trim();
+    const address = document.getElementById('edit-node-address').value.trim();
+    const port = document.getElementById('edit-node-port').value.trim();
+    const protocol = document.getElementById('edit-node-protocol').value;
+    const status = document.getElementById('edit-node-status').value;
+
+    if (!name || !address || !port) {
+        showError('请填写所有必填字段');
+        return;
+    }
+
+    try {
+        await apiRequest(`nodes/${nodeId}`, 'PUT', {
+            name,
+            address,
+            port,
+            protocol,
+            status
+        });
+
+        document.getElementById('edit-node-modal').style.display = 'none';
+        await loadNodesData();
+        showToast('节点更新成功');
+    } catch (error) {
+        showError(error.message);
+    }
 }
 
 // 移除editNode函数，改为直接在表格中编辑
