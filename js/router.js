@@ -140,9 +140,8 @@ async function loadPage(page) {
  */
 function renderPage(page, htmlContent) {
     // 使用模板引擎渲染页面
-    const engine = new TemplateEngine();
-    const compiled = engine.compile(htmlContent);
-    const rendered = engine.render(compiled, { page });
+    const engine = new TemplateEngine(htmlContent);
+    const rendered = engine.render({ page });
 
     // 添加到DOM
     $('#page-container').html(rendered);
@@ -151,7 +150,7 @@ function renderPage(page, htmlContent) {
     if (typeof window[`init${capitalize(page)}Page`] === 'function') {
         const componentContext = {
             render: (data) => {
-                const rendered = engine.render(compiled, data);
+                const rendered = engine.render(data);
                 $('#page-container').html(rendered);
             }
         };

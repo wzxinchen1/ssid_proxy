@@ -946,34 +946,33 @@ showToast('保存失败，请重试', 'error');
 ### 1. `TemplateEngine` 类
 #### 构造函数
 ```javascript
-const engine = new TemplateEngine();
+const engine = new TemplateEngine(templateString);
 ```
-- 初始化模板引擎实例。
-
-#### 方法
-##### `compile(templateString)`
-编译模板字符串，生成一个可渲染的中间结构。
 
 **参数：**
 | 参数名          | 类型   | 必填 | 说明         |
 |-----------------|--------|------|--------------|
 | `templateString` | string | 是   | 模板字符串   |
+- 初始化模板引擎实例。
+
+#### 方法
+##### `compile()`
+编译模板字符串，生成一个可渲染的中间结构。
 
 **返回值：**
 - 返回一个编译后的中间结构，用于后续渲染。
 
 **示例：**
 ```javascript
-const compiled = engine.compile('<div>{{title}}</div>');
+const compiled = engine.compile();
 ```
 
-##### `render(compiledTemplate, data)`
+##### `render(data)`
 将编译后的模板与数据结合，生成最终的 DOM 元素。
 
 **参数：**
 | 参数名              | 类型   | 必填 | 说明         |
 |---------------------|--------|------|--------------|
-| `compiledTemplate`  | object | 是   | 编译后的模板 |
 | `data`              | object | 是   | 数据对象     |
 
 **返回值：**
@@ -981,7 +980,7 @@ const compiled = engine.compile('<div>{{title}}</div>');
 
 **示例：**
 ```javascript
-const rendered = engine.render(compiled, { title: 'Hello World' });
+const rendered = engine.render({ title: 'Hello World' });
 document.body.appendChild(rendered);
 ```
 

@@ -9,8 +9,7 @@
 class Template {
   constructor(templateString) {
     this.templateString = templateString;
-    this._vForCache = new Map(); // 缓存 v-for 解析结果
-    this.compiled = this.compile(templateString);
+    this.compiled = this.compile();
   }
 
   /**
@@ -18,9 +17,9 @@ class Template {
    * @param {string} template - 模板字符串
    * @returns {object} 编译结果对象
    */
-  compile(template) {
+  compile() {
     // 检查是否有 v-for
-    const hasVFor = template.includes('v-for');
+    const hasVFor = this.templateString.includes('v-for');
 
     // 解析模板为 DOM 树
     const templateElement = document.createElement("template");
@@ -96,18 +95,8 @@ class Template {
   _processVForElements(template, root, vForElements, data) {
     for (const element of vForElements) {
       const vForValue = element.getAttribute('v-for');
-      const cacheKey = template; // 使用 v-for 属性值作为缓存键
-
-      let list;
-      // 检查缓存
-      if (this._vForCache.has(cacheKey)) {
-        const [itemVar, listVar] = this._vForCache.get(cacheKey);
-        list = data[listVar.trim()];
-      } else {
-        const [itemVar, listVar] = vForValue.split(' in ');
-        this._vForCache.set(cacheKey, [itemVar, listVar]);
-        list = data[listVar.trim()];
-      }
+      const [itemVar, listVar] = vForValue.split(' in ');
+      list = data[listVar.trim()];
 
       if (!list) {
         list = [];
