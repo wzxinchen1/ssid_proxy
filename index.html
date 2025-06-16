@@ -7,10 +7,39 @@
     <link rel="stylesheet" href="/luci-static/resources/ssid-proxy/css/base.css">
     <link rel="stylesheet" href="/luci-static/resources/ssid-proxy/css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/luci-static/resources/ssid-proxy/js/utils.js"></script>
-    <script src="/luci-static/resources/ssid-proxy/js/template.js"></script>
-    <script src="/luci-static/resources/ssid-proxy/js/router.js"></script>
-    <script src="/luci-static/resources/ssid-proxy/js/global.js"></script>
+    <script type="module">
+        import { initRouter, navigateTo, refreshCurrentPage } from '/luci-static/resources/ssid-proxy/js/router.js';
+        import { initGlobalMonitor, toggleServiceStatus } from '/luci-static/resources/ssid-proxy/js/global.js';
+        import { loadPageFromHash } from '/luci-static/resources/ssid-proxy/js/utils.js';
+
+        $(document).ready(async function () {
+            initRouter();
+            await loadPageFromHash();
+            initGlobalMonitor();
+            bindEventHandlers();
+        });
+
+        function bindEventHandlers() {
+            $('.nav-link').on('click', function (e) {
+                e.preventDefault();
+                const page = $(this).attr('href').substring(1);
+                navigateTo(page);
+            });
+            $('#refresh-btn').on('click', function () {
+                refreshCurrentPage();
+            });
+            $('#retry-btn').on('click', function () {
+                refreshCurrentPage();
+                $('#error-modal').hide();
+            });
+            $('#close-error-btn').on('click', function () {
+                $('#error-modal').hide();
+            });
+            $('#service-toggle').on('click', function () {
+                toggleServiceStatus();
+            });
+        }
+    </script>
 </head>
 <body>
     <header class="app-header">
@@ -77,35 +106,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        $(document).ready(function () {
-            initRouter();
-            loadPageFromHash();
-            initGlobalMonitor();
-            bindEventHandlers();
-        });
-
-        function bindEventHandlers() {
-            $('.nav-link').on('click', function (e) {
-                e.preventDefault();
-                const page = $(this).attr('href').substring(1);
-                navigateTo(page);
-            });
-            $('#refresh-btn').on('click', function () {
-                refreshCurrentPage();
-            });
-            $('#retry-btn').on('click', function () {
-                refreshCurrentPage();
-                $('#error-modal').hide();
-            });
-            $('#close-error-btn').on('click', function () {
-                $('#error-modal').hide();
-            });
-            $('#service-toggle').on('click', function () {
-                toggleServiceStatus();
-            });
-        }
-    </script>
 </body>
 </html>
