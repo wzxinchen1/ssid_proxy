@@ -107,6 +107,7 @@ export class Template {
         const emptyNode = document.createElement(element.tagName === 'TR' ? 'td' : 'div');
         if (element.tagName === 'TR') {
           emptyNode.colSpan = element.querySelectorAll('td').length || 1;
+          emptyNode.style.textAlign = "center";
         }
         emptyNode.textContent = vForEmpty;
         fragment.appendChild(emptyNode);
