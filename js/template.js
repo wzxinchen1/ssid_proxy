@@ -6,6 +6,7 @@
  * 3. v-for 循环（v-for="item in items"）
  * 4. v-for-empty 支持（v-for-empty="无数据"）
  * 5. v-value 支持（v-value="xxx"，用于 select 标签选中匹配的 option）
+ * 6. 三目运算符支持（{{条件 ? 值1 : 值2}}）
  */
 
 export class Template {
@@ -18,6 +19,18 @@ export class Template {
     if (this.hasVFor) {
       this.vForElements = this._findVForElements(this.domTree);
     }
+  }
+
+  /**
+   * 处理三目运算符
+   * @param {string} expr - 表达式
+   * @param {object} context - 数据上下文
+   * @returns {string} 处理后的值
+   */
+  _handleTernaryOperator(expr, context) {
+    const [condition, trueValue, falseValue] = expr.split(/\s*\?\s*|\s*:\s*/);
+    const conditionValue = this._getValueFromPath(context, condition.trim());
+    return conditionValue ? this._getValueFromPath(context, trueValue.trim()) : this._getValueFromPath(context, falseValue.trim());
   }
 
   /**
@@ -121,8 +134,13 @@ export class Template {
           const context = { ...data, [itemVar.trim()]: item };
           const textNodes = this._findTextNodes(clone);
           for (const node of textNodes) {
-            node.textContent = node.textContent.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
-              return this._getValueFromPath(context, key.trim());
+            node.textContent = node.textContent.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
+            // 处理三目运算符
+            if (expr.includes('?')) {
+            return this._handleTernaryOperator(expr, context);
+            } else {
+            return this._getValueFromPath(context, expr.trim());
+            }
             });
           }
 
@@ -147,8 +165,13 @@ export class Template {
     // 处理文本节点的单向绑定
     const textNodes = this._findTextNodes(element);
     for (const node of textNodes) {
-      node.textContent = node.textContent.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
-        return this._getValueFromPath(data, key.trim());
+      node.textContent = node.textContent.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
+        // 处理三目运算符
+        if (expr.includes('?')) {
+          return this._handleTernaryOperator(expr, data);
+        } else {
+          return this._getValueFromPath(data, expr.trim());
+        }
       });
     }
 
@@ -161,8 +184,13 @@ export class Template {
           if (attr.name.startsWith('on')) {
             let handlerName = attr.value;
             // 替换事件绑定中的模板变量
-            handlerName = handlerName.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
-              return this._getValueFromPath(data, key.trim());
+            handlerName = handlerName.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
+              // 处理三目运算符
+              if (expr.includes('?')) {
+                return this._handleTernaryOperator(expr, data);
+              } else {
+                return this._getValueFromPath(data, expr.trim());
+              }
             });
             if (handlerName.startsWith("window.")) {
               continue;
