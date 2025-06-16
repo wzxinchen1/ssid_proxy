@@ -1,4 +1,15 @@
-async function initNodesPage(componentContext) {
+/**
+ * SSID代理系统 - 服务器节点页面
+ * 负责管理服务器节点的配置界面逻辑
+ */
+
+import { apiRequest, showError, showToast } from '../global.js';
+
+/**
+ * 初始化节点页面
+ * @param {Object} componentContext - 组件上下文
+ */
+export async function initNodesPage(componentContext) {
     // 加载节点数据
     await loadNodesData(componentContext);
 
@@ -29,6 +40,10 @@ async function initNodesPage(componentContext) {
     });
 }
 
+/**
+ * 加载节点数据
+ * @param {Object} componentContext - 组件上下文
+ */
 async function loadNodesData(componentContext) {
     const data = await apiRequest('nodes', 'GET');
     // 确保数据是数组
@@ -36,8 +51,11 @@ async function loadNodesData(componentContext) {
     componentContext.render({ nodes });
 }
 
-
-
+/**
+ * 从表格行获取节点数据
+ * @param {HTMLElement} row - 表格行元素
+ * @returns {Object} 节点数据
+ */
 function getNodeDataFromRow(row) {
     return {
         id: row.dataset.id,
@@ -49,6 +67,10 @@ function getNodeDataFromRow(row) {
     };
 }
 
+/**
+ * 保存编辑的节点
+ * @param {Object} componentContext - 组件上下文
+ */
 async function saveEditedNode(componentContext) {
     const nodeId = document.getElementById('edit-node-id').value;
     const name = document.getElementById('edit-node-name').value.trim();
@@ -79,6 +101,11 @@ async function saveEditedNode(componentContext) {
     }
 }
 
+/**
+ * 删除节点
+ * @param {string} nodeId - 节点ID
+ * @param {Object} componentContext - 组件上下文
+ */
 async function deleteNode(nodeId, componentContext) {
     if (confirm('确定要删除此节点吗？')) {
         try {
@@ -91,6 +118,10 @@ async function deleteNode(nodeId, componentContext) {
     }
 }
 
+/**
+ * 保存节点
+ * @param {Object} componentContext - 组件上下文
+ */
 async function saveNode(componentContext) {
     const nodeId = document.getElementById('node-id').value;
     const name = document.getElementById('node-name').value.trim();

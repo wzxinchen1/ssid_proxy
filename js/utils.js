@@ -3,8 +3,10 @@
  * 基于jQuery实现，提供项目核心功能所需的工具函数
  */
 
+import { globalState } from './global.js';
+
 // 资源加载状态跟踪
-const loadedResources = {
+export const loadedResources = {
     css: {},
     js: {}
 };
@@ -14,7 +16,7 @@ const loadedResources = {
  * @param {string} url - CSS文件路径
  * @param {string} page - 页面名称（用于标识）
  */
-function loadCSS(url, page) {
+export function loadCSS(url, page) {
     return new Promise((resolve, reject) => {
         // 检查是否已加载
         if (loadedResources.css[url]) {
@@ -45,7 +47,7 @@ function loadCSS(url, page) {
  * @param {string} url - JS文件路径
  * @param {string} page - 页面名称（用于标识）
  */
-function loadJS(url, page) {
+export function loadJS(url, page) {
     return new Promise((resolve, reject) => {
         // 检查是否已加载
         if (loadedResources.js[url]) {
@@ -74,7 +76,7 @@ function loadJS(url, page) {
  * 加载页面资源（HTML、CSS、JS）
  * @param {string} page - 页面名称
  */
-function loadPageResources(page) {
+export function loadPageResources(page) {
     const basePath = `pages/${page}`;
     
     return new Promise((resolve, reject) => {
@@ -105,7 +107,7 @@ function loadPageResources(page) {
  * @param {string} str - 需要转义的字符串
  * @returns {string} 转义后的安全字符串
  */
-function escapeHTML(str) {
+export function escapeHTML(str) {
     if (!str) return '';
     return str.toString()
         .replace(/&/g, '&amp;')
@@ -121,7 +123,7 @@ function escapeHTML(str) {
  * @param {number} decimals - 保留小数位数
  * @returns {string} 格式化后的字符串
  */
-function formatBytes(bytes, decimals = 2) {
+export function formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return '0 Bytes';
     
     const k = 1024;
@@ -138,7 +140,7 @@ function formatBytes(bytes, decimals = 2) {
  * @param {number|string} timestamp - 时间戳
  * @returns {string} 格式化后的时间字符串
  */
-function formatTime(timestamp) {
+export function formatTime(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleString('zh-CN', {
         year: 'numeric',
@@ -156,7 +158,7 @@ function formatTime(timestamp) {
  * @param {number} wait - 等待时间(毫秒)
  * @returns {Function} 防抖处理后的函数
  */
-function debounce(func, wait = 300) {
+export function debounce(func, wait = 300) {
     let timeout;
     return function() {
         const context = this;
@@ -173,7 +175,7 @@ function debounce(func, wait = 300) {
  * @param {string} text - 需要复制的文本
  * @returns {Promise} 复制操作的结果
  */
-function copyToClipboard(text) {
+export function copyToClipboard(text) {
     return new Promise((resolve, reject) => {
         // 创建临时textarea元素
         const textarea = document.createElement('textarea');
@@ -200,7 +202,7 @@ function copyToClipboard(text) {
  * 显示加载状态
  * @param {string} selector - 可选，指定在哪个容器内显示加载状态
  */
-function showLoading(selector = '#page-container') {
+export function showLoading(selector = '#page-container') {
     // 创建或更新加载状态元素
     let loadingElement = $(selector).find('.loading-overlay');
     
@@ -221,7 +223,7 @@ function showLoading(selector = '#page-container') {
  * 隐藏加载状态
  * @param {string} selector - 可选，指定在哪个容器内隐藏加载状态
  */
-function hideLoading(selector = '#page-container') {
+export function hideLoading(selector = '#page-container') {
     $(selector).find('.loading-overlay').hide();
 }
 
@@ -230,7 +232,7 @@ function hideLoading(selector = '#page-container') {
  * @param {string} message - 错误消息
  * @param {boolean} showRetry - 是否显示重试按钮
  */
-function showError(message, showRetry = true) {
+export function showError(message, showRetry = true) {
     $('#error-message').text(message);
     $('#retry-btn').toggle(showRetry);
     $('#error-modal').show();
@@ -240,7 +242,7 @@ function showError(message, showRetry = true) {
  * 更新全局监控数据
  * @param {Object} data - 监控数据
  */
-function updateGlobalMonitor(data) {
+export function updateGlobalMonitor(data) {
     if (data.cpu) {
         $('#cpu-usage').text(`${data.cpu}%`);
     }
@@ -268,7 +270,7 @@ function updateGlobalMonitor(data) {
 /**
  * 切换服务状态
  */
-function toggleServiceStatus() {
+export function toggleServiceStatus() {
     const isEnabled = $('#service-toggle').hasClass('btn-warning');
     const action = isEnabled ? 'stop' : 'start';
     
@@ -298,7 +300,7 @@ function toggleServiceStatus() {
  * @param {Object} data - 请求数据
  * @returns {Promise} API响应
  */
-function apiRequest(endpoint, method = 'GET', data = null) {
+export function apiRequest(endpoint, method = 'GET', data = null) {
     return new Promise((resolve, reject) => {
         $.ajax({
             url: `/cgi-bin/luci/api/${endpoint}`,
@@ -323,7 +325,7 @@ function apiRequest(endpoint, method = 'GET', data = null) {
 /**
  * 初始化工具函数
  */
-function initUtils() {
+export function initUtils() {
     // 绑定全局错误处理
     $(document).ajaxError((event, jqxhr, settings, thrownError) => {
         if (settings.url.startsWith('/api/')) {

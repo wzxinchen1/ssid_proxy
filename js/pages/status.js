@@ -4,6 +4,8 @@
  * 功能: 实现状态页面的数据加载、渲染和交互逻辑
  */
 
+import { apiRequest, showError, showToast, formatBytes } from '../global.js';
+
 // 页面状态对象
 const statusPageState = {
     initialized: false,
@@ -13,7 +15,7 @@ const statusPageState = {
 };
 
 // 页面初始化函数 (SPA适配)
-function initStatusPage() {
+export function initStatusPage() {
     // 如果已经初始化，只刷新数据
     if (statusPageState.initialized) {
         refreshStatusData();
@@ -33,7 +35,7 @@ function initStatusPage() {
 }
 
 // 页面卸载函数 (SPA适配)
-function cleanupStatusPage() {
+export function cleanupStatusPage() {
     console.log("清理状态页面资源");
 
     // 清除自动刷新定时器

@@ -3,8 +3,14 @@
  * 负责管理代理规则的配置界面逻辑
  */
 
+import { globalState, subscribe, updateGlobalState, showToast, showError, apiRequest } from '../global.js';
+import { escapeHTML } from '../utils.js';
+
+// 当前配置数据
+let currentConfig = {};
+
 // 页面初始化函数
-async function initConfigPage() {
+export async function initConfigPage() {
     // 绑定事件处理程序
     bindConfigEvents();
 
@@ -374,9 +380,6 @@ function handleConfigUpdate(config) {
         document.documentElement.setAttribute('data-theme', config.theme);
     }
 }
-
-// 当前配置数据
-let currentConfig = {};
 
 // 页面初始化
 $(document).ready(async () => {

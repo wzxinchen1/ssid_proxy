@@ -4,7 +4,7 @@
  */
 
 // 全局状态对象
-const globalState = {
+export const globalState = {
     // 系统状态
     serviceEnabled: false,
     serviceRunning: false,
@@ -43,7 +43,7 @@ let monitorInterval = null;
 /**
  * 初始化全局状态
  */
-function initGlobalState() {
+export function initGlobalState() {
     // 从本地存储加载用户配置
     loadUserConfig();
     
@@ -76,7 +76,7 @@ function loadUserConfig() {
 /**
  * 保存用户配置到本地存储
  */
-function saveUserConfig() {
+export function saveUserConfig() {
     localStorage.setItem('ssidProxyConfig', JSON.stringify(globalState.userConfig));
     applyUserConfig();
 }
@@ -116,7 +116,7 @@ function setupMonitorInterval() {
 /**
  * 获取全局监控数据
  */
-function fetchGlobalMonitor() {
+export function fetchGlobalMonitor() {
     $.ajax({
         url: '/cgi-bin/luci/api/monitor',  // 修正为lua中定义的监控API路径
         method: 'GET',
@@ -138,7 +138,7 @@ function fetchGlobalMonitor() {
 /**
  * 获取服务状态
  */
-function fetchServiceStatus() {
+export function fetchServiceStatus() {
     $.ajax({
         url: '/cgi-bin/luci/api/status',  // 修正为lua中定义的状态API路径
         method: 'GET',
@@ -187,7 +187,7 @@ function fetchServiceEnabledStatus() {
  * 切换服务状态
  * @param {boolean} enable - 是否启用服务
  */
-function toggleServiceStatus(enable) {
+export function toggleServiceStatus(enable) {
     const endpoint = enable ? '/cgi-bin/luci/api/service/start' : '/cgi-bin/luci/api/service/stop';
     
     $.ajax({
@@ -214,7 +214,7 @@ function toggleServiceStatus(enable) {
  * @param {string} key - 状态键名
  * @param {any} value - 新值
  */
-function updateGlobalState(key, value) {
+export function updateGlobalState(key, value) {
     // 更新状态
     if (key.includes('.')) {
         // 处理嵌套属性 (如 'monitorData.cpu')
@@ -240,7 +240,7 @@ function updateGlobalState(key, value) {
  * @param {string} category - 订阅类别 (monitor, config, service)
  * @param {Function} callback - 回调函数
  */
-function subscribe(category, callback) {
+export function subscribe(category, callback) {
     if (!globalState.subscribers[category]) {
         globalState.subscribers[category] = [];
     }
@@ -253,7 +253,7 @@ function subscribe(category, callback) {
  * @param {string} category - 订阅类别
  * @param {Function} callback - 回调函数
  */
-function unsubscribe(category, callback) {
+export function unsubscribe(category, callback) {
     if (globalState.subscribers[category]) {
         const index = globalState.subscribers[category].indexOf(callback);
         if (index !== -1) {
@@ -338,7 +338,7 @@ function bindGlobalEvents() {
  * @param {string} key - 配置键
  * @param {any} value - 配置值
  */
-function updateUserConfig(key, value) {
+export function updateUserConfig(key, value) {
     globalState.userConfig[key] = value;
     saveUserConfig();
     showToast('配置已保存');
@@ -349,7 +349,7 @@ function updateUserConfig(key, value) {
  * @param {string} message - 消息内容
  * @param {string} type - 消息类型 (success, error, warning)
  */
-function showToast(message, type = 'success') {
+export function showToast(message, type = 'success') {
     // 创建Toast元素
     const toast = $(`
         <div class="toast toast-${type}">
@@ -372,7 +372,7 @@ function showToast(message, type = 'success') {
 /**
  * 初始化全局监控
  */
-function initGlobalMonitor() {
+export function initGlobalMonitor() {
     // 获取初始服务状态
     fetchServiceStatus();
     
@@ -436,7 +436,7 @@ function updateServiceUI(data) {
  * @param {number} bytes - 字节数
  * @returns {string} 格式化后的字符串
  */
-function formatBytes(bytes) {
+export function formatBytes(bytes) {
     if (bytes === 0) return '0 Bytes';
     
     const k = 1024;

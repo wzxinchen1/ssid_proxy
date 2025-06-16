@@ -7,7 +7,7 @@
  * 4. v-for-empty 支持（v-for-empty="无数据"）
  */
 
-class Template {
+export class Template {
   constructor(templateString) {
     this.templateString = templateString;
     this.compiled = this.compile();
