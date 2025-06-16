@@ -1086,7 +1086,15 @@ const rendered = engine.render(data);
 document.body.appendChild(rendered);
 
 ```
+```html
+<select v-value="selectedOption">
+  <option value="option1">选项 1</option>
+  <option value="option2">选项 2</option>
+  <option value="option3">选项 3</option>
+</select>
+
 ```
+```html
 <table id="data-table" class="table table-striped">
   <thead>
     <tr>

@@ -5,6 +5,7 @@
  * 2. 事件绑定（事件名="函数名"）
  * 3. v-for 循环（v-for="item in items"）
  * 4. v-for-empty 支持（v-for-empty="无数据"）
+ * 5. v-value 支持（v-value="xxx"，用于 select 标签选中匹配的 option）
  */
 
 export class Template {
@@ -170,6 +171,20 @@ export class Template {
             el.setAttribute(attr.name, `window.${handlerName}`);
           }
         }
+      }
+
+      // 处理 v-value 绑定（用于 select 标签）
+      const selectElements = element.querySelectorAll('select[v-value]');
+      for (const select of selectElements) {
+        const valuePath = select.getAttribute('v-value');
+        const value = this._getValueFromPath(data, valuePath.trim());
+        if (value !== undefined) {
+          const options = select.querySelectorAll('option');
+          for (const option of options) {
+            option.selected = option.value === value;
+          }
+        }
+        select.removeAttribute('v-value');
       }
     }
   }

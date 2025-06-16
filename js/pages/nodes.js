@@ -7,6 +7,7 @@ import { showToast } from '../global.js';
 import { apiRequest, showError } from '../utils.js';
 
 let componentContext = null;
+let nodesList = [];
 
 /**
  * 初始化节点页面
@@ -35,13 +36,10 @@ async function loadNodesData() {
     componentContext.render({ nodes });
 }
 
-
 /**
  * 编辑节点
- * @param {Object} nodeData - 节点数据
+ * @param {string} nodeId - 节点ID
  */
-let nodesList = [];
-
 window.editNode = function editNode(nodeId) {
     const nodeData = nodesList.find(node => node.id === nodeId);
     if (nodeData) {
