@@ -3,7 +3,8 @@
  * 负责管理服务器节点的配置界面逻辑
  */
 
-import { apiRequest, showError, showToast } from '../utils.js';
+import { showError, showToast } from '../global.js';
+import { apiRequest } from '../utils.js';
 
 /**
  * 初始化节点页面
