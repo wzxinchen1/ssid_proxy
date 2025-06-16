@@ -40,9 +40,12 @@
                         <td>{{node.address}}</td>
                         <td>{{node.port}}</td>
                         <td>{{node.protocol}}</td>
-                        <td><span class="status-indicator {{node.status === 'active' ? 'status-active' : 'status-inactive'}}"></span></td>
+                        <td><span
+                                class="status-indicator {{node.status === 'active' ? 'status-active' : 'status-inactive'}}"></span>
+                        </td>
                         <td>
-                            <button class="btn btn-small btn-primary edit-btn">编辑</button>
+                            <button class="btn btn-small btn-primary edit-btn"
+                                onclick="editNode('{{node}}')">编辑</button>
                             <button class="btn btn-small btn-warning" onclick="deleteNode('{{node.id}}')">删除</button>
                         </td>
                     </tr>
@@ -57,7 +60,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h3>编辑节点</h3>
-            
+
         </div>
         <div class="modal-body">
             <form id="edit-node-form">
@@ -91,7 +94,8 @@
             </form>
         </div>
         <div class="modal-actions">
-            <button type="button" class="btn btn-secondary" onclick="document.getElementById('edit-node-modal').style.display = 'none';">取消</button>
+            <button type="button" class="btn btn-secondary"
+                onclick="document.getElementById('edit-node-modal').style.display = 'none';">取消</button>
             <button type="button" class="btn btn-primary" onclick="saveEditedNode()">保存</button>
         </div>
     </div>

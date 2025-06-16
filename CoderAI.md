@@ -1006,7 +1006,7 @@ document.body.appendChild(rendered);
 
 **示例：**
 ```html
-<button @click="handleClick">点击</button>
+<button onclick="handleClick">点击</button>
 ```
 - 假设 `window.handleClick` 已定义，渲染后会绑定点击事件。
 
@@ -1123,3 +1123,4 @@ document.body.appendChild(rendered);
 7. apirequest 返回的是数据，不是原始响应，不要调用.success
 8. 项目中引入了 jquery，请使用 jquery操作
 9. 不要到处 try catch
+10. 除了模板引擎和首页，其他地方禁止使用 addEventListener，应该使用模板引擎的功能来实现事件绑定。如果现有代码存在这个情况，就改掉。

@@ -22,26 +22,6 @@ window.initNodesPage = async function (ctx) {
         e.preventDefault();
         await saveNode();
     });
-
-    // 绑定表格编辑事件
-    document.getElementById('nodes-table-body').addEventListener('click', async (e) => {
-        if (e.target.classList.contains('edit-btn')) {
-            const row = e.target.closest('tr');
-            const nodeId = row.dataset.id;
-            const nodeData = getNodeDataFromRow(row);
-
-            // 填充弹窗表单
-            document.getElementById('edit-node-id').value = nodeData.id;
-            document.getElementById('edit-node-name').value = nodeData.name;
-            document.getElementById('edit-node-address').value = nodeData.address;
-            document.getElementById('edit-node-port').value = nodeData.port;
-            document.getElementById('edit-node-protocol').value = nodeData.protocol;
-            document.getElementById('edit-node-status').value = nodeData.status;
-
-            // 显示弹窗
-            document.getElementById('edit-node-modal').style.display = 'block';
-        }
-    });
 }
 
 /**
@@ -69,6 +49,23 @@ function getNodeDataFromRow(row) {
         status: row.cells[4].querySelector('.status-indicator').classList.contains('status-active') ? 'active' : 'inactive'
     };
 }
+
+/**
+ * 编辑节点
+ * @param {Object} nodeData - 节点数据
+ */
+window.editNode = function editNode(nodeData) {
+    // 填充弹窗表单
+    document.getElementById('edit-node-id').value = nodeData.id;
+    document.getElementById('edit-node-name').value = nodeData.name;
+    document.getElementById('edit-node-address').value = nodeData.address;
+    document.getElementById('edit-node-port').value = nodeData.port;
+    document.getElementById('edit-node-protocol').value = nodeData.protocol;
+    document.getElementById('edit-node-status').value = nodeData.status;
+
+    // 显示弹窗
+    document.getElementById('edit-node-modal').style.display = 'block';
+};
 
 /**
  * 保存编辑的节点
