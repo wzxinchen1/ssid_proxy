@@ -47,6 +47,7 @@ window.editNode = function editNode(nodeId) {
     if (nodeData) {
         componentContext.render({
             editNodeData: nodeData,
+            nodes: nodesList,
             showEditModal: true
         });
     } else {
