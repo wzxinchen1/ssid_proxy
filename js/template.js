@@ -4,6 +4,7 @@
  * 1. 单向绑定（{{变量名}}）
  * 2. 事件绑定（事件名="函数名"）
  * 3. v-for 循环（v-for="item in items"）
+ * 4. v-for-empty 支持（v-for-empty="无数据"）
  */
 
 class Template {
@@ -87,6 +88,7 @@ class Template {
     for (let i = 0; i < vForElements.length; i++) {
       const element = vForElements[i];
       const vForValue = element.getAttribute('v-for');
+      const vForEmpty = element.getAttribute('v-for-empty');
       const [itemVar, listVar] = vForValue.split(' in ');
       let list = data[listVar.trim()] || [];
       if (!Array.isArray(list)) {
@@ -94,27 +96,40 @@ class Template {
         continue;
       }
 
-      // 移除 v-for 属性
+      // 移除 v-for 和 v-for-empty 属性
       element.removeAttribute('v-for');
+      if (vForEmpty) element.removeAttribute('v-for-empty');
 
       const fragment = document.createDocumentFragment();
 
-      for (const item of list) {
-        const clone = element.cloneNode(true);
-
-        // 替换 {{变量名}} - 使用合并的上下文（局部变量优先）
-        const context = { ...data, [itemVar.trim()]: item };
-        const textNodes = this._findTextNodes(clone);
-        for (const node of textNodes) {
-          node.textContent = node.textContent.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
-            return this._getValueFromPath(context, key.trim());
-          });
+      if (list.length === 0 && vForEmpty) {
+        // 处理 v-for-empty
+        const emptyNode = document.createElement(element.tagName === 'TR' ? 'td' : 'div');
+        if (element.tagName === 'TR') {
+          emptyNode.colSpan = element.querySelectorAll('td').length || 1;
         }
+        emptyNode.textContent = vForEmpty;
+        fragment.appendChild(emptyNode);
+      } else {
+        // 处理 v-for 数据
+        for (const item of list) {
+          const clone = element.cloneNode(true);
 
-        // 处理事件绑定
-        this._processBindings(clone, context);
-        fragment.appendChild(clone);
+          // 替换 {{变量名}} - 使用合并的上下文（局部变量优先）
+          const context = { ...data, [itemVar.trim()]: item };
+          const textNodes = this._findTextNodes(clone);
+          for (const node of textNodes) {
+            node.textContent = node.textContent.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
+              return this._getValueFromPath(context, key.trim());
+            });
+          }
+
+          // 处理事件绑定
+          this._processBindings(clone, context);
+          fragment.appendChild(clone);
+        }
       }
+
       // 替换原始元素
       const parentNode = element.parentNode;
       parentNode.replaceChild(fragment, element);
