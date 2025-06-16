@@ -23,7 +23,7 @@ export function loadCSS(url, page) {
             resolve();
             return;
         }
-        
+
         // 创建link元素
         const link = document.createElement('link');
         link.rel = 'stylesheet';
@@ -36,7 +36,7 @@ export function loadCSS(url, page) {
             console.error(`Failed to load CSS: ${url}`);
             reject(new Error(`CSS加载失败: ${url}`));
         };
-        
+
         // 添加到文档头部
         document.head.appendChild(link);
     });
@@ -54,10 +54,11 @@ export function loadJS(url, page) {
             resolve();
             return;
         }
-        
+
         // 创建script元素
         const script = document.createElement('script');
         script.src = url;
+        script.type = "module";
         script.onload = () => {
             loadedResources.js[url] = true;
             resolve();
@@ -66,7 +67,7 @@ export function loadJS(url, page) {
             console.error(`Failed to load JS: ${url}`);
             reject(new Error(`JavaScript加载失败: ${url}`));
         };
-        
+
         // 添加到文档尾部
         document.body.appendChild(script);
     });
@@ -78,7 +79,7 @@ export function loadJS(url, page) {
  */
 export function loadPageResources(page) {
     const basePath = `pages/${page}`;
-    
+
     return new Promise((resolve, reject) => {
         // 1. 加载HTML内容
         $.get(`${basePath}.html`)
@@ -125,13 +126,13 @@ export function escapeHTML(str) {
  */
 export function formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return '0 Bytes';
-    
+
     const k = 1024;
     const dm = decimals < 0 ? 0 : decimals;
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    
+
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
@@ -160,7 +161,7 @@ export function formatTime(timestamp) {
  */
 export function debounce(func, wait = 300) {
     let timeout;
-    return function() {
+    return function () {
         const context = this;
         const args = arguments;
         clearTimeout(timeout);
@@ -184,7 +185,7 @@ export function copyToClipboard(text) {
         textarea.style.position = 'absolute';
         textarea.style.left = '-9999px';
         document.body.appendChild(textarea);
-        
+
         // 选择并复制文本
         textarea.select();
         try {
@@ -205,7 +206,7 @@ export function copyToClipboard(text) {
 export function showLoading(selector = '#page-container') {
     // 创建或更新加载状态元素
     let loadingElement = $(selector).find('.loading-overlay');
-    
+
     if (loadingElement.length === 0) {
         loadingElement = $(`
             <div class="loading-overlay">
@@ -215,7 +216,7 @@ export function showLoading(selector = '#page-container') {
         `);
         $(selector).append(loadingElement);
     }
-    
+
     loadingElement.show();
 }
 
@@ -255,7 +256,7 @@ export function updateGlobalMonitor(data) {
     if (data.dailyTraffic) {
         $('#daily-traffic').text(formatBytes(data.dailyTraffic));
     }
-    
+
     // 更新服务状态按钮
     const serviceBtn = $('#service-toggle');
     if (data.serviceEnabled) {
@@ -273,9 +274,9 @@ export function updateGlobalMonitor(data) {
 export function toggleServiceStatus() {
     const isEnabled = $('#service-toggle').hasClass('btn-warning');
     const action = isEnabled ? 'stop' : 'start';
-    
+
     showLoading();
-    
+
     $.post(`/api/service/${action}`)
         .then(response => {
             if (response.success) {
@@ -309,16 +310,16 @@ export function apiRequest(endpoint, method = 'GET', data = null) {
             contentType: 'application/json',
             dataType: 'json'
         })
-        .done(response => {
-            if (response.success) {
-                resolve(response.data);
-            } else {
-                reject(new Error(response.message || 'API请求失败'));
-            }
-        })
-        .fail((xhr, status, error) => {
-            reject(new Error(`API请求错误: ${status} - ${error}`));
-        });
+            .done(response => {
+                if (response.success) {
+                    resolve(response.data);
+                } else {
+                    reject(new Error(response.message || 'API请求失败'));
+                }
+            })
+            .fail((xhr, status, error) => {
+                reject(new Error(`API请求错误: ${status} - ${error}`));
+            });
     });
 }
 
