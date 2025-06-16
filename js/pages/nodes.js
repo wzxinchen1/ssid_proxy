@@ -10,7 +10,7 @@ import { apiRequest, showError } from '../utils.js';
  * 初始化节点页面
  * @param {Object} componentContext - 组件上下文
  */
-export async function initNodesPage(componentContext) {
+window.initNodesPage = async function(componentContext) {
     // 加载节点数据
     await loadNodesData(componentContext);
 

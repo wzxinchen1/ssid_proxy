@@ -16,7 +16,7 @@ const statusPageState = {
 };
 
 // 页面初始化函数 (SPA适配)
-export function initStatusPage() {
+window.initStatusPage = function initStatusPage() {
     // 如果已经初始化，只刷新数据
     if (statusPageState.initialized) {
         refreshStatusData();

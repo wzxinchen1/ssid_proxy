@@ -10,7 +10,7 @@ import { escapeHTML, apiRequest, showError } from '../utils.js';
 let currentConfig = {};
 
 // 页面初始化函数
-export async function initConfigPage() {
+window.initConfigPage = async function initConfigPage() {
     // 绑定事件处理程序
     bindConfigEvents();
 
