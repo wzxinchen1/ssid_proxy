@@ -35,7 +35,7 @@
                     </tr>
                 </thead>
                 <tbody id="nodes-table-body">
-                    <tr v-for="node in nodes" data-id="{{node.id}}">
+                    <tr v-for="node in nodes" v-for-empty="没有数据">
                         <td>{{node.name}}</td>
                         <td>{{node.address}}</td>
                         <td>{{node.port}}</td>
