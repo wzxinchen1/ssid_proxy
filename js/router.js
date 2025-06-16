@@ -65,7 +65,7 @@ function handleHashChange() {
 /**
  * 从当前hash加载页面
  */
-function loadPageFromHash() {
+export function loadPageFromHash() {
     const hash = window.location.hash.substring(1);
     const page = hash || DEFAULT_ROUTE;
 
