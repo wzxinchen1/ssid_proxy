@@ -157,7 +157,14 @@ class Template {
         const attributes = Array.from(el.attributes);
         for (const attr of attributes) {
           if (attr.name.startsWith('on')) {
-            const handlerName = attr.value;
+            let handlerName = attr.value;
+            // 替换事件绑定中的模板变量
+            handlerName = handlerName.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
+              return this._getValueFromPath(data, key.trim());
+            });
+            if (handlerName.startsWith("window.")) {
+              continue;
+            }
             // 替换为 window.函数名
             el.setAttribute(attr.name, `window.${handlerName}`);
           }
