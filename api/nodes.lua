@@ -83,16 +83,26 @@ function api_nodes()
         http.write_json({ success = true, id = id })
     elseif method == "DELETE" then
         -- 确保有有效数据
-        if not nodeId and (not data or not data.id) then
+        if not nodeId then
             http.status(400, "Bad Request")
             http.write_json({ success = false, error = "没有NodeID" })
             return
         end
         
+        -- 检查节点是否存在
+        if not uci:get("ssid-proxy", nodeId) then
+            http.status(404, "Not Found")
+            http.write_json({ success = false, error = "节点不存在" })
+            return
+        end
+        
         -- 删除节点
-        local id = nodeId or data.id
-        uci:delete("ssid-proxy", id)
-        uci:commit("ssid-proxy")
+        uci:delete("ssid-proxy", nodeId)
+        if not uci:commit("ssid-proxy") then
+            http.status(500, "Internal Server Error")
+            http.write_json({ success = false, error = "删除失败" })
+            return
+        end
         
         http.prepare_content("application/json")
         http.write_json({ success = true })
