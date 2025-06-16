@@ -4,6 +4,7 @@
  */
 
 import { showError, showLoading, hideLoading, loadPageResources } from './utils.js';
+import { Template } from './template.js';
 
 // 当前页面状态
 let currentPage = null;
