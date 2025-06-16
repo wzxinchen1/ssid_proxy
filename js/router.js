@@ -3,7 +3,7 @@
  * 基于Hash的路由机制，实现单页面应用导航
  */
 
-import { showError, showLoading, hideLoading } from './utils.js';
+import { showError, showLoading, hideLoading, loadPageResources } from './utils.js';
 
 // 当前页面状态
 let currentPage = null;
@@ -125,7 +125,7 @@ export async function loadPage(page) {
         // 渲染页面内容
         renderPage(page, htmlContent);
 
-        
+
         hideLoading();
     } catch (error) {
         console.error(`加载页面失败: ${page}`, error);
