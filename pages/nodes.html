@@ -42,8 +42,8 @@
                         <td>{{node.protocol}}</td>
                         <td><span class="status-indicator {{node.status === 'active' ? 'status-active' : 'status-inactive'}}"></span></td>
                         <td>
-                            <button class="btn btn-small btn-primary edit-btn" data-id="{{node.id}}">编辑</button>
-                            <button class="btn btn-small btn-warning" data-id="{{node.id}}" onclick="deleteNode('{{node.id}}')">删除</button>
+                            <button class="btn btn-small btn-primary edit-btn">编辑</button>
+                            <button class="btn btn-small btn-warning" onclick="deleteNode('{{node.id}}')">删除</button>
                         </td>
                     </tr>
                 </tbody>

@@ -8,6 +8,17 @@ function api_nodes()
     local uci = require "luci.model.uci".cursor()
     
     local method = http.getenv("REQUEST_METHOD")
+    local path_info = http.getenv("PATH_INFO") or ""
+    
+    -- 从路径中提取 nodeId
+    local nodeId = nil
+    local path_parts = {}
+    for part in path_info:gmatch("[^/]+") do
+        table.insert(path_parts, part)
+    end
+    if #path_parts >= 2 then
+        nodeId = path_parts[2]
+    end
     
     -- 正确获取请求体内容
     local content = http.content()
@@ -54,37 +65,39 @@ function api_nodes()
         http.write_json({ success = true, id = id })
     elseif method == "PUT" then
         -- 确保有有效数据
-        if not data or not data.id then
+        if not nodeId and (not data or not data.id) then
             http.status(400, "Bad Request")
             http.write_json({ success = false, error = "没有NodeID" })
             return
         end
         
         -- 更新节点
-        uci:set("ssid-proxy", data.id, "name", data.name)
-        uci:set("ssid-proxy", data.id, "address", data.address)
-        uci:set("ssid-proxy", data.id, "port", data.port)
-        uci:set("ssid-proxy", data.id, "protocol", data.protocol)
+        local id = nodeId or data.id
+        uci:set("ssid-proxy", id, "name", data.name)
+        uci:set("ssid-proxy", id, "address", data.address)
+        uci:set("ssid-proxy", id, "port", data.port)
+        uci:set("ssid-proxy", id, "protocol", data.protocol)
         uci:commit("ssid-proxy")
         
         http.prepare_content("application/json")
-        http.write_json({ success = true, id = data.id })
+        http.write_json({ success = true, id = id })
     elseif method == "DELETE" then
         -- 确保有有效数据
-        if not data or not data.id then
+        if not nodeId and (not data or not data.id) then
             http.status(400, "Bad Request")
             http.write_json({ success = false, error = "没有NodeID" })
             return
         end
         
         -- 删除节点
-        uci:delete("ssid-proxy", data.id)
+        local id = nodeId or data.id
+        uci:delete("ssid-proxy", id)
         uci:commit("ssid-proxy")
         
         http.prepare_content("application/json")
         http.write_json({ success = true })
     else
-        http.status(405, "Method Not Allowed!!!!!!!!!!!!!!!!!!!!!!!!"+method)
-        http.write_json({ success = false, error = "Method not allowed!!!!!!!!!!!!!!!!!"+method })
+        http.status(405, "Method Not Allowed")
+        http.write_json({ success = false, error = "Method not allowed: " .. method })
     end
 end
