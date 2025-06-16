@@ -12,12 +12,12 @@ function api_nodes()
     
     -- 从路径中提取 nodeId
     local nodeId = nil
-    local path_parts = {}
-    for part in path_info:gmatch("[^/]+") do
-        table.insert(path_parts, part)
-    end
-    if #path_parts >= 2 then
-        nodeId = path_parts[2]
+    local pattern = "/api/nodes/([^/]+)$"
+    if path_info then
+        local match = path_info:match(pattern)
+        if match then
+            nodeId = match
+        end
     end
     
     -- 正确获取请求体内容
