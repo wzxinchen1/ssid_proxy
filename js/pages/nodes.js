@@ -6,18 +6,21 @@
 import { showToast } from '../global.js';
 import { apiRequest, showError } from '../utils.js';
 
+let componentContext = null;
+
 /**
  * 初始化节点页面
- * @param {Object} componentContext - 组件上下文
+ * @param {Object} ctx - 组件上下文
  */
-window.initNodesPage = async function (componentContext) {
+window.initNodesPage = async function (ctx) {
+    componentContext = ctx;
     // 加载节点数据
-    await loadNodesData(componentContext);
+    await loadNodesData();
 
     // 绑定表单提交事件
     document.getElementById('add-node-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        await saveNode(componentContext);
+        await saveNode();
     });
 
     // 绑定表格编辑事件
@@ -43,9 +46,8 @@ window.initNodesPage = async function (componentContext) {
 
 /**
  * 加载节点数据
- * @param {Object} componentContext - 组件上下文
  */
-async function loadNodesData(componentContext) {
+async function loadNodesData() {
     const data = await apiRequest('nodes', 'GET');
     // 确保数据是数组
     const nodes = Array.isArray(data) ? data : [];
@@ -70,9 +72,8 @@ function getNodeDataFromRow(row) {
 
 /**
  * 保存编辑的节点
- * @param {Object} componentContext - 组件上下文
  */
-async function saveEditedNode(componentContext) {
+async function saveEditedNode() {
     const nodeId = document.getElementById('edit-node-id').value;
     const name = document.getElementById('edit-node-name').value.trim();
     const address = document.getElementById('edit-node-address').value.trim();
@@ -95,7 +96,7 @@ async function saveEditedNode(componentContext) {
         });
 
         document.getElementById('edit-node-modal').style.display = 'none';
-        await loadNodesData(componentContext);
+        await loadNodesData();
         showToast('节点更新成功');
     } catch (error) {
         showError(error.message);
@@ -105,13 +106,12 @@ async function saveEditedNode(componentContext) {
 /**
  * 删除节点
  * @param {string} nodeId - 节点ID
- * @param {Object} componentContext - 组件上下文
  */
-window.deleteNode = async function deleteNode(nodeId, componentContext) {
+window.deleteNode = async function deleteNode(nodeId) {
     if (confirm('确定要删除此节点吗？')) {
         try {
             await apiRequest(`nodes/${nodeId}`, 'DELETE');
-            await loadNodesData(componentContext);
+            await loadNodesData();
             showToast('节点删除成功');
         } catch (error) {
             showError(error.message);
@@ -121,9 +121,8 @@ window.deleteNode = async function deleteNode(nodeId, componentContext) {
 
 /**
  * 保存节点
- * @param {Object} componentContext - 组件上下文
  */
-async function saveNode(componentContext) {
+async function saveNode() {
     const nodeId = document.getElementById('node-id').value;
     const name = document.getElementById('node-name').value.trim();
     const address = document.getElementById('node-address').value.trim();
@@ -147,7 +146,7 @@ async function saveNode(componentContext) {
 
         document.getElementById('add-node-form').reset();
         document.getElementById('node-id').value = '';
-        await loadNodesData(componentContext);
+        await loadNodesData();
         showToast(nodeId ? '节点更新成功' : '节点保存成功');
     } catch (error) {
         showError(error.message);
