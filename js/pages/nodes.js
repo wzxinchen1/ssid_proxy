@@ -10,7 +10,7 @@ import { apiRequest, showError } from '../utils.js';
  * 初始化节点页面
  * @param {Object} componentContext - 组件上下文
  */
-window.initNodesPage = async function(componentContext) {
+window.initNodesPage = async function (componentContext) {
     // 加载节点数据
     await loadNodesData(componentContext);
 
@@ -107,7 +107,7 @@ async function saveEditedNode(componentContext) {
  * @param {string} nodeId - 节点ID
  * @param {Object} componentContext - 组件上下文
  */
-async function deleteNode(nodeId, componentContext) {
+window.deleteNode = async function deleteNode(nodeId, componentContext) {
     if (confirm('确定要删除此节点吗？')) {
         try {
             await apiRequest(`nodes/${nodeId}`, 'DELETE');
