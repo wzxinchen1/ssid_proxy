@@ -56,15 +56,10 @@ function getNodeDataFromRow(row) {
  */
 window.editNode = function editNode(nodeData) {
     // 填充弹窗表单
-    document.getElementById('edit-node-id').value = nodeData.id;
-    document.getElementById('edit-node-name').value = nodeData.name;
-    document.getElementById('edit-node-address').value = nodeData.address;
-    document.getElementById('edit-node-port').value = nodeData.port;
-    document.getElementById('edit-node-protocol').value = nodeData.protocol;
-    document.getElementById('edit-node-status').value = nodeData.status;
-
-    // 显示弹窗
-    document.getElementById('edit-node-modal').style.display = 'block';
+    componentContext.render({
+        editNodeData: nodeData,
+        showEditModal: true
+    });
 };
 
 /**
@@ -92,7 +87,7 @@ async function saveEditedNode() {
             status
         });
 
-        document.getElementById('edit-node-modal').style.display = 'none';
+        componentContext.render({ showEditModal: false });
         await loadNodesData();
         showToast('节点更新成功');
     } catch (error) {
