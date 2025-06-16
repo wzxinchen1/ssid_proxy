@@ -938,6 +938,7 @@ showToast('保存失败，请重试', 'error');
 1. **单向数据绑定**：使用 `{{变量名}}` 语法替换为数据对象中的值。
 2. **事件绑定**：使用 `事件名="函数名"` 语法绑定事件。
 3. **`v-for` 循环**：支持 `v-for="item in items"` 语法动态生成重复元素。
+4. **`v-for-empty`：当没有数据时，显示指定的文本
 
 ---
 
@@ -1084,7 +1085,24 @@ const rendered = engine.render(data);
 document.body.appendChild(rendered);
 
 ```
-
+```
+<table id="data-table" class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="item in items" v-for-empty="无数据">
+      <td>{{item.id}}</td>
+      <td>{{item.name}}</td>
+      <td class="status-indicator status-{{item.status}}">{{item.status}}</td>
+    </tr>
+  </tbody>
+</table>
+```
 ---
 
 ## 注意事项
