@@ -4,8 +4,8 @@
  * 功能: 实现状态页面的数据加载、渲染和交互逻辑
  */
 
-import { showError, showToast, formatBytes } from '../global.js';
-import { apiRequest } from "../utils.js"
+import { showToast, formatBytes } from '../global.js';
+import { apiRequest, showError } from "../utils.js"
 
 // 页面状态对象
 const statusPageState = {

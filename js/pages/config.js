@@ -3,8 +3,8 @@
  * 负责管理代理规则的配置界面逻辑
  */
 
-import { globalState, subscribe, updateGlobalState, showToast, showError } from '../global.js';
-import { escapeHTML, apiRequest } from '../utils.js';
+import { globalState, subscribe, updateGlobalState, showToast } from '../global.js';
+import { escapeHTML, apiRequest, showError } from '../utils.js';
 
 // 当前配置数据
 let currentConfig = {};
