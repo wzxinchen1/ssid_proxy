@@ -31,35 +31,27 @@ async function loadNodesData() {
     const data = await apiRequest('nodes', 'GET');
     // 确保数据是数组
     const nodes = Array.isArray(data) ? data : [];
+    nodesList = nodes; // 保存节点数据
     componentContext.render({ nodes });
 }
 
-/**
- * 从表格行获取节点数据
- * @param {HTMLElement} row - 表格行元素
- * @returns {Object} 节点数据
- */
-function getNodeDataFromRow(row) {
-    return {
-        id: row.dataset.id,
-        name: row.cells[0].textContent,
-        address: row.cells[1].textContent,
-        port: row.cells[2].textContent,
-        protocol: row.cells[3].textContent.toLowerCase(),
-        status: row.cells[4].querySelector('.status-indicator').classList.contains('status-active') ? 'active' : 'inactive'
-    };
-}
 
 /**
  * 编辑节点
  * @param {Object} nodeData - 节点数据
  */
-window.editNode = function editNode(nodeData) {
-    // 填充弹窗表单
-    componentContext.render({
-        editNodeData: nodeData,
-        showEditModal: true
-    });
+let nodesList = [];
+
+window.editNode = function editNode(nodeId) {
+    const nodeData = nodesList.find(node => node.id === nodeId);
+    if (nodeData) {
+        componentContext.render({
+            editNodeData: nodeData,
+            showEditModal: true
+        });
+    } else {
+        showError('未找到节点数据');
+    }
 };
 
 /**
