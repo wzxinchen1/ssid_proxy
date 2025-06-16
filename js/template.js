@@ -103,7 +103,7 @@ class Template {
         const clone = element.cloneNode(true);
 
         // 替换 {{变量名}} - 使用合并的上下文（局部变量优先）
-        const context = { ...data, ...item };
+        const context = { ...data, [itemVar.trim()]: item };
         const textNodes = this._findTextNodes(clone);
         for (const node of textNodes) {
           node.textContent = node.textContent.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
