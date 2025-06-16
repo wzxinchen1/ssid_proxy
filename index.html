@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +9,8 @@
     <link rel="stylesheet" href="/luci-static/resources/ssid-proxy/css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module">
-        import { initRouter, navigateTo, refreshCurrentPage } from '/luci-static/resources/ssid-proxy/js/router.js';
+        import { initRouter, navigateTo, refreshCurrentPage, loadPageFromHash } from '/luci-static/resources/ssid-proxy/js/router.js';
         import { initGlobalMonitor, toggleServiceStatus } from '/luci-static/resources/ssid-proxy/js/global.js';
-        import { loadPageFromHash } from '/luci-static/resources/ssid-proxy/js/utils.js';
 
         $(document).ready(async function () {
             initRouter();
@@ -41,6 +41,7 @@
         }
     </script>
 </head>
+
 <body>
     <header class="app-header">
         <div class="logo">
@@ -107,4 +108,5 @@
         </div>
     </div>
 </body>
+
 </html>
