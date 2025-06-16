@@ -102,17 +102,19 @@ class Template {
       for (const item of list) {
         const clone = element.cloneNode(true);
 
-        // 替换 {{变量名}}
+        // 替换 {{变量名}} - 使用合并的上下文（局部变量优先）
+        const context = { ...data, ...item };
         const textNodes = this._findTextNodes(clone);
         for (const node of textNodes) {
           node.textContent = node.textContent.replace(/\{\{([\w.]+)\}\}/g, (_, key) => {
-            return this._getValueFromPath(item, key.trim());
+            return this._getValueFromPath(context, key.trim());
           });
         }
 
+        // 处理事件绑定
+        this._processBindings(clone, context);
         fragment.appendChild(clone);
       }
-
       // 替换原始元素
       const parentNode = element.parentNode;
       parentNode.replaceChild(fragment, element);
