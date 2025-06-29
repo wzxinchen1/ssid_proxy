@@ -2,7 +2,20 @@
 
 module("luci.controller.ssid-proxy.api.config", package.seeall)
 local M = {}
+function set_cors_headers()
+    http.header("Access-Control-Allow-Origin", "*")
+    http.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    http.header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    http.header("Access-Control-Max-Age", "86400")
+end
 function M.api_config()
+    -- 全局跨域处理器
+    set_cors_headers()
+    if http.getenv("REQUEST_METHOD") == "OPTIONS" then
+        http.status(204, "No Content")
+        http.close()
+        return
+    end
     local uci = require "luci.model.uci".cursor()
     local http = require "luci.http"
     
