@@ -11,13 +11,11 @@ local http = require "luci.http"
 
 -- 跨域处理函数
 function action_cors()
-    http.status(204, "No Content")
-    return true
+    http.header("Access-Control-Allow-Origin", "*")
+    http.header("Access-Control-Allow-Methods", "*")
+    http.header("Access-Control-Allow-Headers", "*")
+    http.header("Access-Control-Max-Age", "86400")
     if http.getenv("REQUEST_METHOD") == "OPTIONS" then
-        http.header("Access-Control-Allow-Origin", "*")
-        http.header("Access-Control-Allow-Methods", "*")
-        http.header("Access-Control-Allow-Headers", "*")
-        http.header("Access-Control-Max-Age", "86400")
         http.status(204, "No Content")
         return true
     end
