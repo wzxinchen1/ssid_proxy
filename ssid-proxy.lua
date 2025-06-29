@@ -15,7 +15,7 @@ http.prepare_content = function(self, content_type)
     -- 设置跨域头（对所有响应生效）
     http.header("Access-Control-Allow-Origin", "*")
     http.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-    http.header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    http.header("Access-Control-Allow-Headers", "*")
     
     -- 如果是 OPTIONS 预检请求，直接返回 204
     if http.getenv("REQUEST_METHOD") == "OPTIONS" then
