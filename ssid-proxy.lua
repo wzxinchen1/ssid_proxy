@@ -7,6 +7,7 @@ local status = require "luci.controller.ssid-proxy.api.status"
 local config= require "luci.controller.ssid-proxy.api.config"
 local monitor = require "luci.controller.ssid-proxy.api.monitor"
 local nodes= require "luci.controller.ssid-proxy.api.nodes"
+local http = require "luci.http"
 
 -- 覆盖原生的dispatch函数，添加跨域处理
 local old_dispatch = http.dispatch
@@ -43,7 +44,6 @@ function index()
 end
 
 function serve_index()
-    local http = require "luci.http"
     http.redirect("/luci-static/resources/ssid-proxy/index.html")
 end
 
