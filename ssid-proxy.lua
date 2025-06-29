@@ -12,13 +12,13 @@ local http = require "luci.http"
 -- 封装原有的 http.prepare_content 方法，自动添加 CORS 头
 local old_prepare_content = http.prepare_content
 http.prepare_content = function(self, content_type)
+    -- 设置跨域头（对所有响应生效）
+    http.header("Access-Control-Allow-Origin", "*")
+    http.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    http.header("Access-Control-Allow-Headers", "Content-Type, Authorization")
     
     -- 如果是 OPTIONS 预检请求，直接返回 204
     if http.getenv("REQUEST_METHOD") == "OPTIONS" then
-        -- 设置跨域头（对所有响应生效）
-        http.header("Access-Control-Allow-Origin", "*")
-        http.header("Access-Control-Allow-Methods", "*")
-        http.header("Access-Control-Allow-Headers", "*")
         http.status(204, "No Content")
         http.close()
         return
