@@ -131,6 +131,8 @@ function api_nodes()
         http.write_json({
             success = true
         })
+    elseif method == "OPTIONS" then
+        http.cors()
     else
         http.status(405, "Method Not Allowed")
         http.write_json({
