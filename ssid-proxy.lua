@@ -13,8 +13,8 @@ local http = require "luci.http"
 function action_cors()
     if http.getenv("REQUEST_METHOD") == "OPTIONS" then
         http.header("Access-Control-Allow-Origin", "*")
-        http.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        http.header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        http.header("Access-Control-Allow-Methods", "*")
+        http.header("Access-Control-Allow-Headers", "*")
         http.header("Access-Control-Max-Age", "86400")
         http.status(204, "No Content")
         return
