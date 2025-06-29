@@ -11,6 +11,7 @@ local http = require "luci.http"
 
 -- 跨域处理函数
 function action_cors()
+    http = nil
     http.header("Access-Control-Allow-Origin", "*")
     http.header("Access-Control-Allow-Methods", "*")
     http.header("Access-Control-Allow-Headers", "*")
