@@ -9,23 +9,25 @@ local monitor = require "luci.controller.ssid-proxy.api.monitor"
 local nodes= require "luci.controller.ssid-proxy.api.nodes"
 local http = require "luci.http"
 
--- 跨域处理函数
-function action_cors()
-    http = nil
+-- 封装原有的 http.prepare_content 方法，自动添加 CORS 头
+local old_prepare_content = http.prepare_content
+http.prepare_content = function(self, content_type)
+    -- 设置跨域头（对所有响应生效）
     http.header("Access-Control-Allow-Origin", "*")
-    http.header("Access-Control-Allow-Methods", "*")
-    http.header("Access-Control-Allow-Headers", "*")
-    http.header("Access-Control-Max-Age", "86400")
+    http.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    http.header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    
+    -- 如果是 OPTIONS 预检请求，直接返回 204
     if http.getenv("REQUEST_METHOD") == "OPTIONS" then
         http.status(204, "No Content")
-        return true
+        http.close()
+        return
     end
     
-    -- 非OPTIONS请求继续后续处理
-    return false
+    -- 继续原有逻辑
+    return old_prepare_content(self, content_type)
 end
 function index()
-    entry({"api"}, call("action_cors"), nil, 0)  -- 优先级0最高
     -- 主菜单入口
     entry({"admin", "services", "ssid-proxy"}, call("serve_index"), _("接口代理"), 60)
     
