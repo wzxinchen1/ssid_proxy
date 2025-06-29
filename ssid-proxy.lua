@@ -9,13 +9,9 @@ local monitor = require "luci.controller.ssid-proxy.api.monitor"
 local nodes= require "luci.controller.ssid-proxy.api.nodes"
 local http = require "luci.http"
 
--- 覆盖原生的dispatch函数，添加跨域处理
-local old_dispatch = http.dispatch
-http.dispatch = function(self, ...)
-    
-    -- 处理OPTIONS预检请求
+-- 跨域处理函数
+function action_cors()
     if http.getenv("REQUEST_METHOD") == "OPTIONS" then
-        -- 设置跨域头
         http.header("Access-Control-Allow-Origin", "*")
         http.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
         http.header("Access-Control-Allow-Headers", "Content-Type, Authorization")
@@ -24,10 +20,11 @@ http.dispatch = function(self, ...)
         return
     end
     
-    -- 继续原有调度逻辑
-    return old_dispatch(self, ...)
+    -- 非OPTIONS请求继续后续处理
+    return false
 end
 function index()
+    entry({"api"}, call("action_cors"), nil, 0)  -- 优先级0最高
     -- 主菜单入口
     entry({"admin", "services", "ssid-proxy"}, call("serve_index"), _("接口代理"), 60)
     
