@@ -16,7 +16,7 @@ function action_cors()
         http.header("Access-Control-Allow-Methods", "*")
         http.header("Access-Control-Allow-Headers", "*")
         http.header("Access-Control-Max-Age", "86400")
-        http.status(200, "No Content")
+        http.status(204, "No Content")
         return
     end
     
