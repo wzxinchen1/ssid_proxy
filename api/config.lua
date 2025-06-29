@@ -32,7 +32,7 @@ function M.api_config()
         
         luci.http.prepare_content("application/json")
         luci.http.write_json({success = true, data = config})
-    else
+    else if http.getenv("REQUEST_METHOD") == "POST" then
         -- 保存配置
         local data = http.content()
         local json = require "luci.jsonc"
