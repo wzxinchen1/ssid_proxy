@@ -6,6 +6,7 @@ function M.api_config()
     local uci = require "luci.model.uci".cursor()
     local http = require "luci.http"
     
+    luci.http.cors()
     if http.getenv("REQUEST_METHOD") == "GET" then
         -- 获取配置
         local config = {

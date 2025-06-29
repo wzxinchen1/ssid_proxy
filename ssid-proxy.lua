@@ -27,6 +27,22 @@ http.prepare_content = function(self, content_type)
     -- 继续原有逻辑
     return old_prepare_content(self, content_type)
 end
+http.cors = function()
+    -- 设置跨域头（对所有响应生效）
+    http.header("Access-Control-Allow-Origin", "*")
+    http.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    http.header("Access-Control-Allow-Headers", "*")
+    
+    -- 如果是 OPTIONS 预检请求，直接返回 204
+    if http.getenv("REQUEST_METHOD") == "OPTIONS" then
+        http.status(204, "No Content")
+        http.close()
+        return
+    end
+    
+    -- 继续原有逻辑
+    return old_prepare_content(self, content_type)
+end
 function index()
     -- 主菜单入口
     entry({"admin", "services", "ssid-proxy"}, call("serve_index"), _("接口代理"), 60)
