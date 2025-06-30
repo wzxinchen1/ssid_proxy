@@ -7,13 +7,17 @@ import { showToast } from '../global.js';
 import { apiRequest, showError } from '../utils.js';
 
 let componentContext = null;
-let nodesList = [];
+export const viewData = {
+    editNodeData: {},
+    nodes: [],
+    showEditModal: false
+};
 
 /**
  * 初始化节点页面
  * @param {Object} ctx - 组件上下文
  */
-window.initNodesPage = async function (ctx) {
+export const initNodesPage = async function (ctx) {
     componentContext = ctx;
     // 加载节点数据
     await loadNodesData();
@@ -25,15 +29,13 @@ window.initNodesPage = async function (ctx) {
     });
 }
 
+
 /**
  * 加载节点数据
  */
 async function loadNodesData() {
-    const data = await apiRequest('nodes', 'GET');
-    // 确保数据是数组
-    const nodes = Array.isArray(data) ? data : [];
-    nodesList = nodes; // 保存节点数据
-    componentContext.render({ nodes });
+    viewData.nodes = await apiRequest('nodes', 'GET');
+    componentContext.render();
 }
 
 /**
@@ -41,22 +43,20 @@ async function loadNodesData() {
  * @param {string} nodeId - 节点ID
  */
 window.editNode = function editNode(nodeId) {
-    const nodeData = nodesList.find(node => node.id === nodeId);
-    if (nodeData) {
-        componentContext.render({
-            editNodeData: nodeData,
-            nodes: nodesList,
-            showEditModal: true
-        });
-    } else {
-        showError('未找到节点数据');
-    }
+    viewData.editNodeData = viewData.nodes.find(node => node.id === nodeId);
+    viewData.showEditModal = true;
+    componentContext.render();
 };
+
+window.cancelEditNode = () => {
+    viewData.showEditModal = false;
+    componentContext.render();
+}
 
 /**
  * 保存编辑的节点
  */
-async function saveEditedNode() {
+window.saveEditedNode = async () => {
     const nodeId = document.getElementById('edit-node-id').value;
     const name = document.getElementById('edit-node-name').value.trim();
     const address = document.getElementById('edit-node-address').value.trim();
@@ -77,10 +77,9 @@ async function saveEditedNode() {
             protocol,
             status
         });
-
-        componentContext.render({ showEditModal: false });
+        viewData.showEditModal = false;
         await loadNodesData();
-        showToast('节点更新成功');
+
     } catch (error) {
         showError(error.message);
     }

@@ -121,16 +121,13 @@ export async function loadPage(page) {
         showLoading();
 
         // 加载页面资源
-        const htmlContent = await loadPageResources(page);
+        const { htmlContent, module } = await loadPageResources(page);
 
         // 渲染页面内容
-        renderPage(page, htmlContent);
+        renderPage(page, htmlContent, module);
 
 
         hideLoading();
-    } catch (error) {
-        console.error(`加载页面失败: ${page}`, error);
-        showError(`加载页面失败: ${page}<br>${error.message}`, true);
     } finally {
         isNavigating = false;
     }
@@ -141,23 +138,23 @@ export async function loadPage(page) {
  * @param {string} page - 页面名称
  * @param {string} htmlContent - HTML内容
  */
-function renderPage(page, htmlContent) {
+function renderPage(page, htmlContent, module) {
     // 使用模板引擎渲染页面
-    const engine = new Template(htmlContent);
-    const rendered = engine.render({ page });
+    const engine = new Template(htmlContent, module);
+    const rendered = engine.render();
 
     // 添加到DOM
     $('#page-container').html(rendered);
 
     // 初始化页面脚本
-    if (typeof window[`init${capitalize(page)}Page`] === 'function') {
+    if (typeof module[`init${capitalize(page)}Page`] === 'function') {
         const componentContext = {
             render: (data) => {
-                const rendered = engine.render(data);
+                const rendered = engine.render();
                 $('#page-container').html(rendered);
             }
         };
-        window[`init${capitalize(page)}Page`](componentContext);
+        module[`init${capitalize(page)}Page`](componentContext);
     }
 }
 

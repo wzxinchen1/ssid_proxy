@@ -5,21 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SSID代理系统 - 接口代理管理</title>
-    <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/luci-static/resources/ssid-proxy/css/base.css">
+    <link rel="stylesheet" href="/luci-static/resources/ssid-proxy/css/style.css">
+    <link rel="stylesheet" href="/luci-static/resources/ssid-proxy/css/base.css">
+    <link rel="stylesheet" href="/luci-static/resources/ssid-proxy/css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module">
-        if (location.host.includes("127.0.0.1")) {
-            $.ajaxPrefilter((options) => {
-                if (options.url.startsWith("/cgi-bin")) {
-                    options.url = "http://192.168.8.1:8080" + options.url;
-                }
-            });
-        }
-        import { initRouter, navigateTo, refreshCurrentPage, loadPageFromHash } from '/js/router.js';
-        import { initGlobalMonitor, toggleServiceStatus } from '/js/global.js';
+        import { initRouter, navigateTo, refreshCurrentPage, loadPageFromHash } from '/luci-static/resources/ssid-proxy/js/router.js';
+        import { initGlobalMonitor, toggleServiceStatus } from '/luci-static/resources/ssid-proxy/js/global.js';
 
         $(document).ready(async function () {
             initRouter();

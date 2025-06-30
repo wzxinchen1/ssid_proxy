@@ -4,7 +4,7 @@
  */
 
 import { globalState, subscribe, updateGlobalState, showToast } from '../global.js';
-import { escapeHTML, apiRequest, showError } from '../utils.js';
+import { escapeHTML, apiRequest, showError,showLoading,hideLoading } from '../utils.js';
 
 // 当前配置数据
 let currentConfig = {};

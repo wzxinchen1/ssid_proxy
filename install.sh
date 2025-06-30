@@ -31,7 +31,7 @@ cp "$SRC_DIR/init.d/ssid-proxy" /etc/init.d/ssid-proxy
 
 # 步骤5: 复制前端文件
 # 主入口文件
-cp "$SRC_DIR/index.html" /www/luci-static/resources/ssid-proxy/index.html
+cp "$SRC_DIR/index_release.html" /www/luci-static/resources/ssid-proxy/index.html
 
 # CSS 文件
 cp "$SRC_DIR/css/base.css" /www/luci-static/resources/ssid-proxy/css/base.css

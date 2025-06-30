@@ -79,10 +79,9 @@
                     </div>
                     <div class="form-group">
                         <label for="edit-node-protocol">协议</label>
-                        <select id="edit-node-protocol" class="form-control" required>
-                            <option value="socks5" {{editNodeData.protocol==='socks5' ? 'selected' : '' }}>SOCKS5
-                            </option>
-                            <option value="http" {{editNodeData.protocol==='http' ? 'selected' : '' }}>HTTP</option>
+                        <select id="edit-node-protocol" class="form-control" required v-value="{{editNodeData.protocol}}">
+                            <option value="socks5">SOCKS5</option>
+                            <option value="http">HTTP</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -96,7 +95,7 @@
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-secondary"
-                    onclick="componentContext.render({ showEditModal: false });">取消</button>
+                    onclick="cancelEditNode()">取消</button>
                 <button type="button" class="btn btn-primary" onclick="saveEditedNode()">保存</button>
             </div>
         </div>

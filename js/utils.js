@@ -47,7 +47,11 @@ export function loadCSS(url, page) {
  * @param {string} url - JS文件路径
  * @param {string} page - 页面名称（用于标识）
  */
-export function loadJS(url, page) {
+export async function loadJS(url, page) {
+    if (loadedResources.js[url]) {
+        return;
+    }
+    return await import("/" + url);
     return new Promise((resolve, reject) => {
         // 检查是否已加载
         if (loadedResources.js[url]) {
@@ -77,30 +81,16 @@ export function loadJS(url, page) {
  * 加载页面资源（HTML、CSS、JS）
  * @param {string} page - 页面名称
  */
-export function loadPageResources(page) {
+export async function loadPageResources(page) {
     const basePath = `pages/${page}`;
 
-    return new Promise((resolve, reject) => {
-        // 1. 加载HTML内容
-        $.get(`${basePath}.html`)
-            .then(htmlContent => {
-                // 2. 加载CSS
-                return loadCSS(`css/pages/${page}.css`, page)
-                    .then(() => htmlContent);
-            })
-            .then(htmlContent => {
-                // 3. 加载JS
-                return loadJS(`js/pages/${page}.js`, page)
-                    .then(() => htmlContent);
-            })
-            .then(htmlContent => {
-                resolve(htmlContent);
-            })
-            .catch(error => {
-                console.error(`加载页面资源失败: ${page}`, error);
-                reject(error);
-            });
-    });
+    const htmlContent = await $.get(`${basePath}.html`);
+    await loadCSS(`css/pages/${page}.css`);
+    const module = await loadJS(`js/pages/${page}.js`);
+    return {
+        htmlContent,
+        module
+    }
 }
 
 /**
