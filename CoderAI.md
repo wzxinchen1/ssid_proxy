@@ -930,194 +930,169 @@ showToast('配置保存成功');
 // 显示错误消息
 showToast('保存失败，请重试', 'error');
 ```
-# Template 调用文档
+# 模板引擎调用文档
 
 ## 概述
-`template.js` 是一个轻量级模板引擎，支持单向数据绑定、事件绑定和 `v-for` 循环功能。它通过编译模板字符串生成可渲染的 DOM 结构，并支持动态数据注入。
+该模板引擎是一个轻量级的前端模板解决方案，支持数据绑定、循环渲染和事件处理等功能。采用安全沙箱机制执行表达式，避免直接使用 `eval` 带来的安全风险。
 
 ## 核心功能
-1. **单向数据绑定**：使用 `{{变量名}}` 语法替换为数据对象中的值。
-2. **事件绑定**：使用 `事件名="函数名"` 语法绑定事件。
-3. **`v-for` 循环**：支持 `v-for="item in items"` 语法动态生成重复元素。
-4. **`v-for-empty`：当没有数据时，显示指定的文本
 
----
+1. **数据绑定**：`{{表达式}}` 语法
+2. **循环渲染**：`v-for="item in items"` 指令
+3. **空状态处理**：`v-for-empty="无数据"` 指令
+4. **表单值绑定**：`v-value` 属性（特别针对 select 元素）
+5. **事件绑定**：原生事件属性如 `onclick`、`onchange` 等
 
-## API 文档
+## 基本用法
 
-### 1. `Template 类
-#### 构造函数
+### 1. 初始化模板引擎
+
 ```javascript
-const engine = new Template(templateString);
-```
-
-**参数：**
-| 参数名          | 类型   | 必填 | 说明         |
-|-----------------|--------|------|--------------|
-| `templateString` | string | 是   | 模板字符串   |
-- 初始化模板引擎实例。
-
-#### 方法
-##### `compile()`
-编译模板字符串，生成一个可渲染的中间结构。
-
-**返回值：**
-- 返回一个编译后的中间结构，用于后续渲染。
-
-**示例：**
-```javascript
-const compiled = engine.compile();
-```
-
-##### `render(data)`
-将编译后的模板与数据结合，生成最终的 DOM 元素。
-
-**参数：**
-| 参数名              | 类型   | 必填 | 说明         |
-|---------------------|--------|------|--------------|
-| `data`              | object | 是   | 数据对象     |
-
-**返回值：**
-- 返回一个 `HTMLElement`，可直接插入到 DOM 中。
-
-**示例：**
-```javascript
-const rendered = engine.render({ title: 'Hello World' });
-document.body.appendChild(rendered);
-```
-
----
-
-## 模板语法
-
-### 1. 单向数据绑定
-使用 `@变量名` 语法，引擎会从 `data` 对象中查找对应的值并替换。
-
-**示例：**
-```html
-<div>@title</div>
-```
-- 如果 `data` 为 `{ title: 'Hello' }`，则渲染结果为 `<div>Hello</div>`。
-
----
-
-### 2. 事件绑定
-使用 `@事件名="函数名"` 语法，引擎会将事件绑定到 `window.函数名`。
-
-**示例：**
-```html
-<button onclick="handleClick">点击</button>
-```
-- 假设 `window.handleClick` 已定义，渲染后会绑定点击事件。
-
----
-
-### 3. `v-for` 循环
-使用 `v-for="item in items"` 语法，引擎会遍历 `data.items` 并重复生成元素。
-
-**示例：**
-```html
-<ul>
-  <li v-for="item in items">@item.name</li>
-</ul>
-```
-- 如果 `data` 为 `{ items: [{ name: 'A' }, { name: 'B' }] }`，则渲染结果为：
-  ```html
-  <ul>
-    <li>A</li>
-    <li>B</li>
-  </ul>
-  ```
-
----
-
-## 完整示例
-
-### 模板定义
-```javascript
-const template = `
-  <div>
-    <h1>@title</h1>
-    <ul>
-      <li v-for="item in items">@item.name</li>
-    </ul>
-    <button @click="handleClick">点击我</button>
-  </div>
-`;
-```
-
-### 数据定义
-```javascript
-const data = {
-  title: '模板引擎示例',
-  items: [
-    { name: '项目1' },
-    { name: '项目2' },
-    { name: '项目3' },
-  ],
-};
-
-// 确保函数已加载到 window
-window.handleClick = () => {
-  console.log('按钮被点击');
-};
-```
-
-### 使用引擎
-```javascript
-const template = `
+const templateStr = `
   <div>
     <h1>{{title}}</h1>
     <ul>
-      <li v-for="item in items">{{item}}</li>
+      <li v-for="item in items" v-for-empty="暂无数据">
+        {{item.name}} - {{item.price * item.count}}
+      </li>
     </ul>
+    <select v-value="{{selectedId}}">
+      <option value="1">选项1</option>
+      <option value="2">选项2</option>
+    </select>
+    <button onclick="handleClick">点击</button>
   </div>
 `;
 
-const data = {
-  title: "My List",
-  items: ["Item 1", "Item 2", "Item 3"]
+const engine = new Template(templateStr, {
+  viewData: {
+    title: "商品列表",
+    items: [
+      { name: "商品A", price: 10, count: 2 },
+      { name: "商品B", price: 20, count: 1 }
+    ],
+    selectedId: 2
+  }
+});
+
+// 渲染模板
+const renderedDOM = engine.render();
+document.body.appendChild(renderedDOM);
+
+// 确保事件处理函数在全局可用
+window.handleClick = function() {
+  alert("按钮被点击");
 };
-
-const engine = new Template(template);
-const compiled = engine.compile();
-const rendered = engine.render(data);
-
-document.body.appendChild(rendered);
-
 ```
-```html
-<select v-value="selectedOption">
-  <option value="option1">选项 1</option>
-  <option value="option2">选项 2</option>
-  <option value="option3">选项 3</option>
-</select>
 
-```
+### 2. 数据绑定语法
+
+#### 简单属性访问
 ```html
-<table id="data-table" class="table table-striped">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="item in items" v-for-empty="无数据">
-      <td>{{item.id}}</td>
-      <td>{{item.name}}</td>
-      <td class="status-indicator status-{{item.status}}">{{item.status}}</td>
-    </tr>
-  </tbody>
+<p>用户名: {{user.name}}</p>
+```
+
+#### 表达式计算
+```html
+<p>总价: {{item.price * item.quantity}}</p>
+```
+
+#### 三目运算符
+```html
+<span class="{{isActive ? 'active' : 'inactive'}}">状态</span>
+```
+
+### 3. 循环渲染
+
+#### 基本循环
+```html
+<ul>
+  <li v-for="item in items">{{item.name}}</li>
+</ul>
+```
+
+#### 空状态处理
+```html
+<table>
+  <tr v-for="user in users" v-for-empty="<td colspan='3'>暂无用户数据</td>">
+    <td>{{user.id}}</td>
+    <td>{{user.name}}</td>
+    <td>{{user.age}}</td>
+  </tr>
 </table>
 ```
----
 
-## 注意事项
-1. **事件函数必须全局可用**：事件绑定的函数必须定义在 `window` 对象上。
-2. **数据对象必须完整**：模板中使用的变量必须在 `data` 对象中定义，否则会替换为空字符串。
-3. **`v-for` 仅支持简单语法**：目前仅支持 `item in items` 格式，不支持索引或复杂表达式。
+### 4. 表单绑定
+
+#### Select 元素值绑定
+```html
+<select v-value="{{selectedOption}}">
+  <option value="1">选项1</option>
+  <option value="2">选项2</option>
+</select>
+```
+
+### 5. 事件绑定
+
+```html
+<button onclick="handleSave({{item.id}})">保存</button>
+```
+
+```javascript
+window.handleSave = function(id) {
+  console.log("保存项目ID:", id);
+};
+```
+
+## 高级功能
+
+### 1. 嵌套数据访问
+
+```html
+<p>{{user.address.city}} {{user.address.street}}</p>
+```
+
+### 2. 方法调用
+
+```html
+<p>{{formatDate(user.createTime)}}</p>
+```
+
+```javascript
+// 需要在数据对象中提供方法
+const data = {
+  user: {
+    createTime: "2023-01-01",
+    // ...
+  },
+  formatDate: function(dateStr) {
+    return new Date(dateStr).toLocaleDateString();
+  }
+};
+```
+
+## 安全注意事项
+
+1. **表达式限制**：
+   - 只能访问传入数据对象的属性
+   - 无法访问全局对象（如 `window`、`document`）
+
+2. **错误处理**：
+   - 表达式执行错误会被捕获并抛出详细错误信息
+   - 建议在生产环境添加额外的错误处理
+
+3. **性能考虑**：
+   - 复杂表达式会影响渲染性能
+   - 对于大型列表，建议预处理数据
+
+## API 参考
+
+### `new Template(templateString, module)`
+- `templateString`: 模板字符串
+- `module`: 包含 `viewData` 的对象，提供模板数据
+
+### `render()`
+渲染模板并返回 DOM 元素
 
 上面这个项目的文档，http 接口的文档是接下来要实现的功能，js和css文档是你需要调用的API，注意，如果你发现没有合适的API，请一定要告诉我！！！
 

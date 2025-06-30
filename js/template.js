@@ -16,29 +16,6 @@ export class Template {
 
   }
 
-  /**
-   * 处理三目运算符
-   * @param {string} expr - 表达式
-   * @param {object} context - 数据上下文
-   * @returns {string} 处理后的值
-   */
-  _handleTernaryOperator(expr, context) {
-    expr = expr.replace("{{", "").replace("}}", "");
-    const [condition, trueValue, falseValue] = expr.split(/\s*\?\s*|\s*:\s*/);
-    const conditionValue = this._getValueFromPath(context, condition.trim());
-    if (conditionValue) {
-      if (trueValue.startsWith("'")) {
-        return trueValue.replace(/'/gi, "");
-      }
-      return this._getValueFromPath(context, trueValue.trim());
-    }
-
-    if (falseValue.startsWith("'")) {
-      return falseValue.replace(/'/gi, "");
-    }
-    return this._getValueFromPath(context, falseValue.trim());
-  }
-
   renderBindings(template, data) {
     const templateElement = document.createElement("template");
     templateElement.innerHTML = template;
@@ -57,11 +34,6 @@ export class Template {
     templateElement.innerHTML = templateElement.innerHTML.replace(/{{.*?}}/g, (expr) => {
       // 处理三目运算符
       return this._safeEval(data, expr);
-      if (expr.includes('?')) {
-        return this._handleTernaryOperator(expr, data);
-      } else {
-        return this._getValueFromPath(data, expr.trim());
-      }
     });
     if (template.includes("v-for")) {
       domTree = templateElement.content.firstElementChild;
@@ -198,12 +170,7 @@ export class Template {
             let handlerName = attr.value;
             // 替换事件绑定中的模板变量
             handlerName = handlerName.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
-              // 处理三目运算符
-              if (expr.includes('?')) {
-                return this._handleTernaryOperator(expr, data);
-              } else {
-                return this._getValueFromPath(data, expr.trim());
-              }
+              return this._safeEval(data, expr);
             });
             if (handlerName.startsWith("window.")) {
               continue;
@@ -253,18 +220,5 @@ export class Template {
     }
         }`
     )(data);
-  }
-
-  /**
-   * 根据路径获取对象值
-   * @param {object} obj - 数据对象
-   * @param {string} path - 路径（如 'user.name'）
-   * @returns {any} 值
-   */
-  _getValueFromPath(obj, path) {
-    path = path.replace(/{/g, "").replace(/}/g, "");
-    return path.split('.').reduce((acc, key) => {
-      return acc ? acc[key] : undefined;
-    }, obj);
   }
 }
