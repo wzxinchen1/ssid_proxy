@@ -51,30 +51,11 @@ export async function loadJS(url, page) {
     if (loadedResources.js[url]) {
         return;
     }
-    return await import("/" + url);
-    return new Promise((resolve, reject) => {
-        // 检查是否已加载
-        if (loadedResources.js[url]) {
-            resolve();
-            return;
-        }
 
-        // 创建script元素
-        const script = document.createElement('script');
-        script.src = url;
-        script.type = "module";
-        script.onload = () => {
-            loadedResources.js[url] = true;
-            resolve();
-        };
-        script.onerror = () => {
-            console.error(`Failed to load JS: ${url}`);
-            reject(new Error(`JavaScript加载失败: ${url}`));
-        };
-
-        // 添加到文档尾部
-        document.body.appendChild(script);
-    });
+    if (globalState.isLocal) {
+        return await import("/" + url);
+    }
+        return await import("/luci-static/resources/ssid-proxy/" + url);
 }
 
 /**

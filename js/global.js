@@ -8,7 +8,7 @@ export const globalState = {
     // 系统状态
     serviceEnabled: false,
     serviceRunning: false,
-    
+
     // 监控数据
     monitorData: {
         cpu: 0,
@@ -17,24 +17,25 @@ export const globalState = {
         dailyTraffic: 0,
         interfaces: []
     },
-    
+
     // 用户配置
     userConfig: {
         refreshInterval: 10, // 默认10秒刷新
         theme: 'light',
         logLevel: 'info'
     },
-    
+
     // 页面状态
     currentPage: 'status',
     lastUpdate: null,
-    
+
     // 订阅者列表
     subscribers: {
         monitor: [],
         config: [],
         service: []
-    }
+    },
+    isLocal: location.href.includes("127.0.0.1")
 };
 
 // 监控更新定时器
@@ -46,13 +47,13 @@ let monitorInterval = null;
 export function initGlobalState() {
     // 从本地存储加载用户配置
     loadUserConfig();
-    
+
     // 初始化监控数据
     fetchGlobalMonitor();
-    
+
     // 设置监控更新定时器
     setupMonitorInterval();
-    
+
     // 绑定全局事件
     bindGlobalEvents();
 }
@@ -86,13 +87,13 @@ export function saveUserConfig() {
  */
 function applyUserConfig() {
     const { theme, refreshInterval } = globalState.userConfig;
-    
+
     // 应用主题
     document.documentElement.setAttribute('data-theme', theme);
-    
+
     // 更新监控间隔
     setupMonitorInterval();
-    
+
     // 通知配置订阅者
     notifySubscribers('config');
 }
@@ -105,7 +106,7 @@ function setupMonitorInterval() {
     if (monitorInterval) {
         clearInterval(monitorInterval);
     }
-    
+
     // 设置新定时器
     const interval = globalState.userConfig.refreshInterval * 1000;
     if (interval > 0) {
@@ -122,17 +123,17 @@ export function fetchGlobalMonitor() {
         method: 'GET',
         dataType: 'json'
     })
-    .done(data => {
-        if (data.success) {
-            updateGlobalState('monitorData', data.data);
-            globalState.lastUpdate = new Date();
-        } else {
-            console.error('获取监控数据失败:', data.message);
-        }
-    })
-    .fail((xhr, status, error) => {
-        console.error('监控数据请求失败:', status, error);
-    });
+        .done(data => {
+            if (data.success) {
+                updateGlobalState('monitorData', data.data);
+                globalState.lastUpdate = new Date();
+            } else {
+                console.error('获取监控数据失败:', data.message);
+            }
+        })
+        .fail((xhr, status, error) => {
+            console.error('监控数据请求失败:', status, error);
+        });
 }
 
 /**
@@ -144,21 +145,21 @@ export function fetchServiceStatus() {
         method: 'GET',
         dataType: 'json'
     })
-    .done(data => {
-        if (data.success) {
-            // 根据lua返回的数据结构更新状态
-            const serviceRunning = data.data.service === 'running';
-            updateGlobalState('serviceRunning', serviceRunning);
-            
-            // 服务启用状态需要从配置获取
-            fetchServiceEnabledStatus();
-        } else {
-            console.error('获取服务状态失败:', data.message);
-        }
-    })
-    .fail((xhr, status, error) => {
-        console.error('服务状态请求失败:', status, error);
-    });
+        .done(data => {
+            if (data.success) {
+                // 根据lua返回的数据结构更新状态
+                const serviceRunning = data.data.service === 'running';
+                updateGlobalState('serviceRunning', serviceRunning);
+
+                // 服务启用状态需要从配置获取
+                fetchServiceEnabledStatus();
+            } else {
+                console.error('获取服务状态失败:', data.message);
+            }
+        })
+        .fail((xhr, status, error) => {
+            console.error('服务状态请求失败:', status, error);
+        });
 }
 
 /**
@@ -170,17 +171,17 @@ function fetchServiceEnabledStatus() {
         method: 'GET',
         dataType: 'json'
     })
-    .done(data => {
-        if (data.success && data.data.global) {
-            const enabled = data.data.global.enabled === '1';
-            updateGlobalState('serviceEnabled', enabled);
-        } else {
-            console.error('获取服务启用状态失败');
-        }
-    })
-    .fail((xhr, status, error) => {
-        console.error('服务启用状态请求失败:', status, error);
-    });
+        .done(data => {
+            if (data.success && data.data.global) {
+                const enabled = data.data.global.enabled === '1';
+                updateGlobalState('serviceEnabled', enabled);
+            } else {
+                console.error('获取服务启用状态失败');
+            }
+        })
+        .fail((xhr, status, error) => {
+            console.error('服务启用状态请求失败:', status, error);
+        });
 }
 
 /**
@@ -189,24 +190,24 @@ function fetchServiceEnabledStatus() {
  */
 export function toggleServiceStatus(enable) {
     const endpoint = enable ? '/cgi-bin/luci/api/service/start' : '/cgi-bin/luci/api/service/stop';
-    
+
     $.ajax({
         url: endpoint,  // 使用lua中定义的服务控制API
         method: 'POST',
         dataType: 'json'
     })
-    .done(data => {
-        if (data.success) {
-            updateGlobalState('serviceEnabled', enable);
-            updateGlobalState('serviceRunning', enable);
-            showToast(`服务已${enable ? '启动' : '停止'}`);
-        } else {
-            showToast(`服务${enable ? '启动' : '停止'}失败: ${data.message}`, 'error');
-        }
-    })
-    .fail((xhr, status, error) => {
-        showToast(`服务${enable ? '启动' : '停止'}失败: ${error}`, 'error');
-    });
+        .done(data => {
+            if (data.success) {
+                updateGlobalState('serviceEnabled', enable);
+                updateGlobalState('serviceRunning', enable);
+                showToast(`服务已${enable ? '启动' : '停止'}`);
+            } else {
+                showToast(`服务${enable ? '启动' : '停止'}失败: ${data.message}`, 'error');
+            }
+        })
+        .fail((xhr, status, error) => {
+            showToast(`服务${enable ? '启动' : '停止'}失败: ${error}`, 'error');
+        });
 }
 
 /**
@@ -227,7 +228,7 @@ export function updateGlobalState(key, value) {
     } else {
         globalState[key] = value;
     }
-    
+
     // 通知订阅者
     const category = key.split('.')[0];
     if (globalState.subscribers[category]) {
@@ -244,7 +245,7 @@ export function subscribe(category, callback) {
     if (!globalState.subscribers[category]) {
         globalState.subscribers[category] = [];
     }
-    
+
     globalState.subscribers[category].push(callback);
 }
 
@@ -287,7 +288,7 @@ function notifySubscribers(category) {
 function getStateSlice(category) {
     switch (category) {
         case 'monitor':
-            return { 
+            return {
                 ...globalState.monitorData,
                 lastUpdate: globalState.lastUpdate
             };
@@ -308,24 +309,24 @@ function getStateSlice(category) {
  */
 function bindGlobalEvents() {
     // 服务开关按钮
-    $('#service-toggle').on('click', function() {
+    $('#service-toggle').on('click', function () {
         toggleServiceStatus(!globalState.serviceEnabled);
     });
-    
+
     // 刷新按钮
-    $('#refresh-btn').on('click', function() {
+    $('#refresh-btn').on('click', function () {
         fetchGlobalMonitor();
         showToast('数据已刷新');
     });
-    
+
     // 主题切换
-    $(document).on('click', '[data-theme]', function() {
+    $(document).on('click', '[data-theme]', function () {
         const theme = $(this).data('theme');
         updateUserConfig('theme', theme);
     });
-    
+
     // 刷新间隔设置
-    $(document).on('change', '#refresh-interval', function() {
+    $(document).on('change', '#refresh-interval', function () {
         const interval = parseInt($(this).val());
         if (!isNaN(interval) && interval >= 5) {
             updateUserConfig('refreshInterval', interval);
@@ -356,13 +357,13 @@ export function showToast(message, type = 'success') {
             <div class="toast-content">${message}</div>
         </div>
     `);
-    
+
     // 添加到页面
     $('body').append(toast);
-    
+
     // 显示动画
     toast.hide().fadeIn(300);
-    
+
     // 3秒后移除
     setTimeout(() => {
         toast.fadeOut(300, () => toast.remove());
@@ -375,10 +376,10 @@ export function showToast(message, type = 'success') {
 export function initGlobalMonitor() {
     // 获取初始服务状态
     fetchServiceStatus();
-    
+
     // 订阅监控更新
     subscribe('monitor', updateMonitorUI);
-    
+
     // 订阅服务状态更新
     subscribe('service', updateServiceUI);
 }
@@ -393,20 +394,20 @@ function updateMonitorUI(data) {
         $('#cpu-usage').text(`${data.cpu}%`);
         $('#cpu-usage').parent().toggleClass('warning', data.cpu > 80);
     }
-    
+
     if (data.memory !== undefined) {
         $('#memory-usage').text(`${data.memory}%`);
         $('#memory-usage').parent().toggleClass('warning', data.memory > 80);
     }
-    
+
     if (data.activeConnections !== undefined) {
         $('#active-connections').text(data.activeConnections);
     }
-    
+
     if (data.dailyTraffic !== undefined) {
         $('#daily-traffic').text(formatBytes(data.dailyTraffic));
     }
-    
+
     // 更新最后刷新时间
     if (data.lastUpdate) {
         const lastUpdate = new Date(data.lastUpdate);
@@ -421,7 +422,7 @@ function updateMonitorUI(data) {
  */
 function updateServiceUI(data) {
     const serviceBtn = $('#service-toggle');
-    
+
     if (data.enabled && data.running) {
         serviceBtn.html('<i class="icon-power"></i> 停止服务');
         serviceBtn.removeClass('btn-secondary').addClass('btn-warning');
@@ -438,11 +439,11 @@ function updateServiceUI(data) {
  */
 export function formatBytes(bytes) {
     if (bytes === 0) return '0 Bytes';
-    
+
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
