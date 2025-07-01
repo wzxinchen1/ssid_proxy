@@ -55,7 +55,7 @@ function M.api_config()
             end
         end
         
-        -- 更新规则
+        -- 更新配置
         uci:delete_all("ssid-proxy", "config")
         for _, config in ipairs(config.configs) do
             local sid = uci:section("ssid-proxy", "config")

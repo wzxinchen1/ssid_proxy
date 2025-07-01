@@ -80,33 +80,33 @@ window.handleRefreshConfigs = async function () {
     componentContext.render();
 };
 
-window.handleToggleConfig = async function (ruleId) {
+window.handleToggleConfig = async function (configId) {
     try {
-        const response = await apiRequest(`config/${ruleId}/toggle`, 'POST');
+        const response = await apiRequest(`config/${configId}/toggle`, 'POST');
         if (response.success) {
-            showToast('规则状态已更新');
+            showToast('配置状态已更新');
             await handleRefreshConfigs();
         }
     } catch (error) {
-        showError('切换规则状态失败: ' + error.message);
+        showError('切换配置状态失败: ' + error.message);
     }
 };
 
-window.handleEditConfig = function (ruleId) {
-    // 实现编辑规则逻辑
-    console.log('编辑规则:', ruleId);
+window.handleEditConfig = function (configId) {
+    // 实现编辑配置逻辑
+    console.log('编辑配置:', configId);
 };
 
-window.handleDeleteConfig = async function (ruleId) {
-    if (confirm('确定要删除此规则吗？')) {
+window.handleDeleteConfig = async function (configId) {
+    if (confirm('确定要删除此配置吗？')) {
         try {
-            const response = await apiRequest(`config/${ruleId}`, 'DELETE');
+            const response = await apiRequest(`config/${configId}`, 'DELETE');
             if (response.success) {
-                showToast('规则已删除');
+                showToast('配置已删除');
                 await handleRefreshConfigs();
             }
         } catch (error) {
-            showError('删除规则失败: ' + error.message);
+            showError('删除配置失败: ' + error.message);
         }
     }
 };
