@@ -18,6 +18,10 @@
                         <option value="socks5">SOCKS5</option>
                         <option value="http">HTTP</option>
                     </select>
+                    <label for="node-username">用户名</label>
+                    <input type="text" id="node-username" class="form-control" placeholder="用户名">
+                    <label for="node-password">密码</label>
+                    <input type="password" id="node-password" class="form-control" placeholder="密码">
                     <button type="submit" class="btn btn-primary">添加</button>
                 </div>
             </form>
@@ -30,6 +34,7 @@
                         <th>地址</th>
                         <th>端口</th>
                         <th>协议</th>
+                        <th>用户名</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
@@ -40,6 +45,7 @@
                         <td>{{node.address}}</td>
                         <td>{{node.port}}</td>
                         <td>{{node.protocol}}</td>
+                        <td>{{node.username || '-'}}</td>
                         <td><span
                                 class="status-indicator {{node.status === 'active' ? 'status-active' : 'status-inactive'}}"></span>
                         </td>
@@ -83,6 +89,14 @@
                             <option value="socks5">SOCKS5</option>
                             <option value="http">HTTP</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-node-username">用户名</label>
+                        <input type="text" id="edit-node-username" class="form-control" value="{{editNodeData.username || ''}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-node-password">密码</label>
+                        <input type="password" id="edit-node-password" class="form-control" value="{{editNodeData.password || ''}}">
                     </div>
                     <div class="form-group">
                         <label for="edit-node-status">状态</label>

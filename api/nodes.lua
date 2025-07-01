@@ -1,4 +1,4 @@
--- 文件路径: E:\桌面\ssid_proxy\api\nodes.lua
+-- 文件路径: E:\\桌面\\ssid_proxy\\api\\nodes.lua
 module("luci.controller.ssid-proxy.api.nodes", package.seeall)
 
 function api_nodes()
@@ -38,6 +38,8 @@ function api_nodes()
                 address = s["address"],
                 port = s["port"],
                 protocol = s["protocol"],
+                username = s["username"],
+                password = s["password"],
                 status = s["status"] or "inactive"
             })
         end)
@@ -64,6 +66,8 @@ function api_nodes()
         uci:set("ssid-proxy", id, "address", data.address)
         uci:set("ssid-proxy", id, "port", data.port)
         uci:set("ssid-proxy", id, "protocol", data.protocol)
+        uci:set("ssid-proxy", id, "username", data.username)
+        uci:set("ssid-proxy", id, "password", data.password)
         uci:set("ssid-proxy", id, "status", data.status)
         uci:commit("ssid-proxy")
 
@@ -89,6 +93,8 @@ function api_nodes()
         uci:set("ssid-proxy", id, "address", data.address)
         uci:set("ssid-proxy", id, "port", data.port)
         uci:set("ssid-proxy", id, "protocol", data.protocol)
+        uci:set("ssid-proxy", id, "username", data.username)
+        uci:set("ssid-proxy", id, "password", data.password)
         uci:set("ssid-proxy", id, "status", data.status)
         uci:commit("ssid-proxy")
 

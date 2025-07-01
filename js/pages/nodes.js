@@ -62,6 +62,8 @@ window.saveEditedNode = async () => {
     const address = document.getElementById('edit-node-address').value.trim();
     const port = document.getElementById('edit-node-port').value.trim();
     const protocol = document.getElementById('edit-node-protocol').value;
+    const username = document.getElementById('edit-node-username').value.trim();
+    const password = document.getElementById('edit-node-password').value.trim();
     const status = document.getElementById('edit-node-status').value;
 
     if (!name || !address || !port) {
@@ -75,6 +77,8 @@ window.saveEditedNode = async () => {
             address,
             port,
             protocol,
+            username,
+            password,
             status
         });
         viewData.showEditModal = false;
@@ -110,6 +114,8 @@ async function saveNode() {
     const address = document.getElementById('node-address').value.trim();
     const port = document.getElementById('node-port').value.trim();
     const protocol = document.getElementById('node-protocol').value;
+    const username = document.getElementById('node-username').value.trim();
+    const password = document.getElementById('node-password').value.trim();
 
     if (!name || !address || !port) {
         showError('请填写所有必填字段');
@@ -123,7 +129,9 @@ async function saveNode() {
             name,
             address,
             port,
-            protocol
+            protocol,
+            username,
+            password
         });
 
         document.getElementById('add-node-form').reset();
