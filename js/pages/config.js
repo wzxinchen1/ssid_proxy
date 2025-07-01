@@ -3,6 +3,7 @@
  * 基于模板引擎的实现
  */
 
+import { showToast } from '../global.js';
 import { apiRequest, showError } from '../utils.js';
 import { getProxyServers } from './nodes.js';
 
@@ -26,23 +27,12 @@ export const viewData = {
     interfaces: [],
     proxyServers: []
 };
-
+let componentContext;
 // 页面初始化函数
-export const onInit = async function (componentContext) {
-    // 加载配置数据
-    const config = await apiRequest('config/get');
-    if (!config.interfaces) {
-        config.interfaces = [];
-    }
-    // 合并配置
-    viewData.global = currentConfig.global;
-    viewData.configs = config.configs;
-    viewData.interfaces = config.interfaces;
+export const onInit = async function (context) {
+    componentContext = context;
 
-    // 动态加载代理服务器列表
-    viewData.proxyServers = await getProxyServers();
-    // 初始渲染
-    componentContext.render();
+    handleRefreshConfigs();
 
     // 绑定事件
     bindConfigEvents();
@@ -73,11 +63,16 @@ window.handleRefreshConfigs = async function () {
     if (!config.interfaces) {
         config.interfaces = [];
     }
+    if (!config.configs || !Array.isArray(config.configs)) {
+        config.configs = [];
+    }
     // 合并配置
     viewData.global = currentConfig.global;
     viewData.configs = config.configs;
     viewData.interfaces = config.interfaces;
 
+    // 动态加载代理服务器列表
+    viewData.proxyServers = await getProxyServers();
     // 初始渲染
     componentContext.render();
 };
