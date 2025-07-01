@@ -95,7 +95,7 @@
                             </span>
                         </td>
                         <td>
-                            {{config.mode === "proxy" ? (config.proxy_server_address+"://"+config.proxy_server_protocol+":"+ config.proxy_server_port) : "-"}}
+                            {{config.mode === "proxy" ? (config.proxy_server.protocol+"://"+config.proxy_server.address+":"+ config.proxy_server.port) : "-"}}
                         </td>
                         <td>
                             <button class="btn" onclick="handleEditConfig('{{config.id}}')">编辑</button>

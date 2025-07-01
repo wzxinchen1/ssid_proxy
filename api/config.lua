@@ -16,15 +16,25 @@ function M.get_config()
     }
 
     uci:foreach("ssid-proxy", "config", function(s)
+        local proxy_server = {}
+        if s.proxy_server_id then
+            local node = uci:get_all("ssid-proxy", s.proxy_server_id)
+            if node then
+                proxy_server = {
+                    address = node.address or "",
+                    protocol = node.protocol or "",
+                    port = node.port or ""
+                }
+            end
+        end
+
         table.insert(config.configs, {
             id = s[".name"],
             enabled = s.enabled or "1",
             interface = s.interface or "",
             mode = s.mode or "proxy",
             proxy_server_id = s.proxy_server_id or "",
-            proxy_server_address = s.proxy_server_address or "",
-            proxy_server_protocol = s.proxy_server_protocol or "",
-            proxy_server_port = s.proxy_server_port or "",
+            proxy_server = proxy_server
         })
     end)
 
