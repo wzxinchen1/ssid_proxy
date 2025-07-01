@@ -67,6 +67,6 @@ end
 api_monitor = monitor.api_monitor
 api_status = status.api_status
 api_nodes = nodes.api_nodes
-api_config = config.api_config
+api_config = config.get_config
 api_config_update_global = config.api_config_update_global
 api_config_add = config.api_config_add
