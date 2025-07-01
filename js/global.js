@@ -171,9 +171,9 @@ function fetchServiceEnabledStatus() {
         method: 'GET',
         dataType: 'json'
     })
-        .done(data => {
-            if (data.success && data.global) {
-                const enabled = data.global.enabled === '1';
+        .done(response => {
+            if (response.success && response.data.global) {
+                const enabled = response.data.global.enabled === '1';
                 updateGlobalState('serviceEnabled', enabled);
             } else {
                 console.error('获取服务启用状态失败');
