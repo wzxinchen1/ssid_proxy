@@ -216,14 +216,14 @@
                     <input type="hidden" id="edit-config-id" value="{{editConfigData.id}}">
                     <div class="form-group">
                         <label for="edit-config-interface">网络接口</label>
-                        <select id="edit-config-interface" class="form-control" required>
+                        <select id="edit-config-interface" class="form-control" required v-value="{{editConfigData.interface}}">>
                             <option value="">-- 选择接口 --</option>
-                            <option v-for="iface in interfaces" value="{{iface}}" v-value="{{editConfigData.interface}}">{{iface}}</option>
+                            <option v-for="iface in interfaces" value="{{iface}}">{{iface}}</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="edit-config-mode">操作模式</label>
-                        <select id="edit-config-mode" class="form-control" required onchange="handleModeChange(this.value)">
+                        <select id="edit-config-mode" class="form-control" required v-value="{{editConfigData.mode}}" onchange="handleModeChange(this.value)">
                             <option value="proxy">使用代理</option>
                             <option value="direct">直连 (不经过代理)</option>
                             <option value="block">阻止互联网访问</option>
