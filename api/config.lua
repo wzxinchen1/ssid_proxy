@@ -1,92 +1,132 @@
 -- 文件路径: /usr/lib/lua/luci/controller/ssid-proxy/api/config.lua
 module("luci.controller.ssid-proxy.api.config", package.seeall)
 local M = {}
-function M.api_config()
+
+-- 获取配置
+function M.get_config()
     local uci = require"luci.model.uci".cursor()
     local http = require "luci.http"
 
     luci.http.cors()
-    if http.getenv("REQUEST_METHOD") == "GET" then
-        -- 获取配置
-        local config = {
-            global = uci:get_all("ssid-proxy", "global") or {},
-            configs = {}
-        }
+    local config = {
+        global = uci:get_all("ssid-proxy", "global") or {},
+        configs = {}
+    }
 
-        uci:foreach("ssid-proxy", "config", function(s)
-            table.insert(config.configs, {
-                id = s[".name"],
-                enabled = s.enabled or "1",
-                interface = s.interface or "",
-                mode = s.mode or "proxy",
-                proxy_server = s.proxy_server or ""
-            })
-        end)
-
-        -- 获取可用接口
-        config.interfaces = {}
-        local ifaces = luci.sys.exec("ip -o link show | awk -F': ' '!/lo|^ /{print $2}' | sort | uniq")
-        for iface in ifaces:gmatch("[^\n]+") do
-            table.insert(config.interfaces, iface)
-        end
-
-        luci.http.prepare_content("application/json")
-        luci.http.write_json({
-            success = true,
-            data = config
+    uci:foreach("ssid-proxy", "config", function(s)
+        table.insert(config.configs, {
+            id = s[".name"],
+            enabled = s.enabled or "1",
+            interface = s.interface or "",
+            mode = s.mode or "proxy",
+            proxy_server = s.proxy_server or ""
         })
+    end)
+
+    -- 获取可用接口
+    config.interfaces = {}
+    local ifaces = luci.sys.exec("ip -o link show | awk -F': ' '!/lo|^ /{print $2}' | sort | uniq")
+    for iface in ifaces:gmatch("[^\n]+") do
+        table.insert(config.interfaces, iface)
     end
-    if http.getenv("REQUEST_METHOD") == "POST" then
-        -- 保存配置
-        local data = http.content()
-        local json = require "luci.jsonc"
-        local config = json.parse(data)
 
-        if not config then
-            http.status(400, "Bad Request")
-            http.write_json({
-                error = "Invalid JSON data"
-            })
-            return
-        end
+    luci.http.prepare_content("application/json")
+    luci.http.write_json({
+        success = true,
+        data = config
+    })
+end
 
-        -- 更新全局配置
-        if config.global then
-            for key, value in pairs(config.global) do
-                uci:set("ssid-proxy", "global", key, value)
-            end
-        end
+-- 更新全局配置
+function M.update_global_config()
+    local uci = require"luci.model.uci".cursor()
+    local http = require "luci.http"
 
-        -- 更新配置
-        uci:delete_all("ssid-proxy", "config")
-        for _, config in ipairs(config.configs) do
-            local sid = uci:section("ssid-proxy", "config")
-            uci:set("ssid-proxy", sid, "enabled", config.enabled or "1")
-            uci:set("ssid-proxy", sid, "interface", config.interface or "")
-            uci:set("ssid-proxy", sid, "mode", config.mode or "proxy")
+    luci.http.cors()
+    local data = http.content()
+    local json = require "luci.jsonc"
+    local config = json.parse(data)
 
-            if config.mode == "proxy" and config.proxy_server then
-                uci:set("ssid-proxy", sid, "proxy_server", config.proxy_server)
-            end
-        end
-        local success, err = pcall(function()
-            uci:commit("ssid-proxy")
-        end)
-        if not success then
-            http.status(500, "Internal Server Error")
-            http.write_json({
-                error = tostring(err)
-            })
-            return
-        end
-
-        -- 应用配置
-        apply_configuration()
-
+    if not config then
+        http.status(400, "Bad Request")
         http.write_json({
-            success = true
+            error = "Invalid JSON data"
         })
+        return
     end
+
+    -- 更新全局配置
+    if config.global then
+        for key, value in pairs(config.global) do
+            uci:set("ssid-proxy", "global", key, value)
+        end
+    end
+
+    local success, err = pcall(function()
+        uci:commit("ssid-proxy")
+    end)
+    if not success then
+        http.status(500, "Internal Server Error")
+        http.write_json({
+            error = tostring(err)
+        })
+        return
+    end
+
+    -- 应用配置
+    apply_configuration()
+
+    http.write_json({
+        success = true
+    })
+end
+
+-- 添加新配置
+function M.add_config()
+    local uci = require"luci.model.uci".cursor()
+    local http = require "luci.http"
+
+    luci.http.cors()
+    local data = http.content()
+    local json = require "luci.jsonc"
+    local config = json.parse(data)
+
+    if not config then
+        http.status(400, "Bad Request")
+        http.write_json({
+            error = "Invalid JSON data"
+        })
+        return
+    end
+
+    -- 添加新配置
+    local sid = uci:section("ssid-proxy", "config")
+    uci:set("ssid-proxy", sid, "enabled", config.enabled or "1")
+    uci:set("ssid-proxy", sid, "interface", config.interface or "")
+    uci:set("ssid-proxy", sid, "mode", config.mode or "proxy")
+
+    if config.mode == "proxy" and config.proxy_server then
+        uci:set("ssid-proxy", sid, "proxy_server", config.proxy_server)
+    end
+
+    local success, err = pcall(function()
+        uci:commit("ssid-proxy")
+    end)
+    if not success then
+        http.status(500, "Internal Server Error")
+        http.write_json({
+            error = tostring(err)
+        })
+        return
+    end
+
+    -- 应用配置
+    apply_configuration()
+
+    http.write_json({
+        success = true,
+        id = sid
+    })
 end
 
 -- 应用配置
