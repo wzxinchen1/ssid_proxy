@@ -46,7 +46,7 @@ function M.api_config()
             return
         end
         
-        uci:begin("ssid-proxy")
+        uci:transaction("ssid-proxy")
         
         -- 更新全局配置
         if config.global then
