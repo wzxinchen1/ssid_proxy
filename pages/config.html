@@ -2,7 +2,7 @@
     <div class="page-title">
         <span>接口代理配置</span>
     </div>
-    
+
     <!-- 全局设置卡片 -->
     <div class="config-card">
         <div class="config-header">
@@ -19,7 +19,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="setting-group">
                     <label class="setting-label">日志级别</label>
                     <div class="setting-control">
@@ -31,7 +31,7 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="setting-group">
                     <label class="setting-label">日志保留时间</label>
                     <div class="setting-control">
@@ -43,7 +43,7 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="setting-group">
                     <label class="setting-label">显示高级选项</label>
                     <div class="setting-control">
@@ -56,7 +56,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- 规则配置卡片 -->
     <div class="config-card">
         <div class="config-header">
@@ -80,7 +80,8 @@
                     <tr v-for="config in configs" v-for-empty="暂无配置">
                         <td>
                             <div class="checkbox-group">
-                                <input type="checkbox" v-value="{{config.enabled}}" onclick="handleToggleConfig('{{config.id}}')">
+                                <input type="checkbox" v-value="{{config.enabled}}"
+                                    onclick="handleToggleConfig('{{config.id}}')">
                             </div>
                         </td>
                         <td>
@@ -94,7 +95,7 @@
                             </span>
                         </td>
                         <td>
-                            {{config.mode === 'proxy' ? config.proxy_server : '-'}}
+                            {{config.mode === "proxy" ? (config.proxy_server_address+"://"+config.proxy_server_protocol+":"+ config.proxy_server_port) : "-"}}
                         </td>
                         <td>
                             <button class="btn" onclick="handleEditConfig('{{config.id}}')">编辑</button>
@@ -103,19 +104,20 @@
                     </tr>
                 </tbody>
             </table>
-            
+
             <!-- 添加新配置区域 -->
             <div class="add-config-section">
                 <div class="add-config-header">
                     <div class="add-config-icon">+</div>
                     <div class="add-config-title">添加新配置</div>
                 </div>
-                
+
                 <div class="add-config-form">
                     <div class="form-group">
                         <div class="input-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
+                                <path
+                                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z" />
                             </svg>
                         </div>
                         <label class="setting-label">网络接口</label>
@@ -124,11 +126,12 @@
                             <option v-for="iface in interfaces">{{iface}}</option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <div class="input-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                                <path
+                                    d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
                             </svg>
                         </div>
                         <label class="setting-label">代理行为</label>
@@ -138,20 +141,22 @@
                             <option value="block">阻止互联网访问</option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group" id="proxy-server-group">
                         <div class="input-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                                <path
+                                    d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
                             </svg>
                         </div>
                         <label class="setting-label">代理服务器</label>
                         <select id="new-config-proxy" class="styled-select">
                             <option value="">-- 选择代理服务器 --</option>
-                            <option v-for="server in proxyServers" value="{{server.id}}">{{server.name}} ({{server.protocol}}://{{server.address}}:{{server.port}})</option>
+                            <option v-for="server in proxyServers" value="{{server.id}}">{{server.name}}
+                                ({{server.protocol}}://{{server.address}}:{{server.port}})</option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <button class="add-config-btn" id="add-config-btn" onclick="handleAddConfig()">
                             <span>添加配置</span>
@@ -159,7 +164,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- 高级选项区域 -->
             <div class="adv-section">
                 <div class="adv-header" id="adv-toggle" onclick="handleToggleAdvanced">
@@ -175,7 +180,7 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="setting-group">
                         <label class="setting-label">规则验证</label>
                         <div class="setting-control">
@@ -185,7 +190,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="setting-group">
                         <label class="setting-label">默认启用状态</label>
                         <div class="setting-control">
@@ -199,7 +204,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- 保存操作栏 -->
     <div class="save-actions">
         <button class="btn-reset" id="reset-btn" onclick="handleReset">重置更改</button>

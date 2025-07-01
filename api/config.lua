@@ -23,7 +23,8 @@ function M.get_config()
             mode = s.mode or "proxy",
             proxy_server_id = s.proxy_server_id or "",
             proxy_server_address = s.proxy_server_address or "",
-            proxy_server_protocl = s.proxy_server_address or ""
+            proxy_server_protocol = s.proxy_server_protocol or "",
+            proxy_server_port = s.proxy_server_port or "",
         })
     end)
 
