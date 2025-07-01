@@ -25,9 +25,12 @@ let currentConfig = {
 export const viewData = {
     global: currentConfig.global,
     interfaces: [],
-    proxyServers: []
+    proxyServers: [],
+    editConfigData: {},
+    showEditModal: false
 };
 let componentContext;
+
 // 页面初始化函数
 export const onInit = async function (context) {
     componentContext = context;
@@ -90,8 +93,42 @@ window.handleToggleConfig = async function (configId) {
 };
 
 window.handleEditConfig = function (configId) {
-    // 实现编辑配置逻辑
-    console.log('编辑配置:', configId);
+    viewData.editConfigData = viewData.configs.find(config => config.id === configId);
+    viewData.showEditModal = true;
+    componentContext.render();
+};
+
+window.cancelEditConfig = () => {
+    viewData.showEditModal = false;
+    componentContext.render();
+};
+
+window.saveEditedConfig = async () => {
+    const configId = document.getElementById('edit-config-id').value;
+    const interfaceName = document.getElementById('edit-config-interface').value.trim();
+    const mode = document.getElementById('edit-config-mode').value;
+    const proxyServerId = document.getElementById('edit-config-proxy').value;
+    const enabled = document.getElementById('edit-config-enabled').checked ? '1' : '0';
+
+    if (!interfaceName) {
+        showError('请选择网络接口');
+        return;
+    }
+
+    if (mode === 'proxy' && !proxyServerId) {
+        showError('请选择代理服务器');
+        return;
+    }
+
+    await apiRequest(`config/${configId}`, 'PUT', {
+        interface: interfaceName,
+        mode,
+        proxy_server_id: proxyServerId,
+        enabled
+    });
+    viewData.showEditModal = false;
+    await handleRefreshConfigs();
+    showToast('配置更新成功');
 };
 
 window.handleDeleteConfig = async function (configId) {

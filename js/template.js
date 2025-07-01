@@ -220,7 +220,7 @@ export class Template {
             return ${expr}; 
     }catch(e){
     console.dir(arguments);
-    throw '求值失败：${expr}，详细错误'+e;
+    throw "求值失败：${expr}，详细错误"+e;
     }
         }`
     )(data);
