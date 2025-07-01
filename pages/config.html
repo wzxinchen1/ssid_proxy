@@ -169,7 +169,7 @@
                     <div class="setting-group">
                         <label class="setting-label">规则应用顺序</label>
                         <div class="setting-control">
-                            <select id="rule-order" v-value="{{config.rule_order}}">
+                            <select id="config-order" v-value="{{config.config_order}}">
                                 <option value="top">新规则添加到顶部</option>
                                 <option value="bottom">新规则添加到底部</option>
                             </select>
@@ -180,8 +180,8 @@
                         <label class="setting-label">规则验证</label>
                         <div class="setting-control">
                             <div class="checkbox-group">
-                                <input type="checkbox" id="validate-rules" v-value="{{config.validate_rules}}">
-                                <label for="validate-rules">保存时自动验证规则有效性</label>
+                                <input type="checkbox" id="validate-configs" v-value="{{config.validate_configs}}">
+                                <label for="validate-configs">保存时自动验证规则有效性</label>
                             </div>
                         </div>
                     </div>

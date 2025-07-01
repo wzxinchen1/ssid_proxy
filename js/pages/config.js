@@ -12,7 +12,7 @@ let currentConfig = {
         log_level: 'info',
         log_retention: '7',
         show_advanced: '0',
-        rule_order: 'top',
+        config_order: 'top',
         validate_configs: '0',
         default_enabled: '1'
     },
@@ -158,8 +158,8 @@ window.handleSave = async function () {
             log_level: $('#log-level').val(),
             log_retention: $('#log-retention').val(),
             show_advanced: $('#show-advanced').is(':checked') ? '1' : '0',
-            rule_order: $('#rule-order').val(),
-            validate_rules: $('#validate-rules').is(':checked') ? '1' : '0',
+            config_order: $('#config-order').val(),
+            validate_configs: $('#validate-configs').is(':checked') ? '1' : '0',
             default_enabled: $('#default-enabled').is(':checked') ? '1' : '0'
         },
         configs: currentConfig.configs
