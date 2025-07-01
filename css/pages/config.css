@@ -60,10 +60,11 @@
 
 /* ====================== 全局设置表单 ====================== */
 .global-settings {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 20px;
     padding: 20px;
+    justify-content: space-between;
 }
 
 .setting-group {
@@ -283,8 +284,8 @@
 
 /* 表单组样式优化 */
 .add-config-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    display: flex;
+    justify-content: space-between;
     gap: 20px;
 }
 
@@ -577,15 +578,7 @@ input:checked + .slider:before {
 }
 
 /* ====================== 响应式调整 ====================== */
-@media (max-width: 768px) {
-    .global-settings {
-        grid-template-columns: 1fr;
-    }
-    
-    .add-config-form {
-        grid-template-columns: 1fr;
-    }
-    
+@media (max-width: 768px) {    
     .configs-table {
         display: block;
         overflow-x: auto;
