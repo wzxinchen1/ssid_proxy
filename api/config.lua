@@ -3,7 +3,7 @@ module("luci.controller.ssid-proxy.api.config", package.seeall)
 local M = {}
 
 -- 获取配置
-function M.get_config_get()
+function M.get_config()
     local uci = require"luci.model.uci".cursor()
     local http = require "luci.http"
 
