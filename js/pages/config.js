@@ -3,8 +3,8 @@
  * 基于模板引擎的实现
  */
 
-import { globalState } from '../global.js';
 import { apiRequest, showError } from '../utils.js';
+import { getProxyServers } from './nodes.js';
 // 全局状态管理
 let currentConfig = {
     global: {
@@ -23,11 +23,7 @@ let currentConfig = {
 export const viewData = {
     config: currentConfig.global,
     interfaces: [],
-    proxyServers: [
-        "socks5://106.63.10.142:11005",
-        "socks5://192.168.1.100:1080",
-        "http://proxy.example.com:8080"
-    ]
+    proxyServers: []
 };
 
 // 页面初始化函数
@@ -40,6 +36,9 @@ export const onInit = async function (componentContext) {
     // 合并配置
     viewData.config = currentConfig.global;
     viewData.interfaces = config.interfaces;
+
+    // 动态加载代理服务器列表
+    viewData.proxyServers = await getProxyServers();
 
     // 初始渲染
     componentContext.render();

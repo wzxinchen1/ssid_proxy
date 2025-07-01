@@ -134,3 +134,15 @@ async function saveNode() {
         showError(error.message);
     }
 }
+
+/**
+ * 获取代理服务器列表
+ * @returns {Promise<Array>} 代理服务器列表
+ */
+export const getProxyServers = async function () {
+    const nodes = await apiRequest('nodes', 'GET');
+    if (nodes) {
+        return nodes.map(node => `${node.protocol}://${node.address}:${node.port}`);
+    }
+    return [];
+};
