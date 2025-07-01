@@ -7,7 +7,9 @@ function M.get_config()
     local uci = require"luci.model.uci".cursor()
     local http = require "luci.http"
 
-    luci.http.cors()
+    if luci.http.cors() then
+        return
+    end
     local config = {
         global = uci:get_all("ssid-proxy", "global") or {},
         configs = {}
@@ -42,7 +44,9 @@ function M.update_global_config()
     local uci = require"luci.model.uci".cursor()
     local http = require "luci.http"
 
-    luci.http.cors()
+    if luci.http.cors() then
+        return
+    end
     local data = http.content()
     local json = require "luci.jsonc"
     local config = json.parse(data)
@@ -56,10 +60,8 @@ function M.update_global_config()
     end
 
     -- 更新全局配置
-    if config.global then
-        for key, value in pairs(config.global) do
-            uci:set("ssid-proxy", "global", key, value)
-        end
+    for key, value in pairs(config.global) do
+        uci:set("ssid-proxy", "global", key, value)
     end
 
     local success, err = pcall(function()
@@ -86,7 +88,9 @@ function M.add_config()
     local uci = require"luci.model.uci".cursor()
     local http = require "luci.http"
 
-    luci.http.cors()
+    if luci.http.cors() then
+        return
+    end
     local data = http.content()
     local json = require "luci.jsonc"
     local config = json.parse(data)

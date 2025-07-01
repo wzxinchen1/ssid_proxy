@@ -37,11 +37,10 @@ http.cors = function()
     if http.getenv("REQUEST_METHOD") == "OPTIONS" then
         http.status(204, "No Content")
         http.close()
-        return
+        return true
     end
     
-    -- 继续原有逻辑
-    return old_prepare_content(self, content_type)
+    return false
 end
 function index()
     -- 主菜单入口
