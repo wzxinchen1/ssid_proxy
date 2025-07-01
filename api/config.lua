@@ -151,6 +151,58 @@ function M.add_config()
     })
 end
 
+-- 删除配置
+function M.delete_config()
+    local uci = require "luci.model.uci".cursor()
+    local http = require "luci.http"
+
+    if luci.http.cors() then
+        return
+    end
+
+    -- 从路径中获取ID
+    local path = http.getenv("PATH_INFO") or ""
+    local id = path:match("api/config/([^/]+)$")
+
+    if not id then
+        http.status(400, "Bad Request")
+        http.write_json({
+            error = "Missing ID in path"
+        })
+        return
+    end
+
+    -- 检查配置是否存在
+    if not uci:get("ssid-proxy", id) then
+        http.status(404, "Not Found")
+        http.write_json({
+            error = "Config not found"
+        })
+        return
+    end
+
+    -- 删除配置
+    uci:delete("ssid-proxy", id)
+
+    local success, err = pcall(function()
+        uci:commit("ssid-proxy")
+    end)
+    if not success then
+        http.status(500, "Internal Server Error")
+        http.write_json({
+            error = tostring(err)
+        })
+        return
+    end
+
+    -- 应用配置
+    apply_configuration()
+
+    http.write_json({
+        success = true
+    })
+end
+
 -- 应用配置
 function apply_configuration()
     local uci = require"luci.model.uci".cursor()

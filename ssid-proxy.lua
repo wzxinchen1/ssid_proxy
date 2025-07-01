@@ -52,6 +52,7 @@ function index()
     entry({"api", "config", "get_global"}, call("api_config_get_global"), nil, 25)
     entry({"api", "config", "update_global"}, call("api_config_update_global"), nil, 30)
     entry({"api", "config", "add"}, call("api_config_add"), nil, 40)
+    entry({"api", "config", "delete"}, call("api_config_delete"), nil, 45)
     entry({"api", "logs"}, call("api_logs"), nil, 50)
     entry({"api", "monitor"}, call("api_monitor"), nil, 60)
     entry({"api", "service", "restart"}, call("api_service_restart"), nil, 70)
@@ -72,3 +73,4 @@ api_config = config.get_config
 api_config_get_global = config.get_global_config
 api_config_update_global = config.update_global_config
 api_config_add = config.add_config
+api_config_delete = config.delete_config
