@@ -120,7 +120,7 @@ window.saveEditedConfig = async () => {
         return;
     }
 
-    await apiRequest(`config/${configId}`, 'PUT', {
+    await apiRequest(`config/update/${configId}`, 'PUT', {
         interface: interfaceName,
         mode,
         proxy_server_id: proxyServerId,
