@@ -22,7 +22,7 @@ let currentConfig = {
 };
 
 export const viewData = {
-    config: currentConfig.global,
+    global: currentConfig.global,
     interfaces: [],
     proxyServers: []
 };
@@ -35,7 +35,8 @@ export const onInit = async function (componentContext) {
         config.interfaces = [];
     }
     // 合并配置
-    viewData.config = currentConfig.global;
+    viewData.global = currentConfig.global;
+    viewData.configs = config.configs;
     viewData.interfaces = config.interfaces;
 
     // 动态加载代理服务器列表
@@ -73,7 +74,8 @@ window.handleRefreshConfigs = async function () {
         config.interfaces = [];
     }
     // 合并配置
-    viewData.config = currentConfig.global;
+    viewData.global = currentConfig.global;
+    viewData.configs = config.configs;
     viewData.interfaces = config.interfaces;
 
     // 初始渲染
@@ -133,12 +135,10 @@ window.handleAddConfig = async function () {
         return;
     }
 
-    const response = await apiRequest('config/add', 'POST', newConfig);
-    if (response.success) {
-        showToast('配置添加成功');
-        $('#new-config-interface, #new-config-proxy').val('');
-        await handleRefreshConfigs();
-    }
+    await apiRequest('config/add', 'POST', newConfig);
+    showToast('配置添加成功');
+    $('#new-config-interface, #new-config-proxy').val('');
+    await handleRefreshConfigs();
 };
 
 window.handleToggleAdvanced = function () {

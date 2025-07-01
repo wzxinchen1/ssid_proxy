@@ -3,6 +3,8 @@
  * 负责管理应用全局状态、监控数据和系统配置
  */
 
+import { apiRequest } from "./utils.js";
+
 // 全局状态对象
 export const globalState = {
     // 系统状态
@@ -117,97 +119,41 @@ function setupMonitorInterval() {
 /**
  * 获取全局监控数据
  */
-export function fetchGlobalMonitor() {
-    $.ajax({
-        url: '/cgi-bin/luci/api/monitor',  // 修正为lua中定义的监控API路径
-        method: 'GET',
-        dataType: 'json'
-    })
-        .done(data => {
-            if (data.success) {
-                updateGlobalState('monitorData', data.data);
-                globalState.lastUpdate = new Date();
-            } else {
-                console.error('获取监控数据失败:', data.message);
-            }
-        })
-        .fail((xhr, status, error) => {
-            console.error('监控数据请求失败:', status, error);
-        });
+export async function fetchGlobalMonitor() {
+    const data = await apiRequest('monitor', 'GET');
+    updateGlobalState('monitorData', data);
+    globalState.lastUpdate = new Date();
 }
 
 /**
  * 获取服务状态
  */
-export function fetchServiceStatus() {
-    $.ajax({
-        url: '/cgi-bin/luci/api/status',  // 修正为lua中定义的状态API路径
-        method: 'GET',
-        dataType: 'json'
-    })
-        .done(data => {
-            if (data.success) {
-                // 根据lua返回的数据结构更新状态
-                const serviceRunning = data.data.service === 'running';
-                updateGlobalState('serviceRunning', serviceRunning);
-
-                // 服务启用状态需要从配置获取
-                fetchServiceEnabledStatus();
-            } else {
-                console.error('获取服务状态失败:', data.message);
-            }
-        })
-        .fail((xhr, status, error) => {
-            console.error('服务状态请求失败:', status, error);
-        });
+export async function fetchServiceStatus() {
+    const data = await apiRequest('status', 'GET');
+    const serviceRunning = data.service === 'running';
+    updateGlobalState('serviceRunning', serviceRunning);
+    await fetchServiceEnabledStatus();
 }
 
 /**
  * 获取服务启用状态（从配置中）
  */
-function fetchServiceEnabledStatus() {
-    $.ajax({
-        url: '/cgi-bin/luci/api/config/get_global',  // 使用配置API获取启用状态
-        method: 'GET',
-        dataType: 'json'
-    })
-        .done(response => {
-            if (response.success && response.data.global) {
-                const enabled = response.data.global.enabled === '1';
-                updateGlobalState('serviceEnabled', enabled);
-            } else {
-                console.error('获取服务启用状态失败');
-            }
-        })
-        .fail((xhr, status, error) => {
-            console.error('服务启用状态请求失败:', status, error);
-        });
+async function fetchServiceEnabledStatus() {
+    const data = await apiRequest('config/get_global', 'GET');
+    const enabled = data.enabled === '1';
+    updateGlobalState('serviceEnabled', enabled);
 }
 
 /**
  * 切换服务状态
  * @param {boolean} enable - 是否启用服务
  */
-export function toggleServiceStatus(enable) {
-    const endpoint = enable ? '/cgi-bin/luci/api/service/start' : '/cgi-bin/luci/api/service/stop';
-
-    $.ajax({
-        url: endpoint,  // 使用lua中定义的服务控制API
-        method: 'POST',
-        dataType: 'json'
-    })
-        .done(data => {
-            if (data.success) {
-                updateGlobalState('serviceEnabled', enable);
-                updateGlobalState('serviceRunning', enable);
-                showToast(`服务已${enable ? '启动' : '停止'}`);
-            } else {
-                showToast(`服务${enable ? '启动' : '停止'}失败: ${data.message}`, 'error');
-            }
-        })
-        .fail((xhr, status, error) => {
-            showToast(`服务${enable ? '启动' : '停止'}失败: ${error}`, 'error');
-        });
+export async function toggleServiceStatus(enable) {
+    const endpoint = enable ? 'service/start' : 'service/stop';
+    const data = await apiRequest(endpoint, 'POST');
+    updateGlobalState('serviceEnabled', enable);
+    updateGlobalState('serviceRunning', enable);
+    showToast(`服务已${enable ? '启动' : '停止'}`);
 }
 
 /**

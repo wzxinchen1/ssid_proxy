@@ -127,8 +127,8 @@ function M.add_config()
     uci:set("ssid-proxy", sid, "interface", config.interface or "")
     uci:set("ssid-proxy", sid, "mode", config.mode or "proxy")
 
-    if config.mode == "proxy" and config.proxy_server then
-        uci:set("ssid-proxy", sid, "proxy_server", config.proxy_server)
+    if config.mode == "proxy" and config.proxy_server_id then
+        uci:set("ssid-proxy", sid, "proxy_server_id", config.proxy_server_id)
     end
 
     local success, err = pcall(function()

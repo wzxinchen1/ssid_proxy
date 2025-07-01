@@ -14,7 +14,7 @@
                     <label class="setting-label">启用接口代理</label>
                     <div class="setting-control">
                         <div class="checkbox-group">
-                            <input type="checkbox" id="global-enabled" value="{{config.enabled}}">
+                            <input type="checkbox" id="global-enabled" value="{{global.enabled}}">
                             <label for="global-enabled">启用基于网络接口的代理功能</label>
                         </div>
                     </div>
@@ -23,7 +23,7 @@
                 <div class="setting-group">
                     <label class="setting-label">日志级别</label>
                     <div class="setting-control">
-                        <select id="log-level" v-value="{{config.log_level}}">
+                        <select id="log-level" v-value="{{global.log_level}}">
                             <option value="error">错误</option>
                             <option value="warning">警告</option>
                             <option value="info">信息</option>
@@ -35,7 +35,7 @@
                 <div class="setting-group">
                     <label class="setting-label">日志保留时间</label>
                     <div class="setting-control">
-                        <select id="log-retention" v-value="{{config.log_retention}}">
+                        <select id="log-retention" v-value="{{global.log_retention}}">
                             <option value="3">3天</option>
                             <option value="7">7天 (推荐)</option>
                             <option value="14">14天</option>
@@ -48,7 +48,7 @@
                     <label class="setting-label">显示高级选项</label>
                     <div class="setting-control">
                         <div class="checkbox-group">
-                            <input type="checkbox" id="show-advanced" v-value="{{config.show_advanced}}">
+                            <input type="checkbox" id="show-advanced" v-value="{{global.show_advanced}}">
                             <label for="show-advanced">在界面上显示高级配置选项</label>
                         </div>
                     </div>
@@ -77,7 +77,7 @@
                     </tr>
                 </thead>
                 <tbody id="configs-list">
-                    <tr v-for="config in config.configs" v-for-empty="暂无配置">
+                    <tr v-for="config in configs" v-for-empty="暂无配置">
                         <td>
                             <div class="checkbox-group">
                                 <input type="checkbox" v-value="{{config.enabled}}" onclick="handleToggleConfig('{{config.id}}')">
@@ -169,7 +169,7 @@
                     <div class="setting-group">
                         <label class="setting-label">规则应用顺序</label>
                         <div class="setting-control">
-                            <select id="config-order" v-value="{{config.config_order}}">
+                            <select id="config-order" v-value="{{global.config_order}}">
                                 <option value="top">新规则添加到顶部</option>
                                 <option value="bottom">新规则添加到底部</option>
                             </select>
@@ -180,7 +180,7 @@
                         <label class="setting-label">规则验证</label>
                         <div class="setting-control">
                             <div class="checkbox-group">
-                                <input type="checkbox" id="validate-configs" v-value="{{config.validate_configs}}">
+                                <input type="checkbox" id="validate-configs" v-value="{{global.validate_configs}}">
                                 <label for="validate-configs">保存时自动验证规则有效性</label>
                             </div>
                         </div>
@@ -190,7 +190,7 @@
                         <label class="setting-label">默认启用状态</label>
                         <div class="setting-control">
                             <div class="checkbox-group">
-                                <input type="checkbox" id="default-enabled" v-value="{{config.default_enabled}}">
+                                <input type="checkbox" id="default-enabled" v-value="{{global.default_enabled}}">
                                 <label for="default-enabled">新规则默认启用</label>
                             </div>
                         </div>

@@ -406,8 +406,7 @@ showToast('配置保存成功');
 // 显示错误消息
 showToast('保存失败，请重试', 'error');
 ```
-
-# SSID代理系统API文档
+# SSID代理系统HTTP接口文档
 
 ## 1. 配置管理API
 
@@ -427,7 +426,7 @@ showToast('保存失败，请重试', 'error');
       "log_level": "info",
       "log_retention": "7"
     },
-    "configs": [
+    "rules": [
       {
         "id": "cfg12345",
         "enabled": "1",
@@ -441,33 +440,18 @@ showToast('保存失败，请重试', 'error');
 }
 ```
 
-### 1.2 保存配置
+### 1.2 更新全局配置
 
-**端点**: `POST /api/config`
+**端点**: `POST /api/config/global`
 
-**功能**: 保存新配置并应用
+**功能**: 更新全局配置并应用
 
 **请求格式**:
 ```json
 {
-  "global": {
-    "enabled": "1",
-    "log_level": "debug",
-    "log_retention": "14"
-  },
-  "configs": [
-    {
-      "enabled": "1",
-      "interface": "eth0",
-      "mode": "direct"
-    },
-    {
-      "enabled": "1",
-      "interface": "wlan0",
-      "mode": "proxy",
-      "proxy_server": "socks5://192.168.1.100:1080"
-    }
-  ]
+  "enabled": "1",
+  "log_level": "debug",
+  "log_retention": "14"
 }
 ```
 
@@ -475,6 +459,29 @@ showToast('保存失败，请重试', 'error');
 ```json
 {
   "success": true
+}
+```
+
+### 1.3 添加新配置
+
+**端点**: `POST /api/config/rules`
+
+**功能**: 添加新规则配置
+
+**请求格式**:
+```json
+{
+  "enabled": "1",
+  "interface": "eth0",
+  "mode": "direct"
+}
+```
+
+**响应格式**:
+```json
+{
+  "success": true,
+  "id": "cfg67890"
 }
 ```
 
@@ -492,7 +499,7 @@ showToast('保存失败，请重试', 'error');
   "success": true,
   "data": {
     "service": "running",
-    "active_configs": 3,
+    "active_rules": 3,
     "active_connections": 12,
     "cpu_usage": 42,
     "memory_usage": 65,
@@ -597,30 +604,9 @@ showToast('保存失败，请重试', 'error');
 
 ## 5. 规则管理API
 
-### 5.1 添加规则
+### 5.1 更新规则
 
-**端点**: `POST /api/configs`
-
-**请求格式**:
-```json
-{
-  "interface": "eth1",
-  "mode": "proxy",
-  "proxy_server": "socks5://proxy.example.com:1080"
-}
-```
-
-**响应格式**:
-```json
-{
-  "success": true,
-  "id": "cfg67890"
-}
-```
-
-### 5.2 更新规则
-
-**端点**: `PUT /api/configs/{id}`
+**端点**: `PUT /api/rules/{id}`
 
 **请求格式**:
 ```json
@@ -637,9 +623,9 @@ showToast('保存失败，请重试', 'error');
 }
 ```
 
-### 5.3 删除规则
+### 5.2 删除规则
 
-**端点**: `DELETE /api/configs/{id}`
+**端点**: `DELETE /api/rules/{id}`
 
 **响应格式**:
 ```json
@@ -1153,7 +1139,7 @@ const data = {
   - `endpoint` (string): API 端点。
   - `method` (string): HTTP 方法（默认为 `GET`）。
   - `data` (Object): 请求数据（默认为 `null`）。
-- **返回值**: Promise，解析为 API 响应数据。
+- **返回值**: Promise，解析为 API 响应数据。响应数据已判断过 success 字段，不需要重复判断
 
 ### **15. 初始化工具函数**
 - **函数名**: `initUtils`

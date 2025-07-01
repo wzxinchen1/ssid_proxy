@@ -104,7 +104,7 @@
   - `endpoint` (string): API 端点。
   - `method` (string): HTTP 方法（默认为 `GET`）。
   - `data` (Object): 请求数据（默认为 `null`）。
-- **返回值**: Promise，解析为 API 响应数据。
+- **返回值**: Promise，解析为 API 响应数据。响应数据已判断过 success 字段，不需要重复判断
 
 ### **15. 初始化工具函数**
 - **函数名**: `initUtils`
