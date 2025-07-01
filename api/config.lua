@@ -14,7 +14,7 @@ function M.api_config()
             rules = {}
         }
         
-        uci:foreach("ssid-proxy", "rule", function(s)
+        uci:foreach("ssid-proxy", "config", function(s)
             table.insert(config.rules, {
                 id = s[".name"],
                 enabled = s.enabled or "1",
@@ -56,9 +56,9 @@ function M.api_config()
         end
         
         -- 更新规则
-        uci:delete_all("ssid-proxy", "rule")
+        uci:delete_all("ssid-proxy", "config")
         for _, rule in ipairs(config.rules) do
-            local sid = uci:section("ssid-proxy", "rule")
+            local sid = uci:section("ssid-proxy", "config")
             uci:set("ssid-proxy", sid, "enabled", rule.enabled or "1")
             uci:set("ssid-proxy", sid, "interface", rule.interface or "")
             uci:set("ssid-proxy", sid, "mode", rule.mode or "proxy")
