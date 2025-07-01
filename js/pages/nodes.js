@@ -141,8 +141,5 @@ async function saveNode() {
  */
 export const getProxyServers = async function () {
     const nodes = await apiRequest('nodes', 'GET');
-    if (nodes) {
-        return nodes.map(node => `${node.protocol}://${node.address}:${node.port}`);
-    }
-    return [];
+    return nodes;
 };

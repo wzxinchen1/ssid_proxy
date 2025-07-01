@@ -148,7 +148,7 @@
                         <label class="setting-label">代理服务器</label>
                         <select id="new-config-proxy" class="styled-select">
                             <option value="">-- 选择代理服务器 --</option>
-                            <option v-for="server in proxyServers" value="{{server.id}}">{{server.name}}</option>
+                            <option v-for="server in proxyServers" value="{{server.id}}">{{server.name}} ({{server.protocol}}://{{server.address}}:{{server.port}})</option>
                         </select>
                     </div>
                     

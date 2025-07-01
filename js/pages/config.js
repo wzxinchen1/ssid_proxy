@@ -39,7 +39,6 @@ export const onInit = async function (componentContext) {
 
     // 动态加载代理服务器列表
     viewData.proxyServers = await getProxyServers();
-
     // 初始渲染
     componentContext.render();
 
