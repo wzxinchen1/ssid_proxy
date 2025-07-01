@@ -167,7 +167,7 @@ export function fetchServiceStatus() {
  */
 function fetchServiceEnabledStatus() {
     $.ajax({
-        url: '/cgi-bin/luci/api/config',  // 使用配置API获取启用状态
+        url: '/cgi-bin/luci/api/config/get',  // 使用配置API获取启用状态
         method: 'GET',
         dataType: 'json'
     })
