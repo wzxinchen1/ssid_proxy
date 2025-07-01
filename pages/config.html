@@ -69,10 +69,10 @@
             <table class="configs-table">
                 <thead>
                     <tr>
-                        <th width="5%">状态</th>
+                        <th width="10%">状态</th>
                         <th width="20%">网络接口</th>
                         <th width="15%">操作模式</th>
-                        <th width="40%">代理服务器</th>
+                        <th width="20%">代理服务器</th>
                         <th width="20%">操作</th>
                     </tr>
                 </thead>
@@ -97,8 +97,8 @@
                             {{config.mode === 'proxy' ? config.proxy_server : '-'}}
                         </td>
                         <td>
-                            <button class="btn-small" onclick="handleEditConfig('{{config.id}}')">编辑</button>
-                            <button class="btn-small btn-warning" onclick="handleDeleteConfig('{{config.id}}')">删除</button>
+                            <button class="btn" onclick="handleEditConfig('{{config.id}}')">编辑</button>
+                            <button class="btn btn-warning" onclick="handleDeleteConfig('{{config.id}}')">删除</button>
                         </td>
                     </tr>
                 </tbody>

@@ -21,7 +21,9 @@ function M.get_config()
             enabled = s.enabled or "1",
             interface = s.interface or "",
             mode = s.mode or "proxy",
-            proxy_server = s.proxy_server or ""
+            proxy_server_id = s.proxy_server_id or "",
+            proxy_server_address = s.proxy_server_address or "",
+            proxy_server_protocl = s.proxy_server_address or ""
         })
     end)
 
