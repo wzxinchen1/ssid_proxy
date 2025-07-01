@@ -75,3 +75,4 @@ api_config_get_global = config.get_global_config
 api_config_update_global = config.update_global_config
 api_config_add = config.add_config
 api_config_delete = config.delete_config
+api_config_update=config.update_config
