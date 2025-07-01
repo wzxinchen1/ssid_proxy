@@ -67,7 +67,7 @@ window.getModeText = function (mode) {
 };
 
 // 事件处理函数
-window.handleRefreshRules = async function () {
+window.handleRefreshConfigs = async function () {
     const config = await apiRequest('config');
     if (!config.interfaces) {
         config.interfaces = [];
@@ -82,10 +82,10 @@ window.handleRefreshRules = async function () {
 
 window.handleToggleRule = async function (ruleId) {
     try {
-        const response = await apiRequest(`rules/${ruleId}/toggle`, 'POST');
+        const response = await apiRequest(`config/${ruleId}/toggle`, 'POST');
         if (response.success) {
             showToast('规则状态已更新');
-            await handleRefreshRules();
+            await handleRefreshConfigs();
         }
     } catch (error) {
         showError('切换规则状态失败: ' + error.message);
@@ -100,10 +100,10 @@ window.handleEditRule = function (ruleId) {
 window.handleDeleteRule = async function (ruleId) {
     if (confirm('确定要删除此规则吗？')) {
         try {
-            const response = await apiRequest(`rules/${ruleId}`, 'DELETE');
+            const response = await apiRequest(`config/${ruleId}`, 'DELETE');
             if (response.success) {
                 showToast('规则已删除');
-                await handleRefreshRules();
+                await handleRefreshConfigs();
             }
         } catch (error) {
             showError('删除规则失败: ' + error.message);
@@ -137,7 +137,7 @@ window.handleAddConfig = async function () {
     if (response.success) {
         showToast('配置添加成功');
         $('#new-rule-interface, #new-rule-proxy').val('');
-        await handleRefreshRules();
+        await handleRefreshConfigs();
     }
 };
 
@@ -147,7 +147,7 @@ window.handleToggleAdvanced = function () {
 
 window.handleReset = function () {
     if (confirm('确定要重置所有更改吗？未保存的更改将丢失。')) {
-        handleRefreshRules();
+        handleRefreshConfigs();
     }
 };
 
