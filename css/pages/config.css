@@ -109,13 +109,13 @@
 }
 
 /* ====================== 规则表格 ====================== */
-.rules-table {
+.configs-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
 }
 
-.rules-table th {
+.configs-table th {
     background-color: var(--table-header-bg);
     text-align: left;
     padding: 12px 15px;
@@ -124,17 +124,17 @@
     border-bottom: 2px solid var(--border-color);
 }
 
-.rules-table td {
+.configs-table td {
     padding: 12px 15px;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
 }
 
-.rules-table tr:nth-child(even) {
+.configs-table tr:nth-child(even) {
     background-color: var(--table-row-even-bg);
 }
 
-.rules-table tr:hover {
+.configs-table tr:hover {
     background-color: var(--table-row-hover-bg);
 }
 
@@ -167,7 +167,7 @@
     to { transform: rotate(360deg); }
 }
 
-.no-rules {
+.no-configs {
     text-align: center;
     padding: 20px;
     color: var(--text-muted);
@@ -187,7 +187,7 @@
 }
 
 /* ====================== 规则操作按钮 ====================== */
-.rule-actions {
+.config-actions {
     display: flex;
     gap: 8px;
 }
@@ -241,7 +241,7 @@
 }
 
 /* ====================== 添加规则区域 ====================== */
-.add-rule-section {
+.add-config-section {
     background: var(--card-bg);
     border-radius: 8px;
     padding: 25px;
@@ -251,17 +251,17 @@
     transition: all 0.3s ease;
 }
 
-.add-rule-section:hover {
+.add-config-section:hover {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
-.add-rule-header {
+.add-config-header {
     display: flex;
     align-items: center;
     margin-bottom: 22px;
 }
 
-.add-rule-icon {
+.add-config-icon {
     width: 36px;
     height: 36px;
     background: var(--primary-light-color);
@@ -275,14 +275,14 @@
     margin-right: 12px;
 }
 
-.add-rule-title {
+.add-config-title {
     font-size: 18px;
     font-weight: 600;
     color: var(--text-primary);
 }
 
 /* 表单组样式优化 */
-.add-rule-form {
+.add-config-form {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
@@ -337,7 +337,7 @@
 }
 
 /* 按钮美化 */
-.add-rule-btn {
+.add-config-btn {
     background: var(--primary-color);
     color: white;
     border: none;
@@ -355,13 +355,13 @@
     align-self: flex-end;
 }
 
-.add-rule-btn:hover {
+.add-config-btn:hover {
     background: var(--primary-dark-color);
     transform: translateY(-2px);
     box-shadow: 0 6px 10px rgba(50, 100, 255, 0.25);
 }
 
-.add-rule-btn::before {
+.add-config-btn::before {
     content: "";
     display: inline-block;
     width: 18px;
@@ -374,11 +374,11 @@
 
 /* 响应式调整 */
 @media (max-width: 768px) {
-    .add-rule-form {
+    .add-config-form {
         grid-template-columns: 1fr;
     }
     
-    .add-rule-btn {
+    .add-config-btn {
         width: 100%;
         margin-top: 10px;
     }
@@ -582,11 +582,11 @@ input:checked + .slider:before {
         grid-template-columns: 1fr;
     }
     
-    .add-rule-form {
+    .add-config-form {
         grid-template-columns: 1fr;
     }
     
-    .rules-table {
+    .configs-table {
         display: block;
         overflow-x: auto;
     }

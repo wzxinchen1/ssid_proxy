@@ -19,7 +19,7 @@
       "log_level": "info",
       "log_retention": "7"
     },
-    "rules": [
+    "configs": [
       {
         "id": "cfg12345",
         "enabled": "1",
@@ -47,7 +47,7 @@
     "log_level": "debug",
     "log_retention": "14"
   },
-  "rules": [
+  "configs": [
     {
       "enabled": "1",
       "interface": "eth0",
@@ -84,7 +84,7 @@
   "success": true,
   "data": {
     "service": "running",
-    "active_rules": 3,
+    "active_configs": 3,
     "active_connections": 12,
     "cpu_usage": 42,
     "memory_usage": 65,
@@ -191,7 +191,7 @@
 
 ### 5.1 添加规则
 
-**端点**: `POST /api/rules`
+**端点**: `POST /api/configs`
 
 **请求格式**:
 ```json
@@ -212,7 +212,7 @@
 
 ### 5.2 更新规则
 
-**端点**: `PUT /api/rules/{id}`
+**端点**: `PUT /api/configs/{id}`
 
 **请求格式**:
 ```json
@@ -231,7 +231,7 @@
 
 ### 5.3 删除规则
 
-**端点**: `DELETE /api/rules/{id}`
+**端点**: `DELETE /api/configs/{id}`
 
 **响应格式**:
 ```json

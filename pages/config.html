@@ -119,7 +119,7 @@
                             </svg>
                         </div>
                         <label class="setting-label">网络接口</label>
-                        <select id="new-rule-interface" class="styled-select">
+                        <select id="new-config-interface" class="styled-select">
                             <option value="">-- 选择接口 --</option>
                             <option v-for="iface in interfaces">{{iface}}</option>
                         </select>
@@ -132,7 +132,7 @@
                             </svg>
                         </div>
                         <label class="setting-label">代理行为</label>
-                        <select id="new-rule-mode" class="styled-select" onchange="handleModeChange(this.value)">
+                        <select id="new-config-mode" class="styled-select" onchange="handleModeChange(this.value)">
                             <option value="proxy">使用代理</option>
                             <option value="direct">直连 (不经过代理)</option>
                             <option value="block">阻止互联网访问</option>
@@ -146,7 +146,7 @@
                             </svg>
                         </div>
                         <label class="setting-label">代理服务器</label>
-                        <select id="new-rule-proxy" class="styled-select">
+                        <select id="new-config-proxy" class="styled-select">
                             <option value="">-- 选择代理服务器 --</option>
                             <option v-for="server in proxyServers" value="{{server.id}}">{{server.name}}</option>
                         </select>

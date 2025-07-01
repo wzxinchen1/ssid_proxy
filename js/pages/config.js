@@ -117,9 +117,9 @@ window.handleModeChange = function (mode) {
 
 window.handleAddConfig = async function () {
     const newConfig = {
-        interface: $('#new-rule-interface').val(),
-        mode: $('#new-rule-mode').val(),
-        proxy_server_id: $('#new-rule-proxy').val(), // 保存代理服务器 ID
+        interface: $('#new-config-interface').val(),
+        mode: $('#new-config-mode').val(),
+        proxy_server_id: $('#new-config-proxy').val(), // 保存代理服务器 ID
         enabled: $('#default-enabled').is(':checked') ? '1' : '0'
     };
 
@@ -136,7 +136,7 @@ window.handleAddConfig = async function () {
     const response = await apiRequest('config', 'POST', newConfig);
     if (response.success) {
         showToast('配置添加成功');
-        $('#new-rule-interface, #new-rule-proxy').val('');
+        $('#new-config-interface, #new-config-proxy').val('');
         await handleRefreshConfigs();
     }
 };
@@ -178,10 +178,10 @@ window.handleSave = async function () {
 // 绑定事件处理程序
 function bindConfigEvents() {
     // 规则模式切换事件
-    $('#new-rule-mode').on('change', function () {
+    $('#new-config-mode').on('change', function () {
         handleModeChange($(this).val());
     });
 
     // 初始化代理服务器显示状态
-    handleModeChange($('#new-rule-mode').val());
+    handleModeChange($('#new-config-mode').val());
 }
