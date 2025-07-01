@@ -39,6 +39,24 @@ function M.get_config()
     })
 end
 
+-- 获取全局配置
+function M.get_global_config()
+    local uci = require"luci.model.uci".cursor()
+    local http = require "luci.http"
+
+    if luci.http.cors() then
+        return
+    end
+
+    local global_config = uci:get_all("ssid-proxy", "global") or {}
+
+    luci.http.prepare_content("application/json")
+    luci.http.write_json({
+        success = true,
+        data = global_config
+    })
+end
+
 -- 更新全局配置
 function M.update_global_config()
     local uci = require"luci.model.uci".cursor()

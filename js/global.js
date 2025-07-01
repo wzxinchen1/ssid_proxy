@@ -167,13 +167,13 @@ export function fetchServiceStatus() {
  */
 function fetchServiceEnabledStatus() {
     $.ajax({
-        url: '/cgi-bin/luci/api/config/get',  // 使用配置API获取启用状态
+        url: '/cgi-bin/luci/api/config/get_global',  // 使用配置API获取启用状态
         method: 'GET',
         dataType: 'json'
     })
         .done(data => {
-            if (data.success && data.data.global) {
-                const enabled = data.data.global.enabled === '1';
+            if (data.success && data.global) {
+                const enabled = data.global.enabled === '1';
                 updateGlobalState('serviceEnabled', enabled);
             } else {
                 console.error('获取服务启用状态失败');

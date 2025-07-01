@@ -49,6 +49,7 @@ function index()
     -- API路由
     entry({"api", "status"}, call("api_status"), nil, 10)
     entry({"api", "config", "get"}, call("api_config"), nil, 20)
+    entry({"api", "config", "get_global"}, call("api_config_get_global"), nil, 25)
     entry({"api", "config", "update_global"}, call("api_config_update_global"), nil, 30)
     entry({"api", "config", "add"}, call("api_config_add"), nil, 40)
     entry({"api", "logs"}, call("api_logs"), nil, 50)
@@ -68,5 +69,6 @@ api_monitor = monitor.api_monitor
 api_status = status.api_status
 api_nodes = nodes.api_nodes
 api_config = config.get_config
-api_config_update_global = config.api_config_update_global
-api_config_add = config.api_config_add
+api_config_get_global = config.get_global_config
+api_config_update_global = config.update_global_config
+api_config_add = config.add_config
