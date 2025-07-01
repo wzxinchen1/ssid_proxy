@@ -17,7 +17,7 @@ export const viewData = {
  * 初始化节点页面
  * @param {Object} ctx - 组件上下文
  */
-export const initNodesPage = async function (ctx) {
+export const onInit = async function (ctx) {
     componentContext = ctx;
     // 加载节点数据
     await loadNodesData();

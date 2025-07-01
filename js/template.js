@@ -55,6 +55,9 @@ export class Template {
    */
   render() {
     const data = this.module.viewData;
+    if (!data) {
+      return;
+    }
     const templateElement = this.renderBindings(this.rawTemplateString, data);
     this.domTree = templateElement.content.firstElementChild;
     // 检查是否有 v-for
@@ -216,6 +219,7 @@ export class Template {
       try{
             return ${expr}; 
     }catch(e){
+    console.dir(arguments);
     throw "求值失败：${expr}，详细错误"+e;
     }
         }`

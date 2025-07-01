@@ -147,14 +147,14 @@ function renderPage(page, htmlContent, module) {
     $('#page-container').html(rendered);
 
     // 初始化页面脚本
-    if (typeof module[`init${capitalize(page)}Page`] === 'function') {
+    if (typeof module[`onInit`] === 'function') {
         const componentContext = {
             render: (data) => {
                 const rendered = engine.render();
                 $('#page-container').html(rendered);
             }
         };
-        module[`init${capitalize(page)}Page`](componentContext);
+        module[`onInit`](componentContext);
     }
 }
 
