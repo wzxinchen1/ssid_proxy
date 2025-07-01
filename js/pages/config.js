@@ -22,7 +22,12 @@ let currentConfig = {
 
 export const viewData = {
     config: currentConfig.global,
-    interfaces: []
+    interfaces: [],
+    proxyServers: [
+        "socks5://106.63.10.142:11005",
+        "socks5://192.168.1.100:1080",
+        "http://proxy.example.com:8080"
+    ]
 };
 
 // 页面初始化函数
@@ -125,7 +130,7 @@ window.handleAddRule = async function () {
     }
 
     if (newRule.mode === 'proxy' && !newRule.proxy_server) {
-        showError('请填写代理服务器地址');
+        showError('请选择代理服务器');
         return;
     }
 
@@ -181,4 +186,3 @@ function bindConfigEvents() {
     // 初始化代理服务器显示状态
     handleModeChange($('#new-rule-mode').val());
 }
-
