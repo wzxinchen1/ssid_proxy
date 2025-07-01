@@ -101,7 +101,7 @@ window.handleEditConfig = function (configId) {
 
 window.handleDeleteConfig = async function (configId) {
     if (confirm('确定要删除此配置吗？')) {
-        await apiRequest(`config/${configId}/delete`, 'DELETE');
+        await apiRequest(`config/delete/${configId}`, 'DELETE');
         showToast('配置已删除');
         await handleRefreshConfigs();
     }

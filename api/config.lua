@@ -162,7 +162,7 @@ function M.delete_config()
 
     -- 从路径中获取ID
     local path = http.getenv("PATH_INFO") or ""
-    local id = path:match("api/config/([^/]+)$")
+    local id = path:match("api/config/delete/([^/]+)$")
 
     if not id then
         http.status(400, "Bad Request")
