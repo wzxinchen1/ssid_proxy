@@ -5,6 +5,7 @@
 
 import { apiRequest, showError } from '../utils.js';
 import { getProxyServers } from './nodes.js';
+
 // 全局状态管理
 let currentConfig = {
     global: {
@@ -29,7 +30,7 @@ export const viewData = {
 // 页面初始化函数
 export const onInit = async function (componentContext) {
     // 加载配置数据
-    const config = await apiRequest('config');
+    const config = await apiRequest('config/get');
     if (!config.interfaces) {
         config.interfaces = [];
     }
@@ -67,7 +68,7 @@ window.getModeText = function (mode) {
 
 // 事件处理函数
 window.handleRefreshConfigs = async function () {
-    const config = await apiRequest('config');
+    const config = await apiRequest('config/get');
     if (!config.interfaces) {
         config.interfaces = [];
     }
@@ -132,7 +133,7 @@ window.handleAddConfig = async function () {
         return;
     }
 
-    const response = await apiRequest('config', 'POST', newConfig);
+    const response = await apiRequest('config/add', 'POST', newConfig);
     if (response.success) {
         showToast('配置添加成功');
         $('#new-config-interface, #new-config-proxy').val('');
@@ -165,7 +166,7 @@ window.handleSave = async function () {
     };
 
     try {
-        const response = await apiRequest('config', 'POST', config);
+        const response = await apiRequest('config/update_global', 'POST', config);
         if (response.success) {
             showToast('配置保存成功');
         }
