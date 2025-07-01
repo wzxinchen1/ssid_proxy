@@ -115,27 +115,27 @@ window.handleModeChange = function (mode) {
     $('#proxy-server-group').toggle(mode === 'proxy');
 };
 
-window.handleAddRule = async function () {
-    const newRule = {
+window.handleAddConfig = async function () {
+    const newConfig = {
         interface: $('#new-rule-interface').val(),
         mode: $('#new-rule-mode').val(),
-        proxy_server: $('#new-rule-proxy').val(),
+        proxy_server_id: $('#new-rule-proxy').val(), // 保存代理服务器 ID
         enabled: $('#default-enabled').is(':checked') ? '1' : '0'
     };
 
-    if (!newRule.interface) {
+    if (!newConfig.interface) {
         showError('请选择网络接口');
         return;
     }
 
-    if (newRule.mode === 'proxy' && !newRule.proxy_server) {
+    if (newConfig.mode === 'proxy' && !newConfig.proxy_server_id) {
         showError('请选择代理服务器');
         return;
     }
 
-    const response = await apiRequest('rules', 'POST', newRule);
+    const response = await apiRequest('config', 'POST', newConfig);
     if (response.success) {
-        showToast('规则添加成功');
+        showToast('配置添加成功');
         $('#new-rule-interface, #new-rule-proxy').val('');
         await handleRefreshRules();
     }
