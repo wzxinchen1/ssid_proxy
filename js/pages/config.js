@@ -13,10 +13,10 @@ let currentConfig = {
         log_retention: '7',
         show_advanced: '0',
         rule_order: 'top',
-        validate_rules: '0',
+        validate_configs: '0',
         default_enabled: '1'
     },
-    rules: [],
+    configs: [],
     interfaces: []
 };
 
@@ -80,7 +80,7 @@ window.handleRefreshConfigs = async function () {
     componentContext.render();
 };
 
-window.handleToggleRule = async function (ruleId) {
+window.handleToggleConfig = async function (ruleId) {
     try {
         const response = await apiRequest(`config/${ruleId}/toggle`, 'POST');
         if (response.success) {
@@ -92,12 +92,12 @@ window.handleToggleRule = async function (ruleId) {
     }
 };
 
-window.handleEditRule = function (ruleId) {
+window.handleEditConfig = function (ruleId) {
     // 实现编辑规则逻辑
     console.log('编辑规则:', ruleId);
 };
 
-window.handleDeleteRule = async function (ruleId) {
+window.handleDeleteConfig = async function (ruleId) {
     if (confirm('确定要删除此规则吗？')) {
         try {
             const response = await apiRequest(`config/${ruleId}`, 'DELETE');
@@ -162,7 +162,7 @@ window.handleSave = async function () {
             validate_rules: $('#validate-rules').is(':checked') ? '1' : '0',
             default_enabled: $('#default-enabled').is(':checked') ? '1' : '0'
         },
-        rules: currentConfig.rules
+        configs: currentConfig.configs
     };
 
     try {

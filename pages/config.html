@@ -1,6 +1,6 @@
 <div class="config-page">
     <div class="page-title">
-        <span>接口代理规则配置</span>
+        <span>接口代理配置</span>
     </div>
     
     <!-- 全局设置卡片 -->
@@ -60,13 +60,13 @@
     <!-- 规则配置卡片 -->
     <div class="config-card">
         <div class="config-header">
-            <div class="config-title">代理规则</div>
+            <div class="config-title">代理配置</div>
             <div class="config-actions">
-                <button class="btn-small" id="refresh-rules" onclick="handleRefreshRules">刷新</button>
+                <button class="btn-small" id="refresh-configs" onclick="handleRefreshConfigs">刷新</button>
             </div>
         </div>
         <div class="config-body">
-            <table class="rules-table">
+            <table class="configs-table">
                 <thead>
                     <tr>
                         <th width="5%">状态</th>
@@ -76,42 +76,42 @@
                         <th width="20%">操作</th>
                     </tr>
                 </thead>
-                <tbody id="rules-list">
-                    <tr v-for="rule in config.rules" v-for-empty="暂无规则配置">
+                <tbody id="configs-list">
+                    <tr v-for="config in config.configs" v-for-empty="暂无配置">
                         <td>
                             <div class="checkbox-group">
-                                <input type="checkbox" v-value="{{rule.enabled}}" onclick="handleToggleRule('{{rule.id}}')">
+                                <input type="checkbox" v-value="{{config.enabled}}" onclick="handleToggleConfig('{{config.id}}')">
                             </div>
                         </td>
                         <td>
-                            <span class="interface-tag {{getInterfaceTagClass(rule.interface)}}">
-                                {{rule.interface}}
+                            <span class="interface-tag {{getInterfaceTagClass(config.interface)}}">
+                                {{config.interface}}
                             </span>
                         </td>
                         <td>
-                            <span class="mode-tag mode-{{rule.mode}}">
-                                {{getModeText(rule.mode)}}
+                            <span class="mode-tag mode-{{config.mode}}">
+                                {{getModeText(config.mode)}}
                             </span>
                         </td>
                         <td>
-                            {{rule.mode === 'proxy' ? rule.proxy_server : '-'}}
+                            {{config.mode === 'proxy' ? config.proxy_server : '-'}}
                         </td>
                         <td>
-                            <button class="btn-small" onclick="handleEditRule('{{rule.id}}')">编辑</button>
-                            <button class="btn-small btn-warning" onclick="handleDeleteRule('{{rule.id}}')">删除</button>
+                            <button class="btn-small" onclick="handleEditConfig('{{config.id}}')">编辑</button>
+                            <button class="btn-small btn-warning" onclick="handleDeleteConfig('{{config.id}}')">删除</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
             
-            <!-- 添加新规则区域 -->
-            <div class="add-rule-section">
-                <div class="add-rule-header">
-                    <div class="add-rule-icon">+</div>
-                    <div class="add-rule-title">添加新规则</div>
+            <!-- 添加新配置区域 -->
+            <div class="add-config-section">
+                <div class="add-config-header">
+                    <div class="add-config-icon">+</div>
+                    <div class="add-config-title">添加新配置</div>
                 </div>
                 
-                <div class="add-rule-form">
+                <div class="add-config-form">
                     <div class="form-group">
                         <div class="input-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24">
@@ -153,8 +153,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <button class="add-rule-btn" id="add-rule-btn" onclick="handleAddConfig()">
-                            <span>添加规则</span>
+                        <button class="add-config-btn" id="add-config-btn" onclick="handleAddConfig()">
+                            <span>添加配置</span>
                         </button>
                     </div>
                 </div>
