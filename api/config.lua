@@ -11,11 +11,11 @@ function M.api_config()
         -- 获取配置
         local config = {
             global = uci:get_all("ssid-proxy", "global") or {},
-            rules = {}
+            configs = {}
         }
         
         uci:foreach("ssid-proxy", "config", function(s)
-            table.insert(config.rules, {
+            table.insert(config.configs, {
                 id = s[".name"],
                 enabled = s.enabled or "1",
                 interface = s.interface or "",
@@ -57,14 +57,14 @@ function M.api_config()
         
         -- 更新规则
         uci:delete_all("ssid-proxy", "config")
-        for _, rule in ipairs(config.rules) do
+        for _, config in ipairs(config.configs) do
             local sid = uci:section("ssid-proxy", "config")
-            uci:set("ssid-proxy", sid, "enabled", rule.enabled or "1")
-            uci:set("ssid-proxy", sid, "interface", rule.interface or "")
-            uci:set("ssid-proxy", sid, "mode", rule.mode or "proxy")
+            uci:set("ssid-proxy", sid, "enabled", config.enabled or "1")
+            uci:set("ssid-proxy", sid, "interface", config.interface or "")
+            uci:set("ssid-proxy", sid, "mode", config.mode or "proxy")
             
-            if rule.mode == "proxy" and rule.proxy_server then
-                uci:set("ssid-proxy", sid, "proxy_server", rule.proxy_server)
+            if config.mode == "proxy" and config.proxy_server then
+                uci:set("ssid-proxy", sid, "proxy_server", config.proxy_server)
             end
         end
         
