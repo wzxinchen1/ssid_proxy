@@ -189,10 +189,10 @@ apply_rules() {
     
     # 读取配置（使用 grep/sed 替代 jq）
     if [ -f "$CONFIG" ]; then
-        grep -o '{"interface":[^}]*}' "$CONFIG" | while read -r rule; do
-            local interface=$(echo "$rule" | sed -n 's/.*"interface":"\([^"]*\)".*/\1/p')
-            local mode=$(echo "$rule" | sed -n 's/.*"mode":"\([^"]*\)".*/\1/p')
-            local proxy=$(echo "$rule" | sed -n 's/.*"proxy_server":"\([^"]*\)".*/\1/p')
+        grep -o '{\"interface\":[^}]*}' "$CONFIG" | while read -r rule; do
+            local interface=$(echo "$rule" | sed -n 's/.*\"interface\":\"\([^\"]*\)\".*/\1/p')
+            local mode=$(echo "$rule" | sed -n 's/.*\"mode\":\"\([^\"]*\)\".*/\1/p')
+            local proxy=$(echo "$rule" | sed -n 's/.*\"proxy_server\":\"\([^\"]*\)\".*/\1/p')
             
             # 检查接口是否存在
             if ! $IP link show dev "$interface" >/dev/null 2>&1; then
@@ -331,23 +331,20 @@ cleanup_logs() {
     fi
 }
 
-# 主循环
+# 主逻辑
 log "info" "接口代理服务启动 (日志级别: $LOG_LEVEL)"
 log "info" "PID: $$"
 
+# 应用规则
+apply_rules
 while true; do
-    # 应用规则
-    apply_rules
-    
     # 监控活跃连接
     monitor_connections
-    
+
     # 清理旧日志（每天执行一次）
     current_hour=$(date +%H)
     if [ "$current_hour" = "03" ]; then
         cleanup_logs
     fi
-    
-    # 休眠
     sleep 10
 done
