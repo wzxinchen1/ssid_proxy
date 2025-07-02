@@ -50,7 +50,6 @@ redsocks {
     local_port = %d;
 }
 ]],
-            node.protocol or "socks5",
             node.address,
             tonumber(node.port),
             node.username or "",
