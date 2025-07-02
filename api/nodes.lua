@@ -5,6 +5,7 @@ function api_nodes()
     local http = require "luci.http"
     local json = require "luci.jsonc"
     local uci = require"luci.model.uci".cursor()
+    local fs = require "nixio.fs"
 
     local method = http.getenv("REQUEST_METHOD")
     local path_info = http.getenv("PATH_INFO") or ""
@@ -28,6 +29,35 @@ function api_nodes()
         data = json.parse(content)
     end
 
+    -- 生成适用于redsocks的JSON配置
+    local function generate_redsocks_config(node)
+        local config = {
+            base = {
+                log_debug = 0,
+                log_info = 1,
+                daemon = 1,
+                redirector = "iptables"
+            },
+            redsocks = {
+                type = node.protocol or "socks5",
+                ip = node.address,
+                port = tonumber(node.port),
+                login = node.username or "",
+                password = node.password or ""
+            }
+        }
+        return config
+    end
+
+    -- 保存JSON配置到文件并更新UCI配置
+    local function save_redsocks_config(node_id, config)
+        local json_file = "/etc/ssid-proxy/redsocks_" .. node_id .. ".json"
+        local json_content = json.stringify(config, true)
+        fs.writefile(json_file, json_content)
+        uci:set("ssid-proxy", node_id, "redsocks_config", json_file)
+        uci:commit("ssid-proxy")
+    end
+
     if method == "GET" then
         -- 获取节点列表
         local nodes = {}
@@ -40,7 +70,8 @@ function api_nodes()
                 protocol = s["protocol"],
                 username = s["username"],
                 password = s["password"],
-                status = s["status"] or "inactive"
+                status = s["status"] or "inactive",
+                redsocks_config = s["redsocks_config"] or ""
             })
         end)
 
@@ -69,7 +100,10 @@ function api_nodes()
         uci:set("ssid-proxy", id, "username", data.username)
         uci:set("ssid-proxy", id, "password", data.password)
         uci:set("ssid-proxy", id, "status", data.status)
-        uci:commit("ssid-proxy")
+
+        -- 生成并保存redsocks配置
+        local redsocks_config = generate_redsocks_config(data)
+        save_redsocks_config(id, redsocks_config)
 
         http.prepare_content("application/json")
         http.write_json({
@@ -96,7 +130,10 @@ function api_nodes()
         uci:set("ssid-proxy", id, "username", data.username)
         uci:set("ssid-proxy", id, "password", data.password)
         uci:set("ssid-proxy", id, "status", data.status)
-        uci:commit("ssid-proxy")
+
+        -- 生成并保存redsocks配置
+        local redsocks_config = generate_redsocks_config(data)
+        save_redsocks_config(id, redsocks_config)
 
         http.prepare_content("application/json")
         http.write_json({
