@@ -7,6 +7,7 @@ local status = require "luci.controller.ssid-proxy.api.status"
 local config = require "luci.controller.ssid-proxy.api.config"
 local monitor = require "luci.controller.ssid-proxy.api.monitor"
 local nodes = require "luci.controller.ssid-proxy.api.nodes"
+local logs = require "luci.controller.ssid-proxy.api.logs"
 local http = require "luci.http"
 
 -- 封装原有的 http.prepare_content 方法，自动添加 CORS 头
@@ -70,6 +71,7 @@ end
 api_monitor = monitor.api_monitor
 api_status = status.api_status
 api_nodes = nodes.api_nodes
+api_logs = logs.api_logs
 api_config = config.get_config
 api_config_get_global = config.get_global_config
 api_config_update_global = config.update_global_config
