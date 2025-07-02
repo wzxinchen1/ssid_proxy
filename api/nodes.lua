@@ -66,38 +66,50 @@ redsocks {
         return port
     end
 
-    -- 启动redsocks实例
+    -- 启动redsocks服务
     local function start_redsocks(node_id, config_file)
-        -- 检查是否已存在redsocks实例
-        local pid_file = "/var/run/redsocks_" .. node_id .. ".pid"
-        if fs.access(pid_file) then
-            local pid = tonumber(fs.readfile(pid_file))
-            if pid and sys.process.signal(pid, 0) then
-                -- 实例已在运行，无需重启
-                return true
-            end
+        -- 检查是否已存在redsocks服务
+        local service_name = "redsocks_" .. node_id
+        local status = sys.init.enabled(service_name)
+        if status then
+            -- 服务已在运行，无需重启
+            return true
         end
 
-        -- 启动新的redsocks实例
-        local cmd = string.format("/usr/sbin/redsocks -c %s -p %s", config_file, pid_file)
-        local pid = sys.process.exec(cmd)
-        if pid then
-            fs.writefile(pid_file, tostring(pid))
-            return pid
-        else
-            return pid
-        end
+        -- 创建服务脚本
+        local service_script = string.format([[
+#!/bin/sh /etc/rc.common
+START=99
+STOP=10
+
+start() {
+    /usr/sbin/redsocks -c %s -p /var/run/redsocks_%s.pid
+}
+
+stop() {
+    kill -9 $(cat /var/run/redsocks_%s.pid)
+    rm -f /var/run/redsocks_%s.pid
+}
+]], config_file, node_id, node_id, node_id)
+
+        -- 写入服务脚本
+        local service_path = "/etc/init.d/" .. service_name
+        fs.writefile(service_path, service_script)
+        fs.chmod(service_path, 755)
+
+        -- 启用并启动服务
+        sys.init.enable(service_name)
+        sys.init.start(service_name)
+        return true
     end
 
-    -- 停止redsocks实例
+    -- 停止redsocks服务
     local function stop_redsocks(node_id)
-        local pid_file = "/var/run/redsocks_" .. node_id .. ".pid"
-        if fs.access(pid_file) then
-            local pid = tonumber(fs.readfile(pid_file))
-            if pid then
-                sys.process.signal(pid, 9) -- SIGKILL
-                fs.unlink(pid_file)
-            end
+        local service_name = "redsocks_" .. node_id
+        if sys.init.enabled(service_name) then
+            sys.init.stop(service_name)
+            sys.init.disable(service_name)
+            fs.unlink("/etc/init.d/" .. service_name)
         end
     end
 
@@ -158,12 +170,12 @@ redsocks {
         local config_file = save_redsocks_config(id, redsocks_config)
         uci:set("ssid-proxy", id, "listen_port", listen_port)
 
-        -- 启动redsocks实例
+        -- 启动redsocks服务
         if not start_redsocks(id, config_file) then
             http.status(500, "Internal Server Error")
             http.write_json({
                 success = false,
-                error = "Failed to start redsocks"
+                error = "Failed to start redsocks service"
             })
             return
         end
@@ -203,22 +215,20 @@ redsocks {
         local config_file = save_redsocks_config(id, redsocks_config)
         uci:set("ssid-proxy", id, "listen_port", listen_port)
 
-        -- 重启redsocks实例
+        -- 重启redsocks服务
         stop_redsocks(id)
-        local pid = start_redsocks(id, config_file)
-        if not pid then
+        if not start_redsocks(id, config_file) then
             http.status(500, "Internal Server Error")
             http.write_json({
                 success = false,
-                error = "Failed to restart redsocks"
+                error = "Failed to restart redsocks service"
             })
             return
         end
 
         http.write_json({
             success = true,
-            id = id,
-            pid = pid
+            id = id
         })
     elseif method == "DELETE" then
         -- 确保有有效数据
@@ -241,7 +251,7 @@ redsocks {
             return
         end
 
-        -- 停止redsocks实例
+        -- 停止redsocks服务
         stop_redsocks(nodeId)
 
         -- 删除节点
