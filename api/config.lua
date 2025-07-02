@@ -285,6 +285,7 @@ end
 
 -- 应用配置
 function apply_configuration()
+    sys.exec("/etc/init.d/ssid-proxy stop >/dev/null 2>&1")
     local uci = require"luci.model.uci".cursor()
     local sys = require "luci.sys"
 
@@ -311,7 +312,7 @@ function apply_configuration()
     sys.exec("/usr/sbin/ssid-proxy-validate")
 
     -- 重启服务
-    sys.exec("/etc/init.d/ssid-proxy restart >/dev/null 2>&1")
+    sys.exec("/etc/init.d/ssid-proxy start >/dev/null 2>&1")
     return "aaaa"
 end
 
