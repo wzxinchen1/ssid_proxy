@@ -30,7 +30,7 @@ function api_nodes()
     end
 
     -- 生成适用于redsocks的JSON配置
-    local function generate_redsocks_config(node)
+    local function generate_redsocks_config(node, listen_port)
         local config = {
             base = {
                 log_debug = 0,
@@ -39,15 +39,36 @@ function api_nodes()
                 redirector = "iptables"
             },
             redsocks = {
-                local_ip = 127.0.0.1,
                 type = node.protocol or "socks5",
                 ip = node.address,
                 port = tonumber(node.port),
                 login = node.username or "",
-                password = node.password or ""
+                password = node.password or "",
+                local_ip = "127.0.0.1",
+                local_port = listen_port
             }
         }
         return config
+    end
+
+    -- 获取下一个可用的监听端口（从10000开始）
+    local function get_next_listen_port()
+        local port = 10000
+        uci:foreach("ssid-proxy", "node", function(s)
+            local config_file = s["redsocks_config"]
+            if config_file and fs.access(config_file) then
+                local content = fs.readfile(config_file)
+                if content then
+                    local config = json.parse(content)
+                    if config and config.redsocks and config.redsocks.local_port then
+                        if config.redsocks.local_port >= port then
+                            port = config.redsocks.local_port + 1
+                        end
+                    end
+                end
+            end
+        end)
+        return port
     end
 
     -- 保存JSON配置到文件并更新UCI配置
@@ -71,8 +92,7 @@ function api_nodes()
                 protocol = s["protocol"],
                 username = s["username"],
                 password = s["password"],
-                status = s["status"] or "inactive",
-                redsocks_config = s["redsocks_config"] or ""
+                status = s["status"] or "inactive"
             })
         end)
 
@@ -102,14 +122,18 @@ function api_nodes()
         uci:set("ssid-proxy", id, "password", data.password)
         uci:set("ssid-proxy", id, "status", data.status)
 
-        -- 生成并保存redsocks配置
-        local redsocks_config = generate_redsocks_config(data)
-        save_redsocks_config(id, redsocks_config)
-
+        -- 分配监听端口并生成redsocks配置
+        if not data.id then
+            local listen_port = get_next_listen_port()
+            local redsocks_config = generate_redsocks_config(data, listen_port)
+            save_redsocks_config(id, redsocks_config)
+            uci:set("ssid-proxy", id, "listen_port", listen_port)
+        end
         http.prepare_content("application/json")
         http.write_json({
             success = true,
-            id = id
+            id = id,
+            listen_port = listen_port
         })
     elseif method == "PUT" then
         -- 确保有有效数据
@@ -132,14 +156,17 @@ function api_nodes()
         uci:set("ssid-proxy", id, "password", data.password)
         uci:set("ssid-proxy", id, "status", data.status)
 
-        -- 生成并保存redsocks配置
-        local redsocks_config = generate_redsocks_config(data)
+        -- 如果节点已有监听端口，则复用；否则分配新的
+        local listen_port = uci:get("ssid-proxy", id, "listen_port") or get_next_listen_port()
+        local redsocks_config = generate_redsocks_config(data, listen_port)
         save_redsocks_config(id, redsocks_config)
+        uci:set("ssid-proxy", id, "listen_port", listen_port)
 
         http.prepare_content("application/json")
         http.write_json({
             success = true,
-            id = id
+            id = id,
+            listen_port = listen_port
         })
     elseif method == "DELETE" then
         -- 确保有有效数据
