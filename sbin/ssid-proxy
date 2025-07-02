@@ -221,16 +221,15 @@ apply_rules() {
     # 读取配置
     if [ -f "$CONFIG" ]; then
         # 获取所有配置项
-         local configs=$(uci -q get ssid-proxy.@config[0] 2>/dev/null && \
-                       uci -q show ssid-proxy | grep -o 'ssid-proxy\.@config$$[0-9]+$$' | sort -u)
-        
+        local configs=$(uci -q show ssid-proxy | grep -E 'ssid-proxy\.@config\[[0-9]+\]' | cut -d'=' -f1)
+
         for config in $configs; do
             log "info" "分析：$config"
-            local enabled=$(uci -q get $config.enabled)
-            local interface=$(uci -q get $config.interface)
+            local enabled=$(uci -q get "$config.enabled")
+            local interface=$(uci -q get "$config.interface")
             log "info" "接口：$interface"
-            local mode=$(uci -q get $config.mode)
-            local proxy_server_id=$(uci -q get $config.proxy_server_id)
+            local mode=$(uci -q get "$config.mode")
+            local proxy_server_id=$(uci -q get "$config.proxy_server_id")
             
             # 检查是否启用
             if [ "$enabled" != "1" ]; then
