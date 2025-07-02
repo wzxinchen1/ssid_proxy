@@ -221,7 +221,8 @@ apply_rules() {
     # 读取配置
     if [ -f "$CONFIG" ]; then
         # 获取所有配置项
-        local configs=$(uci -q show ssid-proxy | grep -E 'ssid-proxy\.@config\[[0-9]+\]' | cut -d= -f1)
+         local configs=$(uci -q get ssid-proxy.@config[0] 2>/dev/null && \
+                       uci -q show ssid-proxy | grep -o 'ssid-proxy\.@config$$[0-9]+$$' | sort -u)
         
         for config in $configs; do
             log "info" "分析：$config"
