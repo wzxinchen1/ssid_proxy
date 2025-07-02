@@ -228,12 +228,13 @@ apply_rules() {
             log "info" "分析：$config"
             local enabled=$(uci -q get $config.enabled)
             local interface=$(uci -q get $config.interface)
+            log "info" "接口：$interface"
             local mode=$(uci -q get $config.mode)
             local proxy_server_id=$(uci -q get $config.proxy_server_id)
             
             # 检查是否启用
             if [ "$enabled" != "1" ]; then
-                log "debug" "配置 $config 未启用，跳过"
+                log "debug" "配置 $config 未启用($enabled)，跳过"
                 continue
             fi
             
