@@ -79,7 +79,7 @@ redsocks {
         end
 
         -- 启动新的redsocks实例
-        local cmd = string.format("redsocks -c %s -p %s", config_file, pid_file)
+        local cmd = string.format("/usr/sbin/redsocks -c %s -p %s", config_file, pid_file)
         local pid = sys.process.exec(cmd)
         if pid then
             fs.writefile(pid_file, tostring(pid))
