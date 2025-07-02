@@ -194,6 +194,7 @@ apply_rules() {
                 
             case $mode in
                 "proxy")
+                    log "info" "执行 iptables 命令: $IPTABLES -t nat -I SSID_PROXY_$interface -s \"$ip\" -p tcp -j DNAT --to-destination 127.0.0.1:$listen_port -m comment --comment \"SSID代理:$interface\""
                     # 添加透明代理规则（排除局域网IP范围）
                     $IPTABLES -t nat -I SSID_PROXY_$interface -s "$ip" -p tcp -j DNAT \
                             --to-destination 127.0.0.1:$listen_port \
