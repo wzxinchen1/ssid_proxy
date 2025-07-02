@@ -1,0 +1,43 @@
+<div class="card">
+    <div class="card-header">
+        <h3>日志管理</h3>
+    </div>
+    <div class="card-body">
+        <div class="form-group">
+            <form id="search-logs-form" class="form-inline">
+                <div class="form-row" style="display: flex; align-items: center; gap: 10px;">
+                    <label for="log-level">日志级别</label>
+                    <select id="log-level" class="form-control">
+                        <option value="all">全部</option>
+                        <option value="error">错误</option>
+                        <option value="warning">警告</option>
+                        <option value="info">信息</option>
+                        <option value="debug">调试</option>
+                    </select>
+                    <label for="log-search">搜索</label>
+                    <input type="text" id="log-search" class="form-control" placeholder="搜索日志内容">
+                    <button type="submit" class="btn btn-primary">搜索</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearLogs()">清除日志</button>
+                </div>
+            </form>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-header">
+                    <tr>
+                        <th>时间</th>
+                        <th>级别</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody id="logs-table-body">
+                    <tr v-for="log in logs" v-for-empty="没有日志数据">
+                        <td>{{log.timestamp}}</td>
+                        <td><span class="log-level-{{log.level}}">{{log.level}}</span></td>
+                        <td>{{log.message}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
