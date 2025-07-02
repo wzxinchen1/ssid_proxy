@@ -198,7 +198,7 @@ apply_rules() {
                     $IPTABLES -t nat -I SSID_PROXY_$interface -s "$ip" -d ! 192.168.0.0/16 -p tcp -j DNAT \
                             --to-destination 127.0.0.1:$listen_port \
                             -m comment --comment "SSID代理:$interface"
-                    log "info" "为 $ip (接口: $interface) 应用代理规则到 $proxy"
+                    log "info" "为 $ip (接口: $interface) 应用代理规则到 $proxy,$listen_port"
                     log_connection "$ip" "$proxy_ip" "$proxy_port" "TCP" "PROXY" "$interface"
 
                     ;;
