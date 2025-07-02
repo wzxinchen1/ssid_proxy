@@ -109,23 +109,6 @@ log_request() {
 
 # 安全初始化
 safe_init() {
-    # 清除旧规则
-    $IPTABLES -t nat -F SSID_PROXY 2>/dev/null
-    $IPTABLES -t nat -D PREROUTING -j SSID_PROXY 2>/dev/null
-    $IPTABLES -t nat -X SSID_PROXY 2>/dev/null
-    
-    # 检查是否启用
-    if [ ! -f "$ENABLED_FLAG" ]; then
-        log "info" "代理已禁用，所有规则已清除"
-        return
-    fi
-    
-    # 创建新链
-    $IPTABLES -t nat -N SSID_PROXY
-    $IPTABLES -t nat -I PREROUTING -j SSID_PROXY
-    
-    # 添加默认直通规则
-    $IPTABLES -t nat -A SSID_PROXY -j RETURN
     
     log "info" "防火墙链初始化完成"
 }
@@ -194,6 +177,17 @@ apply_rules() {
                 
             case $mode in
                 "proxy")
+                    local chainName="SSID_PROXY_$interface"
+                    $IPTABLES -t nat -F $chainName 2>/dev/null
+                    $IPTABLES -t nat -D PREROUTING -j $chainName 2>/dev/null
+                    $IPTABLES -t nat -X $chainName 2>/dev/null
+                    
+                    # 创建新链
+                    $IPTABLES -t nat -N $chainName
+                    $IPTABLES -t nat -I PREROUTING -j $chainName
+                    
+                    # 添加默认直通规则
+                    $IPTABLES -t nat -A $chainName -j RETURN
                     log "info" "执行 iptables 命令: $IPTABLES -t nat -I SSID_PROXY_$interface -s \"$ip\" -p tcp -j DNAT --to-destination 127.0.0.1:$listen_port -m comment --comment \"SSID代理:$interface\""
                     # 添加透明代理规则（排除局域网IP范围）
                     $IPTABLES -t nat -I SSID_PROXY_$interface -s "$ip" -p tcp -j DNAT \
