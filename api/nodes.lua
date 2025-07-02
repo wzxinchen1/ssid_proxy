@@ -83,6 +83,7 @@ START=99
 STOP=10
 
 start() {
+    touch /var/run/redsocks_%s.pid
     /usr/sbin/redsocks -c %s -p /var/run/redsocks_%s.pid
 }
 
@@ -90,7 +91,7 @@ stop() {
     kill -9 $(cat /var/run/redsocks_%s.pid)
     rm -f /var/run/redsocks_%s.pid
 }
-]], config_file, node_id, node_id, node_id)
+]], node_id, config_file, node_id, node_id, node_id)
 
         -- 写入服务脚本
         local service_path = "/etc/init.d/" .. service_name
