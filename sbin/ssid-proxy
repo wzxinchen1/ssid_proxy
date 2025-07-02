@@ -13,9 +13,9 @@ IPTABLES="/usr/sbin/iptables"
 CONNTRACK="/usr/sbin/conntrack"
 IP="/usr/sbin/ip"
 
-rm /var/log/ssid-proxy.log
-rm /var/log/ssid-proxy-connections.log
-rm /var/log/ssid-proxy-requests.log
+rm /var/log/ssid-proxy.log >/dev/null
+rm /var/log/ssid-proxy-connections.log >/dev/null
+rm /var/log/ssid-proxy-requests.log >/dev/null
 # 从配置读取日志级别
 LOG_LEVEL="info"
 [ -f "$CONFIG" ] && {
@@ -390,11 +390,13 @@ log "info" "PID: $$"
 # 应用规则
 apply_rules
 
-# 监控活跃连接
-monitor_connections
+while true; do
+    # 监控活跃连接
+    monitor_connections
 
-# 清理旧日志（每天执行一次）
-current_hour=$(date +%H)
-if [ "$current_hour" = "03" ]; then
-    cleanup_logs
-fi
+    # 清理旧日志（每天执行一次）
+    current_hour=$(date +%H)
+    if [ "$current_hour" = "03" ]; then
+        cleanup_logs
+    fi
+end
