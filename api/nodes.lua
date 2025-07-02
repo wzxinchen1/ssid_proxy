@@ -195,6 +195,7 @@ redsocks {
         uci:set("ssid-proxy", id, "username", data.username)
         uci:set("ssid-proxy", id, "password", data.password)
         uci:set("ssid-proxy", id, "status", data.status)
+        data.id = id
 
         -- 如果节点已有监听端口，则复用；否则分配新的
         local listen_port = uci:get("ssid-proxy", id, "listen_port") or get_next_listen_port()
