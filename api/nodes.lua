@@ -38,6 +38,7 @@ base {
     log_info = on;
     daemon = on;
     redirector = iptables;
+    log = "file:/mnt/usb1/redsocks_log/%s";
 }
 
 redsocks {
@@ -49,7 +50,7 @@ redsocks {
     local_ip = 0.0.0.0;
     local_port = %d;
 }
-]], node.address, tonumber(node.port), node.username or "", node.password or "", listen_port)
+]], node, node.address, tonumber(node.port), node.username or "", node.password or "", listen_port)
         return config
     end
 
