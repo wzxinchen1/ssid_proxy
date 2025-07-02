@@ -66,9 +66,9 @@ cp -r "$SRC_DIR/assets/" /www/luci-static/resources/ssid-proxy/css/
 # 步骤6: 复制后端 API
 cp "$SRC_DIR/api/config.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/config.lua
 cp "$SRC_DIR/api/nodes.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/nodes.lua
-cp "$SRC_DIR/api/logs.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/
-cp "$SRC_DIR/api/monitor.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/
-cp "$SRC_DIR/api/status.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/
+cp "$SRC_DIR/api/logs.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/logs.lua
+cp "$SRC_DIR/api/monitor.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/monitor.lua
+cp "$SRC_DIR/api/status.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/status.lua
 
 # 步骤7: 复制主控制器
 cp "$SRC_DIR/ssid-proxy.lua" /usr/lib/lua/luci/controller/ssid-proxy/ssid-proxy.lua
