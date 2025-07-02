@@ -213,6 +213,7 @@ apply_rules() {
             
             log "debug" "$enabled;$interface;$mode;$proxy_server_id"
             if [ $? -ne 0 ]; then
+                log "info" "WTF?"
                 log "error" "无法获取代理服务器配置 $proxy_server_id"
                 continue
             fi
@@ -223,6 +224,7 @@ apply_rules() {
                 continue
             fi
             
+            log "info" "WTF??"
             # 获取该接口的客户端IP
             local ips=${ip -4 addr show dev "$interface" | awk '/inet / {print $2}'}
             
