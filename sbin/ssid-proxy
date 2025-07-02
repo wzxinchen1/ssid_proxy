@@ -13,6 +13,9 @@ IPTABLES="/usr/sbin/iptables"
 CONNTRACK="/usr/sbin/conntrack"
 IP="/usr/sbin/ip"
 
+rm LOG
+rm CONNECTION_LOG
+rm REQUEST_LOG
 # 从配置读取日志级别
 LOG_LEVEL="info"
 [ -f "$CONFIG" ] && {
