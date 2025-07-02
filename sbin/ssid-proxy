@@ -297,7 +297,8 @@ apply_rules() {
                             ;;
                     esac
                 done
-        fi
+            fi
+        done
     else
         log "error" "配置文件 $CONFIG 不存在"
     fi
