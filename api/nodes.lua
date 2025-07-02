@@ -217,14 +217,14 @@ stop() {
 
         -- 重启redsocks服务
         stop_redsocks(id)
-        if not start_redsocks(id, config_file) then
-            http.status(500, "Internal Server Error")
-            http.write_json({
-                success = false,
-                error = "Failed to restart redsocks service"
-            })
-            return
-        end
+        -- if not start_redsocks(id, config_file) then
+        --     http.status(500, "Internal Server Error")
+        --     http.write_json({
+        --         success = false,
+        --         error = "Failed to restart redsocks service"
+        --     })
+        --     return
+        -- end
 
         http.write_json({
             success = true,
