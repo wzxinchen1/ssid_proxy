@@ -17,6 +17,7 @@ start() {
 
 stop() {
     # 停止服务进程
+    echo "process skilling"
     killall ssid-proxy 2>/dev/null
     echo "process skilled"
     # 清除所有规则
