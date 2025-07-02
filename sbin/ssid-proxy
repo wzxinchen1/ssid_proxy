@@ -237,7 +237,7 @@ apply_rules() {
                         
                         # 添加透明代理规则（插入在默认规则之前）
                         $IPTABLES -t nat -I SSID_PROXY -s "$ip" -p tcp -j DNAT \
-                                --to-destination "$proxy_ip:$proxy_port" \
+                                --to-destination 127.0.0.1:10000 \
                                 -m comment --comment "SSID代理:$interface"
                         log "info" "为 $ip (接口: $interface) 应用代理规则到 $proxy"
                         log_connection "$ip" "$proxy_ip" "$proxy_port" "TCP" "PROXY" "$interface"
