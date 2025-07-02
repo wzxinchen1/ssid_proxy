@@ -285,9 +285,9 @@ end
 
 -- 应用配置
 function apply_configuration()
-    sys.exec("/etc/init.d/ssid-proxy stop >/dev/null 2>&1")
     local uci = require"luci.model.uci".cursor()
     local sys = require "luci.sys"
+    sys.exec("/etc/init.d/ssid-proxy stop >/dev/null 2>&1")
 
     -- 检查服务是否启用
     local enabled = uci:get("ssid-proxy", "global", "enabled") or "0"
