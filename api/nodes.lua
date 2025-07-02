@@ -6,6 +6,7 @@ function api_nodes()
     local json = require "luci.jsonc"
     local uci = require"luci.model.uci".cursor()
     local fs = require "nixio.fs"
+    local sys = require "luci.sys"
 
     local method = http.getenv("REQUEST_METHOD")
     local path_info = http.getenv("PATH_INFO") or ""
@@ -44,7 +45,7 @@ function api_nodes()
                 port = tonumber(node.port),
                 login = node.username or "",
                 password = node.password or "",
-                local_ip = "127.0.0.1",
+                local_ip = "0.0.0.0",
                 local_port = listen_port
             }
         }
@@ -71,6 +72,41 @@ function api_nodes()
         return port
     end
 
+    -- 启动redsocks实例
+    local function start_redsocks(node_id, config_file)
+        -- 检查是否已存在redsocks实例
+        local pid_file = "/var/run/redsocks_" .. node_id .. ".pid"
+        if fs.access(pid_file) then
+            local pid = tonumber(fs.readfile(pid_file))
+            if pid and sys.process.signal(pid, 0) then
+                -- 实例已在运行，无需重启
+                return true
+            end
+        end
+
+        -- 启动新的redsocks实例
+        local cmd = string.format("redsocks -c %s -p %s", config_file, pid_file)
+        local pid = sys.process.exec(cmd)
+        if pid then
+            fs.writefile(pid_file, tostring(pid))
+            return true
+        else
+            return false
+        end
+    end
+
+    -- 停止redsocks实例
+    local function stop_redsocks(node_id)
+        local pid_file = "/var/run/redsocks_" .. node_id .. ".pid"
+        if fs.access(pid_file) then
+            local pid = tonumber(fs.readfile(pid_file))
+            if pid then
+                sys.process.signal(pid, 9) -- SIGKILL
+                fs.unlink(pid_file)
+            end
+        end
+    end
+
     -- 保存JSON配置到文件并更新UCI配置
     local function save_redsocks_config(node_id, config)
         local json_file = "/etc/ssid-proxy/redsocks_" .. node_id .. ".json"
@@ -78,6 +114,7 @@ function api_nodes()
         fs.writefile(json_file, json_content)
         uci:set("ssid-proxy", node_id, "redsocks_config", json_file)
         uci:commit("ssid-proxy")
+        return json_file
     end
 
     if method == "GET" then
@@ -123,12 +160,21 @@ function api_nodes()
         uci:set("ssid-proxy", id, "status", data.status)
 
         -- 分配监听端口并生成redsocks配置
-        if not data.id then
-            local listen_port = get_next_listen_port()
-            local redsocks_config = generate_redsocks_config(data, listen_port)
-            save_redsocks_config(id, redsocks_config)
-            uci:set("ssid-proxy", id, "listen_port", listen_port)
+        local listen_port = get_next_listen_port()
+        local redsocks_config = generate_redsocks_config(data, listen_port)
+        local config_file = save_redsocks_config(id, redsocks_config)
+        uci:set("ssid-proxy", id, "listen_port", listen_port)
+
+        -- 启动redsocks实例
+        if not start_redsocks(id, config_file) then
+            http.status(500, "Internal Server Error")
+            http.write_json({
+                success = false,
+                error = "Failed to start redsocks"
+            })
+            return
         end
+
         http.prepare_content("application/json")
         http.write_json({
             success = true,
@@ -159,8 +205,19 @@ function api_nodes()
         -- 如果节点已有监听端口，则复用；否则分配新的
         local listen_port = uci:get("ssid-proxy", id, "listen_port") or get_next_listen_port()
         local redsocks_config = generate_redsocks_config(data, listen_port)
-        save_redsocks_config(id, redsocks_config)
+        local config_file = save_redsocks_config(id, redsocks_config)
         uci:set("ssid-proxy", id, "listen_port", listen_port)
+
+        -- 重启redsocks实例
+        stop_redsocks(id)
+        if not start_redsocks(id, config_file) then
+            http.status(500, "Internal Server Error")
+            http.write_json({
+                success = false,
+                error = "Failed to restart redsocks"
+            })
+            return
+        end
 
         http.prepare_content("application/json")
         http.write_json({
@@ -188,6 +245,9 @@ function api_nodes()
             })
             return
         end
+
+        -- 停止redsocks实例
+        stop_redsocks(nodeId)
 
         -- 删除节点
         uci:delete("ssid-proxy", nodeId)
