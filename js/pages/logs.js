@@ -29,16 +29,15 @@ async function loadLogsData() {
     const level = document.getElementById('log-level').value;
     const search = document.getElementById('log-search').value.trim();
 
-    try {
-        const params = {};
-        if (level !== 'all') params.level = level;
-        if (search) params.search = search;
+    const params = {};
+    if (level !== 'all') params.level = level;
+    if (search) params.search = search;
 
-        viewData.logs = await apiRequest('logs', 'GET', null, params);
-        componentContext.render();
-    } catch (error) {
-        showError(error.message);
+    viewData.logs = await apiRequest('logs', 'GET', null, params);
+    if (!Array.isArray(viewData.logs)) {
+        viewData.logs = [];
     }
+    componentContext.render();
 }
 
 /**

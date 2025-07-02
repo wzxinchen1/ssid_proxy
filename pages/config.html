@@ -14,7 +14,8 @@
                     <label class="setting-label">启用接口代理</label>
                     <div class="setting-control">
                         <div class="checkbox-group">
-                            <input type="checkbox" id="global-enabled" value="{{global.enabled}}">
+                            <input type="checkbox" id="global-enabled" checked="{{global.enabled}}"
+                                value="1">
                             <label for="global-enabled">启用基于网络接口的代理功能</label>
                         </div>
                     </div>
@@ -54,7 +55,15 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 保存操作栏 -->
+            <div class="save-actions">
+                <button class="btn-reset" id="reset-btn" onclick="handleReset()">重置更改</button>
+                <button class="btn-save" id="save-btn" onclick="handleSave()">保存并应用</button>
+            </div>
         </div>
+
+
     </div>
 
     <!-- 规则配置卡片 -->
@@ -95,7 +104,9 @@
                             </span>
                         </td>
                         <td>
-                            {{config.mode === 'proxy' ? (config.proxy_server.protocol+'://'+config.proxy_server.address+':'+ config.proxy_server.port) : '-'}}
+                            {{config.mode === 'proxy' ?
+                            (config.proxy_server.protocol+'://'+config.proxy_server.address+':'+
+                            config.proxy_server.port) : '-'}}
                         </td>
                         <td>
                             <button class="btn" onclick="handleEditConfig('{{config.id}}')">编辑</button>
@@ -216,14 +227,16 @@
                     <input type="hidden" id="edit-config-id" value="{{editConfigData.id}}">
                     <div class="form-group">
                         <label for="edit-config-interface">网络接口</label>
-                        <select id="edit-config-interface" class="form-control" required v-value="{{editConfigData.interface}}">>
+                        <select id="edit-config-interface" class="form-control" required
+                            v-value="{{editConfigData.interface}}">>
                             <option value="">-- 选择接口 --</option>
                             <option v-for="iface in interfaces" value="{{iface}}">{{iface}}</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="edit-config-mode">操作模式</label>
-                        <select id="edit-config-mode" class="form-control" required v-value="{{editConfigData.mode}}" onchange="handleModeChange(this.value)">
+                        <select id="edit-config-mode" class="form-control" required v-value="{{editConfigData.mode}}"
+                            onchange="handleModeChange(this.value)">
                             <option value="proxy">使用代理</option>
                             <option value="direct">直连 (不经过代理)</option>
                             <option value="block">阻止互联网访问</option>
@@ -231,9 +244,11 @@
                     </div>
                     <div class="form-group" id="edit-proxy-server-group">
                         <label for="edit-config-proxy">代理服务器</label>
-                        <select id="edit-config-proxy" class="form-control" v-value="{{editConfigData.proxy_server_id}}">
+                        <select id="edit-config-proxy" class="form-control"
+                            v-value="{{editConfigData.proxy_server_id}}">
                             <option value="">-- 选择代理服务器 --</option>
-                            <option v-for="server in proxyServers" value="{{server.id}}">{{server.name}} ({{server.protocol}}://{{server.address}}:{{server.port}})</option>
+                            <option v-for="server in proxyServers" value="{{server.id}}">{{server.name}}
+                                ({{server.protocol}}://{{server.address}}:{{server.port}})</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -250,11 +265,5 @@
                 <button type="button" class="btn btn-primary" onclick="saveEditedConfig()">保存</button>
             </div>
         </div>
-    </div>
-
-    <!-- 保存操作栏 -->
-    <div class="save-actions">
-        <button class="btn-reset" id="reset-btn" onclick="handleReset">重置更改</button>
-        <button class="btn-save" id="save-btn" onclick="handleSave">保存并应用</button>
     </div>
 </div>

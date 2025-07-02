@@ -11,7 +11,7 @@
 
 export class Template {
   constructor(templateString, module) {
-    this.templateString = this.rawTemplateString = templateString;
+    this.rawTemplateString = templateString;
     this.module = module;
 
   }
@@ -31,7 +31,7 @@ export class Template {
         element.remove();
       }
     }
-    templateElement.innerHTML = templateElement.innerHTML.replace(/{{.*?}}/g, (expr) => {
+    templateElement.innerHTML = templateElement.innerHTML.replace(/{{[\s\S]*?}}/g, (expr) => {
       // 处理三目运算符
       return this._safeEval(data, expr);
     });
@@ -45,7 +45,6 @@ export class Template {
         }
       }
     }
-    this.templateString = templateElement.innerHTML;
     return templateElement;
   }
   /**
@@ -61,21 +60,19 @@ export class Template {
     const templateElement = this.renderBindings(this.rawTemplateString, data);
     this.domTree = templateElement.content.firstElementChild;
     // 检查是否有 v-for
-    this.hasVFor = this.templateString.includes('v-for');
+    this.hasVFor = templateElement.innerHTML.includes('v-for');
     this.vForElements = [];
     if (this.hasVFor) {
       this.vForElements = this._findVForElements(this.domTree);
       // 处理 v-for 节点并更新模板字符串
-      const processedDom = this._processVForElements(this.templateString, this.domTree, this.vForElements, data);
-      this.templateString = templateElement.innerHTML = processedDom.outerHTML;
+      const processedDom = this._processVForElements(templateElement.innerHTML, this.domTree, this.vForElements, data);
+      templateElement.innerHTML = processedDom.outerHTML;
     }
     this.domTree = templateElement.content.firstElementChild;
     // 克隆 DOM 树
     const clonedTree = this.domTree.cloneNode(true);
-
     // 处理单向绑定和事件绑定
     this._processBindings(clonedTree, data);
-
     return clonedTree;
   }
 
@@ -200,6 +197,15 @@ export class Template {
         }
         select.removeAttribute('v-value');
       }
+
+      // 对于 checked = “非True值”的，移除checked
+      const checkedElements = element.querySelectorAll('input[checked]');
+      for (const checkedElement of checkedElements) {
+        const checkedValue = checkedElement.getAttribute("checked");
+        if (checkedValue == "0" || checkedValue == 0 || !checkedValue) {
+          checkedElement.removeAttribute("checked");
+        }
+      }
     }
   }
 
@@ -211,7 +217,7 @@ export class Template {
      */
   _safeEval(data, expr) {
     // 1. 移除模板标记和首尾空格
-    expr = expr.replace(/{|}/g, '').trim();
+    expr = expr.replace(/{|}/g, '').replace(/\r|\n|\\s/g, "").trim();
 
     return new Function(
       'sandbox',
