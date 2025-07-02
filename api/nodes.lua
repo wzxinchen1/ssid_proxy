@@ -49,13 +49,7 @@ redsocks {
     local_ip = 0.0.0.0;
     local_port = %d;
 }
-]],
-            node.address,
-            tonumber(node.port),
-            node.username or "",
-            node.password or "",
-            listen_port
-        )
+]], node.address, tonumber(node.port), node.username or "", node.password or "", listen_port)
         return config
     end
 
@@ -88,9 +82,9 @@ redsocks {
         local pid = sys.process.exec(cmd)
         if pid then
             fs.writefile(pid_file, tostring(pid))
-            return true
+            return pid
         else
-            return false
+            return pid
         end
     end
 
@@ -209,7 +203,8 @@ redsocks {
 
         -- 重启redsocks实例
         stop_redsocks(id)
-        if not start_redsocks(id, config_file) then
+        local pid = start_redsocks(id, config_file)
+        if not pid then
             http.status(500, "Internal Server Error")
             http.write_json({
                 success = false,
@@ -220,7 +215,8 @@ redsocks {
 
         http.write_json({
             success = true,
-            id = id
+            id = id,
+            pid = pid
         })
     elseif method == "DELETE" then
         -- 确保有有效数据
