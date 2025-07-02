@@ -164,6 +164,10 @@ apply_rules() {
             # 获取代理服务器配置
             local listen_port=$(uci -q get ssid-proxy.$proxy_server_id.listen_port)
             
+            local chainName="SSID_PROXY_$interface"
+            $IPTABLES -t nat -F $chainName 2>/dev/null
+            $IPTABLES -t nat -D PREROUTING -j $chainName 2>/dev/null
+            $IPTABLES -t nat -X $chainName 2>/dev/null
             # 检查是否启用
             if [ "$enabled" != "1" ]; then
                 log "debug" "配置 $config 未启用($enabled)，跳过"
@@ -177,10 +181,6 @@ apply_rules() {
                 
             case $mode in
                 "proxy")
-                    local chainName="SSID_PROXY_$interface"
-                    $IPTABLES -t nat -F $chainName 2>/dev/null
-                    $IPTABLES -t nat -D PREROUTING -j $chainName 2>/dev/null
-                    $IPTABLES -t nat -X $chainName 2>/dev/null
 
                     # 创建新链
                     $IPTABLES -t nat -N $chainName
