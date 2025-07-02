@@ -220,8 +220,7 @@ redsocks {
 
         http.write_json({
             success = true,
-            id = id,
-            listen_port = listen_port
+            id = id
         })
     elseif method == "DELETE" then
         -- 确保有有效数据
