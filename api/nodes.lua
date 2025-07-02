@@ -181,6 +181,7 @@ redsocks {
             listen_port = listen_port
         })
     elseif method == "PUT" then
+        http.prepare_content("application/json")
         -- 确保有有效数据
         if not nodeId and (not data or not data.id) then
             http.status(400, "Bad Request")
@@ -218,7 +219,6 @@ redsocks {
             return
         end
 
-        http.prepare_content("application/json")
         http.write_json({
             success = true,
             id = id,
