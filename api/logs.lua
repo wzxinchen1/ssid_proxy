@@ -10,7 +10,7 @@ function M.api_logs()
     local action = http.formvalue("action")
     local level = http.formvalue("level") or "all"
     local search = http.formvalue("search") or ""
-    local lines = tonumber(http.formvalue("lines") or 100
+    local lines = tonumber(http.formvalue("lines")) or 100
     
     -- 处理清除日志操作
     if action == "clear" then
