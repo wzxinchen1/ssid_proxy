@@ -24,11 +24,24 @@ log() {
     local level="$1"
     local message="$2"
     
-    # 定义日志级别权重
-    declare -A levels
-    levels=([debug]=0 [info]=1 [warning]=2 [error]=3)
-    local level_weight=${levels[$level]}
-    local config_weight=${levels[$LOG_LEVEL]}
+    # 定义日志级别权重（使用 case 替代关联数组）
+    local level_weight=0
+    case "$level" in
+        debug) level_weight=0 ;;
+        info) level_weight=1 ;;
+        warning) level_weight=2 ;;
+        error) level_weight=3 ;;
+        *) level_weight=1 ;;
+    esac
+    
+    local config_weight=1
+    case "$LOG_LEVEL" in
+        debug) config_weight=0 ;;
+        info) config_weight=1 ;;
+        warning) config_weight=2 ;;
+        error) config_weight=3 ;;
+        *) config_weight=1 ;;
+    esac
     
     # 如果配置的日志级别高于当前消息级别，则不记录
     [ "$config_weight" -gt "$level_weight" ] && return
@@ -44,7 +57,7 @@ log() {
     esac
     
     # 记录到日志文件
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - [$prefix] $message" >> $LOG
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - [$prefix] $message" >> "$LOG"
     
     # 同时记录到系统日志
     logger -t ssid-proxy "[$prefix] $message"
@@ -62,12 +75,12 @@ log_connection() {
     # 获取地理信息（如果可用）
     local geo_info=""
     if [ -x "/usr/bin/geoiplookup" ]; then
-        geo_info=$(geoiplookup $dst_ip 2>/dev/null | awk -F': ' 'NR==1 {print $2}')
+        geo_info=$(geoiplookup "$dst_ip" 2>/dev/null | awk -F': ' 'NR==1 {print $2}')
     fi
     
     # 记录连接
     local timestamp=$(date +%s)
-    echo "$timestamp|$src_ip|$dst_ip|$dst_port|$protocol|$action|$interface|$geo_info" >> $CONNECTION_LOG
+    echo "$timestamp|$src_ip|$dst_ip|$dst_port|$protocol|$action|$interface|$geo_info" >> "$CONNECTION_LOG"
 }
 
 # 记录请求信息
@@ -81,14 +94,14 @@ log_request() {
     
     # 解析域名（如果是IP则跳过）
     local domain=""
-    if [[ $dst =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    if echo "$dst" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
         domain=$dst
     elif [ -x "/usr/bin/host" ]; then
         domain=$(host "$dst" 2>/dev/null | awk '/has address/ {print $4; exit}')
     fi
     
     # 记录请求
-    echo "$(date '+%Y-%m-%d %H:%M:%S')|$src_ip|$dst|$port|$protocol|$status|$interface|$domain" >> $REQUEST_LOG
+    echo "$(date '+%Y-%m-%d %H:%M:%S')|$src_ip|$dst|$port|$protocol|$status|$interface|$domain" >> "$REQUEST_LOG"
 }
 
 # 安全初始化
@@ -148,13 +161,13 @@ get_interface_clients() {
     case $interface_type in
         wireless|ethernet|vlan)
             # 使用ARP表获取活跃设备
-            $IP neigh show dev $interface | awk '/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ {print $1}' | sort | uniq
+            $IP neigh show dev "$interface" | awk '/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ {print $1}' | sort | uniq
             ;;
         bridge)
             # 获取网桥下的所有接口
-            local bridge_interfaces=$(ls /sys/class/net/$interface/brif 2>/dev/null)
+            local bridge_interfaces=$(ls "/sys/class/net/$interface/brif" 2>/dev/null)
             for iface in $bridge_interfaces; do
-                $IP neigh show dev $iface | awk '/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ {print $1}'
+                $IP neigh show dev "$iface" | awk '/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ {print $1}'
             done | sort | uniq
             ;;
         *)
@@ -174,64 +187,68 @@ apply_rules() {
         return
     fi
     
-    # 读取配置
-    jq -c '.rules[]' $CONFIG 2>/dev/null | while read rule; do
-        local interface=$(echo "$rule" | jq -r '.interface // ""')
-        local mode=$(echo "$rule" | jq -r '.mode')
-        local proxy=$(echo "$rule" | jq -r '.proxy_server // ""')
-        
-        # 检查接口是否存在
-        if ! $IP link show dev "$interface" >/dev/null 2>&1; then
-            log "warning" "接口 $interface 不存在，跳过规则"
-            continue
-        fi
-        
-        # 获取该接口的客户端IP
-        local ips=$(get_interface_clients "$interface")
-        
-        if [ -z "$ips" ]; then
-            log "debug" "接口 '$interface' 当前没有连接的客户端"
-            continue
-        fi
-        
-        for ip in $ips; do
-            # 跳过无效IP
-            if ! echo "$ip" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
-                log "warning" "跳过无效IP地址: $ip"
+    # 读取配置（使用 grep/sed 替代 jq）
+    if [ -f "$CONFIG" ]; then
+        grep -o '{"interface":[^}]*}' "$CONFIG" | while read -r rule; do
+            local interface=$(echo "$rule" | sed -n 's/.*"interface":"\([^"]*\)".*/\1/p')
+            local mode=$(echo "$rule" | sed -n 's/.*"mode":"\([^"]*\)".*/\1/p')
+            local proxy=$(echo "$rule" | sed -n 's/.*"proxy_server":"\([^"]*\)".*/\1/p')
+            
+            # 检查接口是否存在
+            if ! $IP link show dev "$interface" >/dev/null 2>&1; then
+                log "warning" "接口 $interface 不存在，跳过规则"
                 continue
             fi
             
-            case $mode in
-                "proxy")
-                    if [ -n "$proxy" ]; then
-                        # 提取代理服务器和端口
-                        local proxy_ip=$(echo $proxy | sed 's/.*\/\///; s/:.*//')
-                        local proxy_port=$(echo $proxy | sed 's/.*://')
-                        
-                        # 添加透明代理规则（插入在默认规则之前）
-                        $IPTABLES -t nat -I SSID_PROXY -s $ip -p tcp -j DNAT \
-                                  --to-destination $proxy_ip:$proxy_port \
+            # 获取该接口的客户端IP
+            local ips=$(get_interface_clients "$interface")
+            
+            if [ -z "$ips" ]; then
+                log "debug" "接口 '$interface' 当前没有连接的客户端"
+                continue
+            fi
+            
+            for ip in $ips; do
+                # 跳过无效IP
+                if ! echo "$ip" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+                    log "warning" "跳过无效IP地址: $ip"
+                    continue
+                fi
+                
+                case $mode in
+                    "proxy")
+                        if [ -n "$proxy" ]; then
+                            # 提取代理服务器和端口
+                            local proxy_ip=$(echo "$proxy" | sed 's/.*\/\///; s/:.*//')
+                            local proxy_port=$(echo "$proxy" | sed 's/.*://')
+                            
+                            # 添加透明代理规则（插入在默认规则之前）
+                            $IPTABLES -t nat -I SSID_PROXY -s "$ip" -p tcp -j DNAT \
+                                      --to-destination "$proxy_ip:$proxy_port" \
+                                      -m comment --comment "INTERFACE-PROXY:$interface"
+                            
+                            log "info" "为 $ip (接口: $interface) 应用代理规则到 $proxy"
+                            log_connection "$ip" "$proxy_ip" "$proxy_port" "TCP" "PROXY" "$interface"
+                        fi
+                        ;;
+                    "block")
+                        $IPTABLES -t nat -I SSID_PROXY -s "$ip" -j DROP \
                                   -m comment --comment "INTERFACE-PROXY:$interface"
-                        
-                        log "info" "为 $ip (接口: $interface) 应用代理规则到 $proxy"
-                        log_connection "$ip" "$proxy_ip" "$proxy_port" "TCP" "PROXY" "$interface"
-                    fi
-                    ;;
-                "block")
-                    $IPTABLES -t nat -I SSID_PROXY -s $ip -j DROP \
-                              -m comment --comment "INTERFACE-PROXY:$interface"
-                    log "info" "已阻止 $ip (接口: $interface) 的网络访问"
-                    log_connection "$ip" "0.0.0.0" "0" "ALL" "BLOCK" "$interface"
-                    ;;
-                "direct")
-                    # 确保直连设备不被代理（优先级最高）
-                    $IPTABLES -t nat -I SSID_PROXY -s $ip -j RETURN \
-                              -m comment --comment "INTERFACE-PROXY:$interface"
-                    log "info" "为 $ip (接口: $interface) 设置直连模式"
-                    ;;
-            esac
+                        log "info" "已阻止 $ip (接口: $interface) 的网络访问"
+                        log_connection "$ip" "0.0.0.0" "0" "ALL" "BLOCK" "$interface"
+                        ;;
+                    "direct")
+                        # 确保直连设备不被代理（优先级最高）
+                        $IPTABLES -t nat -I SSID_PROXY -s "$ip" -j RETURN \
+                                  -m comment --comment "INTERFACE-PROXY:$interface"
+                        log "info" "为 $ip (接口: $interface) 设置直连模式"
+                        ;;
+                esac
+            done
         done
-    done
+    else
+        log "error" "配置文件 $CONFIG 不存在"
+    fi
 }
 
 # 监控活跃连接
@@ -248,7 +265,7 @@ monitor_connections() {
     fi
     
     # 获取所有标记为INTERFACE-PROXY的连接
-    $CONNTRACK -L -p tcp --label "INTERFACE-PROXY:*" 2>/dev/null | while read line; do
+    $CONNTRACK -L -p tcp --label "INTERFACE-PROXY:*" 2>/dev/null | while read -r line; do
         # 解析连接信息
         local src_ip=$(echo "$line" | grep -o 'src=[^ ]*' | cut -d= -f2)
         local dst_ip=$(echo "$line" | grep -o 'dst=[^ ]*' | cut -d= -f2)
@@ -264,7 +281,7 @@ monitor_connections() {
             interface=$label
         else
             # 通过源IP确定接口
-            interface=$($IP route get $src_ip 2>/dev/null | awk '/dev/ {print $3}')
+            interface=$($IP route get "$src_ip" 2>/dev/null | awk '/dev/ {print $3}')
         fi
         
         # 记录请求
@@ -272,7 +289,6 @@ monitor_connections() {
         
         # 记录连接状态
         log "debug" "活跃连接: $src_ip → $dst_ip:$dst_port (状态: $state, 接口: $interface, 流量: $bytes 字节)"
-        
     done
 }
 
@@ -290,15 +306,15 @@ cleanup_logs() {
             gsub(/[-:]/, " ", log_date)
             log_ts = mktime(log_date)
             if (log_ts > cutoff) print
-        }' $LOG > $LOG.tmp && mv $LOG.tmp $LOG
+        }' "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"
     fi
     
     # 连接日志清理
     if [ -f "$CONNECTION_LOG" ]; then
         log "debug" "清理旧的连接日志"
         awk -v max_days=$max_days -F'|' 'BEGIN { cutoff = systime() - max_days*86400 } 
-        $1 > cutoff { print }' $CONNECTION_LOG > $CONNECTION_LOG.tmp && \
-        mv $CONNECTION_LOG.tmp $CONNECTION_LOG
+        $1 > cutoff { print }' "$CONNECTION_LOG" > "$CONNECTION_LOG.tmp" && \
+        mv "$CONNECTION_LOG.tmp" "$CONNECTION_LOG"
     fi
     
     # 请求日志清理
@@ -310,8 +326,8 @@ cleanup_logs() {
             split($1, dt, /[- :]/)
             log_ts = mktime(dt[1] " " dt[2] " " dt[3] " " dt[4] " " dt[5] " " dt[6])
             if (log_ts > cutoff) print
-        }' $REQUEST_LOG > $REQUEST_LOG.tmp && \
-        mv $REQUEST_LOG.tmp $REQUEST_LOG
+        }' "$REQUEST_LOG" > "$REQUEST_LOG.tmp" && \
+        mv "$REQUEST_LOG.tmp" "$REQUEST_LOG"
     fi
 }
 
