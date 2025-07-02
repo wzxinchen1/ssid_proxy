@@ -30,25 +30,33 @@ function api_nodes()
         data = json.parse(content)
     end
 
-    -- 生成适用于redsocks的JSON配置
+    -- 生成适用于redsocks的INI格式配置
     local function generate_redsocks_config(node, listen_port)
-        local config = {
-            base = {
-                log_debug = 0,
-                log_info = 1,
-                daemon = 1,
-                redirector = "iptables"
-            },
-            redsocks = {
-                type = node.protocol or "socks5",
-                ip = node.address,
-                port = tonumber(node.port),
-                login = node.username or "",
-                password = node.password or "",
-                local_ip = "0.0.0.0",
-                local_port = listen_port
-            }
-        }
+        local config = string.format([[
+base {
+    log_debug = 0;
+    log_info = 1;
+    daemon = 1;
+    redirector = iptables;
+}
+
+redsocks {
+    type = %s;
+    ip = %s;
+    port = %d;
+    login = "%s";
+    password = "%s";
+    local_ip = 0.0.0.0;
+    local_port = %d;
+}
+]],
+            node.protocol or "socks5",
+            node.address,
+            tonumber(node.port),
+            node.username or "",
+            node.password or "",
+            listen_port
+        )
         return config
     end
 
@@ -56,17 +64,9 @@ function api_nodes()
     local function get_next_listen_port()
         local port = 10000
         uci:foreach("ssid-proxy", "node", function(s)
-            local config_file = s["redsocks_config"]
-            if config_file and fs.access(config_file) then
-                local content = fs.readfile(config_file)
-                if content then
-                    local config = json.parse(content)
-                    if config and config.redsocks and config.redsocks.local_port then
-                        if config.redsocks.local_port >= port then
-                            port = config.redsocks.local_port + 1
-                        end
-                    end
-                end
+            local listen_port = tonumber(s["listen_port"] or 0)
+            if listen_port >= port then
+                port = listen_port + 1
             end
         end)
         return port
@@ -107,14 +107,13 @@ function api_nodes()
         end
     end
 
-    -- 保存JSON配置到文件并更新UCI配置
+    -- 保存INI配置到文件并更新UCI配置
     local function save_redsocks_config(node_id, config)
-        local json_file = "/etc/ssid-proxy/redsocks_" .. node_id .. ".json"
-        local json_content = json.stringify(config, true)
-        fs.writefile(json_file, json_content)
-        uci:set("ssid-proxy", node_id, "redsocks_config", json_file)
+        local config_file = "/etc/ssid-proxy/redsocks_" .. node_id .. ".conf"
+        fs.writefile(config_file, config)
+        uci:set("ssid-proxy", node_id, "redsocks_config", config_file)
         uci:commit("ssid-proxy")
-        return json_file
+        return config_file
     end
 
     if method == "GET" then
