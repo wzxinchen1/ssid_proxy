@@ -34,14 +34,14 @@ function api_nodes()
     local function generate_redsocks_config(node, listen_port)
         local config = string.format([[
 base {
-    log_debug = 0;
-    log_info = 1;
-    daemon = 1;
+    log_debug = on;
+    log_info = on;
+    daemon = on;
     redirector = iptables;
 }
 
 redsocks {
-    type = %s;
+    type = socks5;
     ip = %s;
     port = %d;
     login = "%s";
