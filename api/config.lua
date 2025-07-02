@@ -274,10 +274,11 @@ function M.delete_config()
     end
 
     -- 应用配置
-    apply_configuration()
+    text=apply_configuration()
 
     http.write_json({
-        success = true
+        success = true,
+        message=text
     })
 end
 
@@ -310,6 +311,7 @@ function apply_configuration()
 
     -- 重启服务
     sys.exec("/etc/init.d/ssid-proxy restart >/dev/null 2>&1")
+    return "aaaa"
 end
 
 return M
