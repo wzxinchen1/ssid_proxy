@@ -156,35 +156,6 @@ get_interface_type() {
     echo "ethernet"
 }
 
-# 解析代理服务器配置
-get_proxy_server() {
-    local proxy_server_id=$1
-    local proxy_config=$(uci -q get ssid-proxy.$proxy_server_id)
-    
-    if [ -z "$proxy_config" ]; then
-        log "error" "代理服务器配置 $proxy_server_id 不存在"
-        return 1
-    fi
-    
-    local protocol=$(uci -q get ssid-proxy.$proxy_server_id.protocol)
-    local address=$(uci -q get ssid-proxy.$proxy_server_id.address)
-    local port=$(uci -q get ssid-proxy.$proxy_server_id.port)
-    local username=$(uci -q get ssid-proxy.$proxy_server_id.username)
-    local password=$(uci -q get ssid-proxy.$proxy_server_id.password)
-    
-    if [ -z "$protocol" ] || [ -z "$address" ] || [ -z "$port" ]; then
-        log "error" "代理服务器配置 $proxy_server_id 不完整"
-        return 1
-    fi
-    
-    # 构造代理服务器地址
-    if [ -n "$username" ] && [ -n "$password" ]; then
-        echo "$protocol://$username:$password@$address:$port"
-    else
-        echo "$protocol://$address:$port"
-    fi
-}
-
 # 应用代理规则
 apply_rules() {
     # 安全初始化
@@ -208,14 +179,7 @@ apply_rules() {
             local proxy_server_id=$(uci -q get "$key.proxy_server_id")
             
             # 获取代理服务器配置
-            local proxy=$(get_proxy_server "$proxy_server_id")
-
-            
-            log "debug" "$enabled;$interface;$mode;$proxy_server_id"
-            if [ $? -ne 0 ]; then
-                log "error" "无法获取代理服务器配置 $proxy_server_id"
-                continue
-            fi
+            local listen_port=$(uci -q get ssid-proxy.$proxy_server_id.listen_port)
             
             # 检查是否启用
             if [ "$enabled" != "1" ]; then
@@ -230,18 +194,13 @@ apply_rules() {
                 
             case $mode in
                 "proxy")
-                    if [ -n "$proxy_server_id" ]; then
-                        # 提取代理服务器和端口
-                        local proxy_ip=$(echo "$proxy" | sed 's/.*\/\///; s/:.*//')
-                        local proxy_port=$(echo "$proxy" | sed 's/.*://')
-                        
-                        # 添加透明代理规则（插入在默认规则之前）
-                        $IPTABLES -t nat -I SSID_PROXY -s "$ip" -p tcp -j DNAT \
-                                --to-destination 127.0.0.1:10000 \
-                                -m comment --comment "SSID代理:$interface"
-                        log "info" "为 $ip (接口: $interface) 应用代理规则到 $proxy"
-                        log_connection "$ip" "$proxy_ip" "$proxy_port" "TCP" "PROXY" "$interface"
-                    fi
+                    # 添加透明代理规则（排除局域网IP范围）
+                    $IPTABLES -t nat -I SSID_PROXY_$interface -s "$ip" -d ! 192.168.0.0/16 -p tcp -j DNAT \
+                            --to-destination 127.0.0.1:$listen_port \
+                            -m comment --comment "SSID代理:$interface"
+                    log "info" "为 $ip (接口: $interface) 应用代理规则到 $proxy"
+                    log_connection "$ip" "$proxy_ip" "$proxy_port" "TCP" "PROXY" "$interface"
+
                     ;;
                 "block")
                     $IPTABLES -t nat -I SSID_PROXY -s "$ip" -j DROP \
