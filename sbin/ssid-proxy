@@ -4,7 +4,7 @@
 # 版本: 3.0
 # 功能: 基于网络接口的代理管理
 
-CONFIG="/etc/ssid-proxy/config.json"
+CONFIG="/etc/config/ssid-proxy"
 ENABLED_FLAG="/etc/ssid-proxy/enabled"
 LOG="/var/log/ssid-proxy.log"
 CONNECTION_LOG="/var/log/ssid-proxy-connections.log"
@@ -15,7 +15,7 @@ IP="/usr/sbin/ip"
 
 # 从配置读取日志级别
 LOG_LEVEL="info"
-[ -f /etc/config/ssid-proxy ] && {
+[ -f "$CONFIG" ] && {
     LOG_LEVEL=$(uci -q get ssid-proxy.@global[0].log_level) || LOG_LEVEL="info"
 }
 
@@ -177,6 +177,35 @@ get_interface_clients() {
     esac
 }
 
+# 解析代理服务器配置
+get_proxy_server() {
+    local proxy_server_id=$1
+    local proxy_config=$(uci -q get ssid-proxy.$proxy_server_id)
+    
+    if [ -z "$proxy_config" ]; then
+        log "error" "代理服务器配置 $proxy_server_id 不存在"
+        return 1
+    fi
+    
+    local protocol=$(uci -q get ssid-proxy.$proxy_server_id.protocol)
+    local address=$(uci -q get ssid-proxy.$proxy_server_id.address)
+    local port=$(uci -q get ssid-proxy.$proxy_server_id.port)
+    local username=$(uci -q get ssid-proxy.$proxy_server_id.username)
+    local password=$(uci -q get ssid-proxy.$proxy_server_id.password)
+    
+    if [ -z "$protocol" ] || [ -z "$address" ] || [ -z "$port" ]; then
+        log "error" "代理服务器配置 $proxy_server_id 不完整"
+        return 1
+    fi
+    
+    # 构造代理服务器地址
+    if [ -n "$username" ] && [ -n "$password" ]; then
+        echo "$protocol://$username:$password@$address:$port"
+    else
+        echo "$protocol://$address:$port"
+    fi
+}
+
 # 应用代理规则
 apply_rules() {
     # 安全初始化
@@ -186,15 +215,26 @@ apply_rules() {
     if [ ! -f "$ENABLED_FLAG" ]; then
         return
     fi
-    
+
     log "info" "读取配置$CONFIG"
-    # 读取配置（使用 grep/sed 替代 jq）
+    
+    # 读取配置
     if [ -f "$CONFIG" ]; then
-        grep -o '{\"interface\":[^}]*}' "$CONFIG" | while read -r rule; do
-            log "info" "分析：$rule"
-            local interface=$(echo "$rule" | sed -n 's/.*\"interface\":\"\([^\"]*\)\".*/\1/p')
-            local mode=$(echo "$rule" | sed -n 's/.*\"mode\":\"\([^\"]*\)\".*/\1/p')
-            local proxy=$(echo "$rule" | sed -n 's/.*\"proxy_server\":\"\([^\"]*\)\".*/\1/p')
+        # 获取所有配置项
+        local configs=$(uci -q show ssid-proxy | grep -E 'ssid-proxy\.@config\[[0-9]+\]' | cut -d= -f1)
+        
+        for config in $configs; do
+            log "info" "分析：$config"
+            local enabled=$(uci -q get $config.enabled)
+            local interface=$(uci -q get $config.interface)
+            local mode=$(uci -q get $config.mode)
+            local proxy_server_id=$(uci -q get $config.proxy_server_id)
+            
+            # 检查是否启用
+            if [ "$enabled" != "1" ]; then
+                log "debug" "配置 $config 未启用，跳过"
+                continue
+            fi
             
             # 检查接口是否存在
             if ! $IP link show dev "$interface" >/dev/null 2>&1; then
@@ -219,7 +259,14 @@ apply_rules() {
                 
                 case $mode in
                     "proxy")
-                        if [ -n "$proxy" ]; then
+                        if [ -n "$proxy_server_id" ]; then
+                            # 获取代理服务器配置
+                            local proxy=$(get_proxy_server "$proxy_server_id")
+                            if [ $? -ne 0 ]; then
+                                log "error" "无法获取代理服务器配置 $proxy_server_id"
+                                continue
+                            fi
+                            
                             # 提取代理服务器和端口
                             local proxy_ip=$(echo "$proxy" | sed 's/.*\/\///; s/:.*//')
                             local proxy_port=$(echo "$proxy" | sed 's/.*://')
@@ -339,14 +386,12 @@ log "info" "PID: $$"
 
 # 应用规则
 apply_rules
-while true; do
-    # 监控活跃连接
-    monitor_connections
 
-    # 清理旧日志（每天执行一次）
-    current_hour=$(date +%H)
-    if [ "$current_hour" = "03" ]; then
-        cleanup_logs
-    fi
-    sleep 10
-done
+# 监控活跃连接
+monitor_connections
+
+# 清理旧日志（每天执行一次）
+current_hour=$(date +%H)
+if [ "$current_hour" = "03" ]; then
+    cleanup_logs
+fi
