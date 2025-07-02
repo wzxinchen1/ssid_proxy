@@ -42,8 +42,12 @@ function M.api_logs()
         cmd = cmd .. " | grep -i '" .. search .. "'"
     end
     
-    -- 获取日志
-    local logs = sys.exec(cmd)
+    -- 获取日志并按行拆分为数组
+    local logs_str = sys.exec(cmd)
+    local logs = {}
+    for line in logs_str:gmatch("[^\r\n]+") do
+        table.insert(logs, line)
+    end
     
     -- 日志统计
     local total_lines = tonumber(sys.exec("wc -l < /var/log/ssid-proxy.log")) or 0
