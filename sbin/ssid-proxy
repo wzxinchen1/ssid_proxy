@@ -187,9 +187,11 @@ apply_rules() {
         return
     fi
     
+    log "info" "读取配置$CONFIG"
     # 读取配置（使用 grep/sed 替代 jq）
     if [ -f "$CONFIG" ]; then
         grep -o '{\"interface\":[^}]*}' "$CONFIG" | while read -r rule; do
+            log "info" "分析：$rule"
             local interface=$(echo "$rule" | sed -n 's/.*\"interface\":\"\([^\"]*\)\".*/\1/p')
             local mode=$(echo "$rule" | sed -n 's/.*\"mode\":\"\([^\"]*\)\".*/\1/p')
             local proxy=$(echo "$rule" | sed -n 's/.*\"proxy_server\":\"\([^\"]*\)\".*/\1/p')
