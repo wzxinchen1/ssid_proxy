@@ -224,8 +224,8 @@ apply_rules() {
             fi
             
             # 获取该接口的客户端IP
-            local ips=${ip -4 addr show dev "$interface" | awk '/inet / {print $2}'}
-            log "info" "WTF配置？"
+            local ips=$(ip -4 addr show dev "$interface" | awk '/inet / {print $2}')
+
             log "debug" "配置网段$interface"
 
             if [ -z "$ips" ]; then
