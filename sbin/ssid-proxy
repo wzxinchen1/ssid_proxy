@@ -156,30 +156,6 @@ get_interface_type() {
     echo "ethernet"
 }
 
-# 获取接口上的客户端IP
-get_interface_clients() {
-    local interface=$1
-    local interface_type=$(get_interface_type "$interface")
-    
-    case $interface_type in
-        wireless|ethernet|vlan)
-            # 使用ARP表获取活跃设备
-            $IP neigh show dev "$interface" | awk '/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ {print $1}' | sort | uniq
-            ;;
-        bridge)
-            # 获取网桥下的所有接口
-            local bridge_interfaces=$(ls "/sys/class/net/$interface/brif" 2>/dev/null)
-            for iface in $bridge_interfaces; do
-                $IP neigh show dev "$iface" | awk '/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/ {print $1}'
-            done | sort | uniq
-            ;;
-        *)
-            log "warning" "未知接口类型: $interface_type ($interface)"
-            echo ""
-            ;;
-    esac
-}
-
 # 解析代理服务器配置
 get_proxy_server() {
     local proxy_server_id=$1
@@ -225,7 +201,7 @@ apply_rules() {
     if [ -f "$CONFIG" ]; then
         # 获取所有配置项
         uci show ssid-proxy | grep "ssid-proxy.@config\[.\]=.*" | cut -d '=' -f 1 | while IFS= read -r key _; do
-            log "debug" "分析：$key"
+            log "info" "分析：$key"
             local enabled=$(uci -q get "$key.enabled")
             local interface=$(uci -q get "$key.interface")
             local mode=$(uci -q get "$key.mode")
@@ -233,6 +209,9 @@ apply_rules() {
             
             # 获取代理服务器配置
             local proxy=$(get_proxy_server "$proxy_server_id")
+
+            
+            log "debug" "$enabled;$interface;$mode;$proxy_server_id"
             if [ $? -ne 0 ]; then
                 log "error" "无法获取代理服务器配置 $proxy_server_id"
                 continue
