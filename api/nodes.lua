@@ -39,6 +39,7 @@ function api_nodes()
                 redirector = "iptables"
             },
             redsocks = {
+                local_ip = 127.0.0.1,
                 type = node.protocol or "socks5",
                 ip = node.address,
                 port = tonumber(node.port),
