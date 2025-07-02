@@ -13,9 +13,9 @@ IPTABLES="/usr/sbin/iptables"
 CONNTRACK="/usr/sbin/conntrack"
 IP="/usr/sbin/ip"
 
-rm /var/log/ssid-proxy.log >/dev/null
-rm /var/log/ssid-proxy-connections.log >/dev/null
-rm /var/log/ssid-proxy-requests.log >/dev/null
+rm -f /var/log/ssid-proxy.log 
+rm -f /var/log/ssid-proxy-connections.log 
+rm -f /var/log/ssid-proxy-requests.log 
 # 从配置读取日志级别
 LOG_LEVEL="info"
 [ -f "$CONFIG" ] && {
@@ -297,7 +297,7 @@ apply_rules() {
                             ;;
                     esac
                 done
-        done
+        fi
     else
         log "error" "配置文件 $CONFIG 不存在"
     fi
