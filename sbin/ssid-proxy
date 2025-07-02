@@ -13,9 +13,9 @@ IPTABLES="/usr/sbin/iptables"
 CONNTRACK="/usr/sbin/conntrack"
 IP="/usr/sbin/ip"
 
-rm LOG
-rm CONNECTION_LOG
-rm REQUEST_LOG
+rm /var/log/ssid-proxy.log
+rm /var/log/ssid-proxy-connections.log
+rm /var/log/ssid-proxy-requests.log
 # 从配置读取日志级别
 LOG_LEVEL="info"
 [ -f "$CONFIG" ] && {
