@@ -17,9 +17,8 @@ start() {
 
 stop() {
     # 停止服务进程
-    echo "process skilling"
-    killall ssid-proxy 2>/dev/null
-    echo "process skilled"
+    killall -9 ssid-proxy 2>/dev/null
+    echo "process killed"
     # 清除所有规则
     iptables -t nat -F SSID_PROXY 2>/dev/null
     iptables -t nat -D PREROUTING -j SSID_PROXY 2>/dev/null
