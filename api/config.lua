@@ -107,10 +107,11 @@ function M.update_global_config()
     end
 
     -- 应用配置
-    apply_configuration()
+    text=apply_configuration()
 
     http.write_json({
-        success = true
+        success = true,
+        message=text
     })
 end
 
