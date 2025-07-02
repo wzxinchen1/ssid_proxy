@@ -50,7 +50,7 @@ redsocks {
     local_ip = 0.0.0.0;
     local_port = %d;
 }
-]], node, node.address, tonumber(node.port), node.username or "", node.password or "", listen_port)
+]], node.id, node.address, tonumber(node.port), node.username or "", node.password or "", listen_port)
         return config
     end
 
