@@ -225,11 +225,18 @@ apply_rules() {
     if [ -f "$CONFIG" ]; then
         # 获取所有配置项
         uci show ssid-proxy | grep "ssid-proxy.@config\[.\]=.*" | cut -d '=' -f 1 | while IFS= read -r key _; do
-            log "info" "分析：$key"
+            log "debug" "分析：$key"
             local enabled=$(uci -q get "$key.enabled")
             local interface=$(uci -q get "$key.interface")
             local mode=$(uci -q get "$key.mode")
             local proxy_server_id=$(uci -q get "$key.proxy_server_id")
+            
+            # 获取代理服务器配置
+            local proxy=$(get_proxy_server "$proxy_server_id")
+            if [ $? -ne 0 ]; then
+                log "error" "无法获取代理服务器配置 $proxy_server_id"
+                continue
+            fi
             
             # 检查是否启用
             if [ "$enabled" != "1" ]; then
@@ -250,13 +257,6 @@ apply_rules() {
             case $mode in
                 "proxy")
                     if [ -n "$proxy_server_id" ]; then
-                        # 获取代理服务器配置
-                        local proxy=$(get_proxy_server "$proxy_server_id")
-                        if [ $? -ne 0 ]; then
-                            log "error" "无法获取代理服务器配置 $proxy_server_id"
-                            continue
-                        fi
-                        
                         # 提取代理服务器和端口
                         local proxy_ip=$(echo "$proxy" | sed 's/.*\/\///; s/:.*//')
                         local proxy_port=$(echo "$proxy" | sed 's/.*://')
