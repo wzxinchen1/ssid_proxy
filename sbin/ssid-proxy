@@ -158,7 +158,6 @@ apply_rules() {
                     $IPTABLES -t nat -A $chainName -j RETURN
                     log "info" "执行 iptables 命令: $IPTABLES -t nat -I SSID_PROXY_$interface -s \"$ip\" -p tcp -j DNAT --to-destination 127.0.0.1:$listen_port -m comment --comment \"SSID代理:$interface\""
                     # 添加透明代理规则（排除局域网IP范围）
-                    $IPTABLES -t nat -A SSID_PROXY_$interface -d 0.0.0.0/8 -j RETURN
                     $IPTABLES -t nat -A SSID_PROXY_$interface -d 10.0.0.0/8 -j RETURN
                     $IPTABLES -t nat -A SSID_PROXY_$interface -d 169.254.0.0/16 -j RETURN
                     $IPTABLES -t nat -A SSID_PROXY_$interface -d 192.168.0.0/16 -j RETURN
