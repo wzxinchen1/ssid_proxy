@@ -166,14 +166,6 @@ function api_nodes()
     local function delete_node_from_v2ray(node_id)
         local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
 
-        -- 移除 inbound
-        for i, inbound in ipairs(new_config.inbounds) do
-            if inbound.tag == node_id then
-                table.remove(new_config.inbounds, i)
-                break
-            end
-        end
-
         -- 移除 outbound
         for i, outbound in ipairs(new_config.outbounds) do
             if outbound.tag == "outbound_" .. node_id then
