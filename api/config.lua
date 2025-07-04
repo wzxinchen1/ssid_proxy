@@ -295,10 +295,12 @@ function M.toggle_config()
     local enabled = uci:get("ssid-proxy", id, "enabled")
     local port = uci:get("ssid-proxy", id, "port")
     local interface = uci:get("ssid-proxy", id, "interface")
-    if enabled == "1" then
+    if enabled == "0" then
+        enabled =" 1"
         local cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " ..
                         port
     else
+        enabled = "0"
         local cmd = "iptables -t nat -D PREROUTING -i " .. interface
         success, exit_code, exit_signal = os.execute(cmd)
     end
