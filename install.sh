@@ -69,11 +69,6 @@ cp "$SRC_DIR/api/status.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/status.
 cp "$SRC_DIR/ssid-proxy.lua" /usr/lib/lua/luci/controller/ssid-proxy/ssid-proxy.lua
 
 # 步骤8: 设置文件权限
-chmod 755 /usr/sbin/ssid-proxy
-chmod 755 /usr/sbin/ssid-proxy-validate
-chmod 755 /etc/init.d/ssid-proxy
-chmod 600 /etc/ssid-proxy/config.json
-chmod 644 /etc/config/ssid-proxy
 chmod 644 /usr/lib/lua/luci/controller/ssid-proxy/ssid-proxy.lua
 chmod 644 /usr/lib/lua/luci/controller/ssid-proxy/api/*.lua
 find /www/luci-static/resources/ssid-proxy/ -type f -exec chmod 644 {} \;
