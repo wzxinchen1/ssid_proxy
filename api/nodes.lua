@@ -69,91 +69,122 @@ function api_nodes()
         return nodes
     end
 
-    -- 生成适用于redsocks的INI格式配置
-    local function generate_redsocks_config(node, listen_port)
-        local config = string.format([[
-base {
-    log_debug = on;
-    log_info = on;
-    daemon = on;
-    redirector = iptables;
-    log = "file:/mnt/usb1/redsocks_log/%s";
-}
+    -- 保存配置到 v2ray.config.json 并通知 v2ray 重新加载
+    local function save_v2ray_config(new_config)
+        -- 保存新配置到文件
+        fs.writefile(v2ray_config_path, json.stringify(new_config, { indent = true }))
 
-redsocks {
-    type = socks5;
-    ip = %s;
-    port = %d;
-    login = "%s";
-    password = "%s";
-    local_ip = 0.0.0.0;
-    local_port = %d;
-}
-]], node.id, node.address, tonumber(node.port), node.username or "", node.password or "", listen_port)
-        return config
-    end
-
-    -- 获取下一个可用的监听端口（从10000开始）
-    local function get_next_listen_port()
-        local port = 10000
-        local nodes = get_nodes_from_v2ray()
-        for _, node in ipairs(nodes) do
-            local listen_port = tonumber(node.listen_port or 0)
-            if listen_port >= port then
-                port = listen_port + 1
-            end
-        end
-        return port
-    end
-
-    -- 启动redsocks服务
-    local function start_redsocks(node_id, config_file)
-        local service_name = "redsocks_" .. node_id
-        local status = sys.init.enabled(service_name)
-        if status then
-            return true
-        end
-
-        local service_script = string.format([[
-#!/bin/sh /etc/rc.common
-START=99
-STOP=10
-
-start() {
-    touch /var/run/redsocks_%s.pid
-    /usr/sbin/redsocks -c %s -p /var/run/redsocks_%s.pid
-}
-
-stop() {
-    kill -9 $(cat /var/run/redsocks_%s.pid)
-    rm -f /var/run/redsocks_%s.pid
-}
-]], node_id, config_file, node_id, node_id, node_id)
-
-        local service_path = "/etc/init.d/" .. service_name
-        fs.writefile(service_path, service_script)
-        fs.chmod(service_path, 755)
-
-        sys.init.enable(service_name)
-        sys.init.start(service_name)
+        -- 通知 v2ray 重新加载配置（不重启进程）
+        os.execute("kill -SIGHUP $(pidof v2ray) 2>/dev/null")
         return true
     end
 
-    -- 停止redsocks服务
-    local function stop_redsocks(node_id)
-        local service_name = "redsocks_" .. node_id
-        if sys.init.enabled(service_name) then
-            sys.init.stop(service_name)
-            sys.init.disable(service_name)
-            fs.unlink("/etc/init.d/" .. service_name)
-        end
+    -- 添加新节点到 v2ray 配置
+    local function add_node_to_v2ray(node)
+        local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+
+        -- 生成唯一的 inbound tag
+        local inbound_tag = "inbound_" .. node.id
+        local outbound_tag = "outbound_" .. node.id
+
+        -- 添加 inbound
+        table.insert(new_config.inbounds, {
+            port = tonumber(node.port),
+            protocol = "dokodemo-door",
+            tag = inbound_tag,
+            settings = {
+                network = "tcp,udp",
+                followRedirect = true
+            }
+        })
+
+        -- 添加 outbound
+        table.insert(new_config.outbounds, {
+            protocol = "socks",
+            tag = outbound_tag,
+            settings = {
+                servers = {
+                    {
+                        address = node.address,
+                        port = tonumber(node.port),
+                        users = {
+                            {
+                                user = node.username,
+                                pass = node.password
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        -- 添加路由规则
+        table.insert(new_config.routing.rules, {
+            type = "field",
+            inboundTag = { inbound_tag },
+            outboundTag = outbound_tag
+        })
+
+        -- 保存并通知 v2ray
+        return save_v2ray_config(new_config)
     end
 
-    -- 保存INI配置到文件
-    local function save_redsocks_config(node_id, config)
-        local config_file = "/etc/ssid-proxy/redsocks_" .. node_id .. ".conf"
-        fs.writefile(config_file, config)
-        return config_file
+    -- 更新节点配置
+    local function update_node_in_v2ray(node_id, node)
+        local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+
+        -- 查找并更新对应的 inbound 和 outbound
+        for _, inbound in ipairs(new_config.inbounds) do
+            if inbound.tag == node_id then
+                inbound.port = tonumber(node.port)
+                break
+            end
+        end
+
+        for _, outbound in ipairs(new_config.outbounds) do
+            if outbound.tag == "outbound_" .. node_id then
+                outbound.settings.servers[1].address = node.address
+                outbound.settings.servers[1].port = tonumber(node.port)
+                outbound.settings.servers[1].users[1].user = node.username
+                outbound.settings.servers[1].users[1].pass = node.password
+                break
+            end
+        end
+
+        -- 保存并通知 v2ray
+        return save_v2ray_config(new_config)
+    end
+
+    -- 删除节点配置
+    local function delete_node_from_v2ray(node_id)
+        local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+
+        -- 移除 inbound
+        for i, inbound in ipairs(new_config.inbounds) do
+            if inbound.tag == node_id then
+                table.remove(new_config.inbounds, i)
+                break
+            end
+        end
+
+        -- 移除 outbound
+        for i, outbound in ipairs(new_config.outbounds) do
+            if outbound.tag == "outbound_" .. node_id then
+                table.remove(new_config.outbounds, i)
+                break
+            end
+        end
+
+        -- 移除路由规则
+        for i, rule in ipairs(new_config.routing.rules) do
+            if rule.inboundTag and rule.inboundTag[1] == node_id then
+                table.remove(new_config.routing.rules, i)
+                break
+            end
+        end
+
+        -- 保存并通知 v2ray
+        return save_v2ray_config(new_config)
     end
 
     if method == "GET" then
@@ -174,17 +205,12 @@ stop() {
             return
         end
 
-        -- 分配监听端口并生成redsocks配置
-        local listen_port = get_next_listen_port()
-        local redsocks_config = generate_redsocks_config(data, listen_port)
-        local config_file = save_redsocks_config(data.id, redsocks_config)
-
-        -- 启动redsocks服务
-        if not start_redsocks(data.id, config_file) then
+        -- 添加新节点
+        if not add_node_to_v2ray(data) then
             http.status(500, "Internal Server Error")
             http.write_json({
                 success = false,
-                error = "Failed to start redsocks service"
+                error = "Failed to add node to v2ray config"
             })
             return
         end
@@ -192,11 +218,9 @@ stop() {
         http.prepare_content("application/json")
         http.write_json({
             success = true,
-            id = data.id,
-            listen_port = listen_port
+            id = data.id
         })
     elseif method == "PUT" then
-        http.prepare_content("application/json")
         -- 确保有有效数据
         if not nodeId and (not data or not data.id) then
             http.status(400, "Bad Request")
@@ -209,21 +233,16 @@ stop() {
 
         -- 更新节点
         local id = nodeId or data.id
-        local listen_port = get_next_listen_port()
-        local redsocks_config = generate_redsocks_config(data, listen_port)
-        local config_file = save_redsocks_config(id, redsocks_config)
-
-        -- 重启redsocks服务
-        stop_redsocks(id)
-        if not start_redsocks(id, config_file) then
+        if not update_node_in_v2ray(id, data) then
             http.status(500, "Internal Server Error")
             http.write_json({
                 success = false,
-                error = "Failed to restart redsocks service"
+                error = "Failed to update node in v2ray config"
             })
             return
         end
 
+        http.prepare_content("application/json")
         http.write_json({
             success = true,
             id = id
@@ -239,8 +258,15 @@ stop() {
             return
         end
 
-        -- 停止redsocks服务
-        stop_redsocks(nodeId)
+        -- 删除节点
+        if not delete_node_from_v2ray(nodeId) then
+            http.status(500, "Internal Server Error")
+            http.write_json({
+                success = false,
+                error = "Failed to delete node from v2ray config"
+            })
+            return
+        end
 
         http.prepare_content("application/json")
         http.write_json({
