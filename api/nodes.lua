@@ -40,8 +40,8 @@ function api_nodes()
         for _, outbound in ipairs(v2ray_config.outbounds or {}) do
             local server = outbound.settings.servers[1]
             table.insert(nodes, {
-                id = server.tag,
-                name = server.tag,
+                id = outbound.tag,
+                name = outbound.tag,
                 address = server.address,
                 port = server.port,
                 protocol = outbound.protocol,

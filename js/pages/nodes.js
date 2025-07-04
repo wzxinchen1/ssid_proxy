@@ -29,7 +29,7 @@ export const onInit = async function (ctx) {
  */
 async function loadNodesData() {
     viewData.nodes = await apiRequest('nodes', 'GET');
-    if (!Array.isArray(viewData)) {
+    if (!Array.isArray(viewData.nodes)) {
         viewData.nodes = [];
     }
     componentContext.render();
