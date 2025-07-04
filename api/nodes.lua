@@ -131,7 +131,7 @@ function api_nodes()
 
         -- 查找并更新对应的 outbound（不修改 inbound 的端口）
         for _, outbound in ipairs(new_config.outbounds) do
-            if outbound.tag == "outbound_" .. node_id then
+            if outbound.tag == node_id then
                 outbound.settings.servers[1].address = node.address
                 outbound.settings.servers[1].port = tonumber(node.port)
                 outbound.settings.servers[1].users[1].user = node.username
