@@ -81,7 +81,7 @@ window.handleRefreshConfigs = async function () {
 };
 
 window.handleToggleConfig = async function (configId) {
-  await apiRequest(`config/toggle/${configId}/toggle`, 'POST');
+  await apiRequest(`config/toggle/${configId}`, 'POST');
   showToast('配置状态已更新');
   await handleRefreshConfigs();
 };

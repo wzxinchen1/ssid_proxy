@@ -288,6 +288,7 @@ function M.toggle_config()
     if luci.http.cors() then
         return
     end
+    local path = http.getenv("PATH_INFO") or ""
     local uci = require"luci.model.uci".cursor()
     local id = path:match("api/config/toggle/([^/]+)$")
     local http = require "luci.http"
