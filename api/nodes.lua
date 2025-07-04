@@ -113,18 +113,6 @@ function api_nodes()
         -- 生成唯一的 inbound tag 和监听端口
         local inbound_tag = "inbound_" .. node.id
         local outbound_tag = "outbound_" .. node.id
-        local listen_port = get_next_listen_port()
-
-        -- 添加 inbound（设置监听端口）
-        table.insert(new_config.inbounds, {
-            port = listen_port, -- 仅在此处设置监听端口
-            protocol = "dokodemo-door",
-            tag = inbound_tag,
-            settings = {
-                network = "tcp,udp",
-                followRedirect = true
-            }
-        })
 
         -- 添加 outbound（设置代理信息）
         table.insert(new_config.outbounds, {
