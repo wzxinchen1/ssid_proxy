@@ -271,8 +271,7 @@ function M.update_config()
     end
 
     if config.enabled == "0" then
-        local cmd = "iptables -t nat -D PREROUTING -i " .. config.interface .. " -p tcp -j REDIRECT --to-port " ..
-                        config.port
+        local cmd = "iptables -t nat -D PREROUTING -i " .. config.interface
         success, exit_code, exit_signal = os.execute(cmd)
     else
         local cmd = "iptables -t nat -A PREROUTING -i " .. config.interface .. " -p tcp -j REDIRECT --to-port " ..
@@ -281,6 +280,21 @@ function M.update_config()
     end
     http.write_json({
         success = true
+    })
+end
+
+function M.toggle_config()
+    local http = require "luci.http"
+    if luci.http.cors() then
+        return
+    end
+    local uci = require"luci.model.uci".cursor()
+    local id = path:match("api/config/toggle/([^/]+)$")
+    local http = require "luci.http"
+    local enabled = uci:get("ssid-proxy", id, "enabled")
+    http.write_json({
+        success = true,
+        enabled = enabled
     })
 end
 
