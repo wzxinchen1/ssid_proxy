@@ -69,6 +69,19 @@ function api_nodes()
         return nodes
     end
 
+    -- 获取下一个可用的监听端口（从10000开始）
+    local function get_next_listen_port()
+        local port = 10000
+        local nodes = get_nodes_from_v2ray()
+        for _, node in ipairs(nodes) do
+            local listen_port = tonumber(node.listen_port or 0)
+            if listen_port >= port then
+                port = listen_port + 1
+            end
+        end
+        return port
+    end
+
     -- 保存配置到 v2ray.config.json 并通知 v2ray 重新加载
     local function save_v2ray_config(new_config)
         -- 保存新配置到文件
@@ -83,13 +96,14 @@ function api_nodes()
     local function add_node_to_v2ray(node)
         local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
 
-        -- 生成唯一的 inbound tag
+        -- 生成唯一的 inbound tag 和监听端口
         local inbound_tag = "inbound_" .. node.id
         local outbound_tag = "outbound_" .. node.id
+        local listen_port = get_next_listen_port()
 
-        -- 添加 inbound
+        -- 添加 inbound（设置监听端口）
         table.insert(new_config.inbounds, {
-            port = tonumber(node.port),
+            port = listen_port,  -- 仅在此处设置监听端口
             protocol = "dokodemo-door",
             tag = inbound_tag,
             settings = {
@@ -98,7 +112,7 @@ function api_nodes()
             }
         })
 
-        -- 添加 outbound
+        -- 添加 outbound（设置代理信息）
         table.insert(new_config.outbounds, {
             protocol = "socks",
             tag = outbound_tag,
@@ -129,18 +143,11 @@ function api_nodes()
         return save_v2ray_config(new_config)
     end
 
-    -- 更新节点配置
+    -- 更新节点配置（仅修改出口信息）
     local function update_node_in_v2ray(node_id, node)
         local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
 
-        -- 查找并更新对应的 inbound 和 outbound
-        for _, inbound in ipairs(new_config.inbounds) do
-            if inbound.tag == node_id then
-                inbound.port = tonumber(node.port)
-                break
-            end
-        end
-
+        -- 查找并更新对应的 outbound（不修改 inbound 的端口）
         for _, outbound in ipairs(new_config.outbounds) do
             if outbound.tag == "outbound_" .. node_id then
                 outbound.settings.servers[1].address = node.address
@@ -231,7 +238,7 @@ function api_nodes()
             return
         end
 
-        -- 更新节点
+        -- 更新节点（仅修改出口信息）
         local id = nodeId or data.id
         if not update_node_in_v2ray(id, data) then
             http.status(500, "Internal Server Error")
