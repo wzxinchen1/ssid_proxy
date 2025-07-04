@@ -202,7 +202,7 @@ function M.update_global_config()
         })
         return
     end
-    uci:set("v2ray", "enabled", "enabled", v2ray_config.enabled.enabled)
+    uci:set("v2ray", "enabled", "enabled", config.global.enabled)
     uci:commit("v2ray")
     http.write_json({
         success = true
