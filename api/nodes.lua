@@ -1,10 +1,9 @@
--- 文件路径: E:\\桌面\\ssid_proxy\\api\\nodes.lua
+-- 文件路径: E:\桌面\ssid_proxy\api\nodes.lua
 module("luci.controller.ssid-proxy.api.nodes", package.seeall)
 
 function api_nodes()
     local http = require "luci.http"
     local json = require "luci.jsonc"
-    local uci = require"luci.model.uci".cursor()
     local fs = require "nixio.fs"
     local sys = require "luci.sys"
 
@@ -28,6 +27,46 @@ function api_nodes()
     -- 尝试解析JSON数据
     if content and #content > 0 then
         data = json.parse(content)
+    end
+
+    -- 读取 v2ray.config.json 文件
+    local v2ray_config_path = "/mnt/usb/v2ray.config.json"
+    local v2ray_config_content = fs.readfile(v2ray_config_path)
+    local v2ray_config = json.parse(v2ray_config_content)
+
+    -- 从 v2ray.config.json 中提取节点信息
+    local function get_nodes_from_v2ray()
+        local nodes = {}
+        for _, inbound in ipairs(v2ray_config.inbounds or {}) do
+            if inbound.tag then
+                local outbound_tag = nil
+                for _, rule in ipairs(v2ray_config.routing.rules or {}) do
+                    if rule.inboundTag and rule.inboundTag[1] == inbound.tag then
+                        outbound_tag = rule.outboundTag
+                        break
+                    end
+                end
+                if outbound_tag then
+                    for _, outbound in ipairs(v2ray_config.outbounds or {}) do
+                        if outbound.tag == outbound_tag then
+                            local server = outbound.settings.servers[1]
+                            table.insert(nodes, {
+                                id = inbound.tag,
+                                name = inbound.tag,
+                                address = server.address,
+                                port = server.port,
+                                protocol = outbound.protocol,
+                                username = server.users[1].user,
+                                password = server.users[1].pass,
+                                status = "active"
+                            })
+                            break
+                        end
+                    end
+                end
+            end
+        end
+        return nodes
     end
 
     -- 生成适用于redsocks的INI格式配置
@@ -57,26 +96,24 @@ redsocks {
     -- 获取下一个可用的监听端口（从10000开始）
     local function get_next_listen_port()
         local port = 10000
-        uci:foreach("ssid-proxy", "node", function(s)
-            local listen_port = tonumber(s["listen_port"] or 0)
+        local nodes = get_nodes_from_v2ray()
+        for _, node in ipairs(nodes) do
+            local listen_port = tonumber(node.listen_port or 0)
             if listen_port >= port then
                 port = listen_port + 1
             end
-        end)
+        end
         return port
     end
 
     -- 启动redsocks服务
     local function start_redsocks(node_id, config_file)
-        -- 检查是否已存在redsocks服务
         local service_name = "redsocks_" .. node_id
         local status = sys.init.enabled(service_name)
         if status then
-            -- 服务已在运行，无需重启
             return true
         end
 
-        -- 创建服务脚本
         local service_script = string.format([[
 #!/bin/sh /etc/rc.common
 START=99
@@ -93,12 +130,10 @@ stop() {
 }
 ]], node_id, config_file, node_id, node_id, node_id)
 
-        -- 写入服务脚本
         local service_path = "/etc/init.d/" .. service_name
         fs.writefile(service_path, service_script)
         fs.chmod(service_path, 755)
 
-        -- 启用并启动服务
         sys.init.enable(service_name)
         sys.init.start(service_name)
         return true
@@ -114,31 +149,15 @@ stop() {
         end
     end
 
-    -- 保存INI配置到文件并更新UCI配置
+    -- 保存INI配置到文件
     local function save_redsocks_config(node_id, config)
         local config_file = "/etc/ssid-proxy/redsocks_" .. node_id .. ".conf"
         fs.writefile(config_file, config)
-        uci:set("ssid-proxy", node_id, "redsocks_config", config_file)
-        uci:commit("ssid-proxy")
         return config_file
     end
 
     if method == "GET" then
-        -- 获取节点列表
-        local nodes = {}
-        uci:foreach("ssid-proxy", "node", function(s)
-            table.insert(nodes, {
-                id = s[".name"],
-                name = s["name"],
-                address = s["address"],
-                port = s["port"],
-                protocol = s["protocol"],
-                username = s["username"],
-                password = s["password"],
-                status = s["status"] or "inactive"
-            })
-        end)
-
+        local nodes = get_nodes_from_v2ray()
         http.prepare_content("application/json")
         http.write_json({
             success = true,
@@ -155,24 +174,13 @@ stop() {
             return
         end
 
-        -- 添加或更新节点
-        local id = data.id or uci:add("ssid-proxy", "node")
-        uci:set("ssid-proxy", id, "name", data.name)
-        uci:set("ssid-proxy", id, "address", data.address)
-        uci:set("ssid-proxy", id, "port", data.port)
-        uci:set("ssid-proxy", id, "protocol", data.protocol)
-        uci:set("ssid-proxy", id, "username", data.username)
-        uci:set("ssid-proxy", id, "password", data.password)
-        uci:set("ssid-proxy", id, "status", data.status)
-
         -- 分配监听端口并生成redsocks配置
         local listen_port = get_next_listen_port()
         local redsocks_config = generate_redsocks_config(data, listen_port)
-        local config_file = save_redsocks_config(id, redsocks_config)
-        uci:set("ssid-proxy", id, "listen_port", listen_port)
+        local config_file = save_redsocks_config(data.id, redsocks_config)
 
         -- 启动redsocks服务
-        if not start_redsocks(id, config_file) then
+        if not start_redsocks(data.id, config_file) then
             http.status(500, "Internal Server Error")
             http.write_json({
                 success = false,
@@ -184,7 +192,7 @@ stop() {
         http.prepare_content("application/json")
         http.write_json({
             success = true,
-            id = id,
+            id = data.id,
             listen_port = listen_port
         })
     elseif method == "PUT" then
@@ -201,20 +209,9 @@ stop() {
 
         -- 更新节点
         local id = nodeId or data.id
-        uci:set("ssid-proxy", id, "name", data.name)
-        uci:set("ssid-proxy", id, "address", data.address)
-        uci:set("ssid-proxy", id, "port", data.port)
-        uci:set("ssid-proxy", id, "protocol", data.protocol)
-        uci:set("ssid-proxy", id, "username", data.username)
-        uci:set("ssid-proxy", id, "password", data.password)
-        uci:set("ssid-proxy", id, "status", data.status)
-        data.id = id
-
-        -- 如果节点已有监听端口，则复用；否则分配新的
-        local listen_port = uci:get("ssid-proxy", id, "listen_port") or get_next_listen_port()
+        local listen_port = get_next_listen_port()
         local redsocks_config = generate_redsocks_config(data, listen_port)
         local config_file = save_redsocks_config(id, redsocks_config)
-        uci:set("ssid-proxy", id, "listen_port", listen_port)
 
         -- 重启redsocks服务
         stop_redsocks(id)
@@ -242,29 +239,8 @@ stop() {
             return
         end
 
-        -- 检查节点是否存在
-        if not uci:get("ssid-proxy", nodeId) then
-            http.status(404, "Not Found")
-            http.write_json({
-                success = false,
-                error = "节点不存在" + nodeId
-            })
-            return
-        end
-
         -- 停止redsocks服务
         stop_redsocks(nodeId)
-
-        -- 删除节点
-        uci:delete("ssid-proxy", nodeId)
-        if not uci:commit("ssid-proxy") then
-            http.status(500, "Internal Server Error")
-            http.write_json({
-                success = false,
-                error = "删除失败"
-            })
-            return
-        end
 
         http.prepare_content("application/json")
         http.write_json({
