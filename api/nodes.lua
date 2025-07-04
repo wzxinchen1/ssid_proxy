@@ -194,6 +194,9 @@ function api_nodes()
             data = nodes
         })
     elseif method == "POST" then
+        if http.cors() then
+            return
+        end
         -- 确保有有效数据
         if not data then
             http.status(400, "Bad Request")
@@ -220,6 +223,9 @@ function api_nodes()
             id = data.id
         })
     elseif method == "PUT" then
+        if http.cors() then
+            return
+        end
         -- 确保有有效数据
         if not nodeId and (not data or not data.id) then
             http.status(400, "Bad Request")
