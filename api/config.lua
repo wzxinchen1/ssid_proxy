@@ -203,13 +203,10 @@ function M.update_global_config()
         })
         return
     end
-
-    -- 应用配置
-    text = apply_configuration()
-
+    uci:set("v2ray", "enabled", "enabled", v2ray.enabled.enabled)
+    uci:commit("v2ray")
     http.write_json({
-        success = true,
-        message = text
+        success = true
     })
 end
 

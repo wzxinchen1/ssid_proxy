@@ -79,7 +79,7 @@
                     <tr v-for="config in configs" v-for-empty="暂无配置">
                         <td>
                             <div class="checkbox-group">
-                                <input type="checkbox" v-value="{{config.enabled}}"
+                                <input type="checkbox" checked="{{config.enabled}}" value="1"
                                     onclick="handleToggleConfig('{{config.id}}')">
                             </div>
                         </td>
