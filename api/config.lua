@@ -270,14 +270,14 @@ function M.update_config()
         return
     end
 
-    if config.enabled == "0" then
-        local cmd = "iptables -t nat -D PREROUTING -i " .. config.interface
-        success, exit_code, exit_signal = os.execute(cmd)
-    else
-        local cmd = "iptables -t nat -A PREROUTING -i " .. config.interface .. " -p tcp -j REDIRECT --to-port " ..
-                        config.port
-        success, exit_code, exit_signal = os.execute(cmd)
-    end
+    -- if config.enabled == "0" then
+    --     local cmd = "iptables -t nat -D PREROUTING -i " .. config.interface
+    --     success, exit_code, exit_signal = os.execute(cmd)
+    -- else
+    --     local cmd = "iptables -t nat -A PREROUTING -i " .. config.interface .. " -p tcp -j REDIRECT --to-port " ..
+    --                     config.port
+    --     success, exit_code, exit_signal = os.execute(cmd)
+    -- end
     http.write_json({
         success = true
     })
