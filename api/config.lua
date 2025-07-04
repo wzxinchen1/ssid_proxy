@@ -2,6 +2,8 @@
 module("luci.controller.ssid-proxy.api.config", package.seeall)
 local M = {}
 
+local json = require "luci.jsonc"
+local fs = require "nixio.fs"
 -- 读取 v2ray.config.json 文件
 local v2ray_config_path = "/mnt/usb/v2ray.config.json"
 local v2ray_config_content = fs.readfile(v2ray_config_path)
