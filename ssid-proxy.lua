@@ -1,7 +1,7 @@
 -- SSID代理系统 - 主控制器
 -- 文件路径: /usr/lib/lua/luci/controller/ssid-proxy/ssid-proxy.lua
 
-module("luci.controller.ssid-proxy", package.seeall)
+module("luci.controller.ssid-proxy.ssid-proxy", package.seeall)
 -- 引入API模块
 local status = require "luci.controller.ssid-proxy.api.status"
 local config = require "luci.controller.ssid-proxy.api.config"

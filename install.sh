@@ -66,7 +66,7 @@ cp "$SRC_DIR/api/monitor.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/monito
 cp "$SRC_DIR/api/status.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/status.lua
 
 # 步骤7: 复制主控制器
-cp "$SRC_DIR/ssid-proxy.lua" /usr/lib/lua/luci/controller/ssid-proxy/init.lua
+cp "$SRC_DIR/ssid-proxy.lua" /usr/lib/lua/luci/controller/ssid-proxy/ssid-proxy.lua
 
 # 步骤8: 设置文件权限
 chmod 755 /usr/sbin/ssid-proxy
