@@ -150,7 +150,7 @@ function api_nodes()
 
         -- 移除 outbound
         for i, outbound in ipairs(new_config.outbounds) do
-            if outbound.tag == "outbound_" .. node_id then
+            if outbound.tag == node_id then
                 table.remove(new_config.outbounds, i)
                 break
             end
