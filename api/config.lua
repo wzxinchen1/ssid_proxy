@@ -293,6 +293,15 @@ function M.toggle_config()
     local id = path:match("api/config/toggle/([^/]+)$")
     local http = require "luci.http"
     local enabled = uci:get("ssid-proxy", id, "enabled")
+    local port = uci:get("ssid-proxy", id, "port")
+    if enabled == "1" then
+        local cmd = "iptables -t nat -A PREROUTING -i " .. config.interface .. " -p tcp -j REDIRECT --to-port " ..
+                        port
+    else
+        local cmd = "iptables -t nat -A PREROUTING -i " .. config.interface
+        success, exit_code, exit_signal = os.execute(cmd)
+    end
+    
     http.write_json({
         success = true,
         enabled = enabled,
@@ -322,9 +331,12 @@ function M.add_config()
 
     -- 添加新配置
     local sid = uci:section("ssid-proxy", "config")
+    config.id = sid
+    config.port = get_next_listen_port()
     uci:set("ssid-proxy", sid, "enabled", config.enabled or "1")
     uci:set("ssid-proxy", sid, "interface", config.interface or "")
     uci:set("ssid-proxy", sid, "mode", config.mode or "proxy")
+    uci:set("ssid-proxy", sid, "port", config.port or "")
 
     if config.mode == "proxy" and config.proxy_server_id then
         uci:set("ssid-proxy", sid, "proxy_server_id", config.proxy_server_id)
@@ -341,8 +353,6 @@ function M.add_config()
         return
     end
 
-    config.id = sid
-    config.port = get_next_listen_port()
     add_node_to_v2ray(config)
     http.write_json({
         success = true,
