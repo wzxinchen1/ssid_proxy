@@ -104,13 +104,6 @@ function api_nodes()
             }
         })
 
-        -- 添加路由规则
-        table.insert(new_config.routing.rules, {
-            type = "field",
-            inboundTag = {inbound_tag},
-            outboundTag = outbound_tag
-        })
-
         -- 保存并通知 v2ray
         return save_v2ray_config(new_config)
     end
@@ -142,14 +135,6 @@ function api_nodes()
         for i, outbound in ipairs(new_config.outbounds) do
             if outbound.tag == node_id then
                 table.remove(new_config.outbounds, i)
-                break
-            end
-        end
-
-        -- 移除路由规则
-        for i, rule in ipairs(new_config.routing.rules) do
-            if rule.outboundTag == node_id then
-                table.remove(new_config.routing.rules, i)
                 break
             end
         end

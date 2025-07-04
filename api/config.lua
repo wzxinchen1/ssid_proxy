@@ -65,7 +65,7 @@ function add_node_to_v2ray(node)
 
     -- 生成唯一的 inbound tag 和监听端口
     local inbound_tag = node.id
-    local outbound_tag = node.id
+    local outbound_tag = node.proxy_server_id
 
     -- 添加 outbound（设置代理信息）
     table.insert(new_config.inbounds, {
@@ -78,18 +78,32 @@ function add_node_to_v2ray(node)
         }
     })
 
+    -- 添加路由规则
+    table.insert(new_config.routing.rules, {
+        type = "field",
+        inboundTag = {inbound_tag},
+        outboundTag = outbound_tag
+    })
     -- 保存并通知 v2ray
     return save_v2ray_config(new_config)
 end
 
 -- 删除节点配置
-function delete_node_from_v2ray(node_id)
+function delete_node_from_v2ray(nodeId)
     local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
 
     -- 移除 outbound
-    for i, outbound in ipairs(new_config.inbounds) do
-        if outbound.tag == node_id then
+    for i, inbound in ipairs(new_config.inbounds) do
+        if inbound.tag == nodeId then
             table.remove(new_config.inbounds, i)
+            break
+        end
+    end
+
+    -- 移除路由规则
+    for i, rule in ipairs(new_config.routing.rules) do
+        if rule.inboundTag and rule.inboundTag[1] == nodeId then
+            table.remove(new_config.routing.rules, i)
             break
         end
     end
@@ -112,24 +126,13 @@ function M.get_config()
 
     uci:foreach("ssid-proxy", "config", function(s)
         local proxy_server = {}
-        if s.proxy_server_id then
-            local node = uci:get_all("ssid-proxy", s.proxy_server_id)
-            if node then
-                proxy_server = {
-                    address = node.address or "",
-                    protocol = node.protocol or "",
-                    port = node.port or ""
-                }
-            end
-        end
 
         table.insert(config.configs, {
             id = s[".name"],
             enabled = s.enabled or "1",
             interface = s.interface or "",
             mode = s.mode or "proxy",
-            proxy_server_id = s.proxy_server_id or "",
-            proxy_server = proxy_server
+            proxy_server_id = s.proxy_server_id or ""
         })
     end)
 
@@ -365,7 +368,7 @@ function M.delete_config()
         })
         return
     end
-
+    delete_node_from_v2ray(id)
     http.write_json({
         success = true
     })
