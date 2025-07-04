@@ -292,7 +292,7 @@ function M.toggle_config()
     local uci = require"luci.model.uci".cursor()
     local id = path:match("api/config/toggle/([^/]+)$")
     local http = require "luci.http"
-    local enabled = uci:get("ssid-proxy", id, "enabled")
+    local enabled = uci:get("ssid-proxy", id, "enabled") .. "ok?"
     http.write_json({
         success = true,
         enabled = enabled
