@@ -38,20 +38,17 @@ function api_nodes()
     local function get_nodes_from_v2ray()
         local nodes = {}
         for _, outbound in ipairs(v2ray_config.outbounds or {}) do
-            if outbound.tag == outbound_tag then
-                local server = outbound.settings.servers[1]
-                table.insert(nodes, {
-                    id = inbound.tag,
-                    name = inbound.tag,
-                    address = server.address,
-                    port = server.port,
-                    protocol = outbound.protocol,
-                    username = server.users[1].user,
-                    password = server.users[1].pass,
-                    status = "active"
-                })
-                break
-            end
+            local server = outbound.settings.servers[1]
+            table.insert(nodes, {
+                id = server.tag,
+                name = server.tag,
+                address = server.address,
+                port = server.port,
+                protocol = outbound.protocol,
+                username = server.users[1].user,
+                password = server.users[1].pass,
+                status = "active"
+            })
         end
         return nodes
     end
