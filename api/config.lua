@@ -294,14 +294,15 @@ function M.toggle_config()
     local http = require "luci.http"
     local enabled = uci:get("ssid-proxy", id, "enabled")
     local port = uci:get("ssid-proxy", id, "port")
+    local interface = uci:get("ssid-proxy", id, "interface")
     if enabled == "1" then
-        local cmd = "iptables -t nat -A PREROUTING -i " .. config.interface .. " -p tcp -j REDIRECT --to-port " ..
+        local cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " ..
                         port
     else
-        local cmd = "iptables -t nat -A PREROUTING -i " .. config.interface
+        local cmd = "iptables -t nat -A PREROUTING -i " .. interface
         success, exit_code, exit_signal = os.execute(cmd)
     end
-    
+
     http.write_json({
         success = true,
         enabled = enabled,
