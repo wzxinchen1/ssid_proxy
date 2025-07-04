@@ -313,9 +313,9 @@ function M.add_config()
         return
     end
 
-    data.id = sid
-    data.port = get_next_listen_port()
-    add_node_to_v2ray(data)
+    config.id = sid
+    config.port = get_next_listen_port()
+    add_node_to_v2ray(config)
     http.write_json({
         success = true,
         id = sid
