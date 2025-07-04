@@ -204,6 +204,7 @@ function M.update_global_config()
     end
     uci:set("v2ray", "enabled", "enabled", config.global.enabled)
     uci:commit("v2ray")
+    local sys = require "luci.sys"
     sys.init.restart("v2ray")
     http.write_json({
         success = true
