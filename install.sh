@@ -19,15 +19,10 @@ echo "安装时间: $(date)"
 # 步骤1: 创建必要的系统目录
 mkdir -p /etc/ssid-proxy
 mkdir -p /usr/lib/lua/luci/controller/ssid-proxy/api
-mkdir -p /www/luci-static/resources/ssid-proxy/{css,js,pages,assets}
+mkdir -p /www/luci-static/resources/ssid-proxy/css/pages/
+mkdir -p /www/luci-static/resources/ssid-proxy/js/pages/
+mkdir -p /www/luci-static/resources/ssid-proxy/assets/fonts/
 echo "目录创建完成"
-
-# 步骤3: 复制核心脚本
-cp "$SRC_DIR/sbin/ssid-proxy" /usr/sbin/ssid-proxy
-cp "$SRC_DIR/sbin/ssid-proxy-validate" /usr/sbin/ssid-proxy-validate
-
-# 步骤4: 复制启动脚本
-cp "$SRC_DIR/init.d/ssid-proxy" /etc/init.d/ssid-proxy
 
 # 步骤5: 复制前端文件
 # 主入口文件
@@ -72,7 +67,6 @@ cp "$SRC_DIR/api/status.lua" /usr/lib/lua/luci/controller/ssid-proxy/api/status.
 
 # 步骤7: 复制主控制器
 cp "$SRC_DIR/ssid-proxy.lua" /usr/lib/lua/luci/controller/ssid-proxy/ssid-proxy.lua
-cp "$SRC_DIR/api/" /usr/lib/lua/luci/controller/ssid-proxy/
 
 # 步骤8: 设置文件权限
 chmod 755 /usr/sbin/ssid-proxy
@@ -89,22 +83,6 @@ echo "文件权限设置完成"
 touch /var/log/ssid-proxy.log
 chmod 644 /var/log/ssid-proxy.log
 echo "日志文件创建完成"
-
-# 步骤10: 确保默认禁用
-rm -f /etc/ssid-proxy/enabled
-
-# 步骤11: 启用服务
-echo ">> 步骤10: 启用服务"
-/etc/init.d/ssid-proxy enable
-echo "服务已启用"
-
-# 步骤12: 启动服务（如果配置了启用）
-if [ -f "/etc/ssid-proxy/enabled" ]; then
-    echo "检测到已启用配置，启动服务..."
-    /etc/init.d/ssid-proxy start
-else
-    echo "服务已安装但未启用，请在界面启用"
-fi
 
 # 安装完成
 echo "========== SSID 代理插件安装完成 =========="
