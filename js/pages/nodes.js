@@ -21,12 +21,6 @@ export const onInit = async function (ctx) {
     componentContext = ctx;
     // 加载节点数据
     await loadNodesData();
-
-    // 绑定表单提交事件
-    document.getElementById('add-node-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await saveNode();
-    });
 }
 
 
@@ -35,6 +29,9 @@ export const onInit = async function (ctx) {
  */
 async function loadNodesData() {
     viewData.nodes = await apiRequest('nodes', 'GET');
+    if (!Array.isArray(viewData)) {
+        viewData.nodes = [];
+    }
     componentContext.render();
 }
 

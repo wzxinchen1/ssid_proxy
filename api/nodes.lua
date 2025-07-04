@@ -37,33 +37,20 @@ function api_nodes()
     -- 从 v2ray.config.json 中提取节点信息
     local function get_nodes_from_v2ray()
         local nodes = {}
-        for _, inbound in ipairs(v2ray_config.inbounds or {}) do
-            if inbound.tag then
-                local outbound_tag = nil
-                for _, rule in ipairs(v2ray_config.routing.rules or {}) do
-                    if rule.inboundTag and rule.inboundTag[1] == inbound.tag then
-                        outbound_tag = rule.outboundTag
-                        break
-                    end
-                end
-                if outbound_tag then
-                    for _, outbound in ipairs(v2ray_config.outbounds or {}) do
-                        if outbound.tag == outbound_tag then
-                            local server = outbound.settings.servers[1]
-                            table.insert(nodes, {
-                                id = inbound.tag,
-                                name = inbound.tag,
-                                address = server.address,
-                                port = server.port,
-                                protocol = outbound.protocol,
-                                username = server.users[1].user,
-                                password = server.users[1].pass,
-                                status = "active"
-                            })
-                            break
-                        end
-                    end
-                end
+        for _, outbound in ipairs(v2ray_config.outbounds or {}) do
+            if outbound.tag == outbound_tag then
+                local server = outbound.settings.servers[1]
+                table.insert(nodes, {
+                    id = inbound.tag,
+                    name = inbound.tag,
+                    address = server.address,
+                    port = server.port,
+                    protocol = outbound.protocol,
+                    username = server.users[1].user,
+                    password = server.users[1].pass,
+                    status = "active"
+                })
+                break
             end
         end
         return nodes
