@@ -59,27 +59,11 @@ function api_nodes()
         end
         return nodes
     end
-
-    -- 获取下一个可用的监听端口（从10000开始）
-    local function get_next_listen_port()
-        local port = 10000
-        local nodes = get_nodes_from_v2ray()
-        for _, node in ipairs(nodes) do
-            local listen_port = tonumber(node.listen_port or 0)
-            if listen_port >= port then
-                port = listen_port + 1
-            end
-        end
-        return port
-    end
-
     local function get_next_id()
         local port = 1
         local nodes = get_nodes_from_v2ray()
         for _, node in ipairs(nodes) do
-            local listen_port = tonumber(node.listen_port or 0)
-            if listen_port >= port then
-                port = listen_port + 1
+                port = port + 1
             end
         end
         return port

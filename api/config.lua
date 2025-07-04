@@ -2,6 +2,99 @@
 module("luci.controller.ssid-proxy.api.config", package.seeall)
 local M = {}
 
+-- 读取 v2ray.config.json 文件
+local v2ray_config_path = "/mnt/usb/v2ray.config.json"
+local v2ray_config_content = fs.readfile(v2ray_config_path)
+local v2ray_config = json.parse(v2ray_config_content)
+
+if not v2ray_config.routing then
+    v2ray_config.routing = {}
+end
+
+if not v2ray_config.routing.rules then
+    v2ray_config.routing.rules = {}
+end
+-- 从 v2ray.config.json 中提取节点信息
+function get_nodes_from_v2ray()
+    local nodes = {}
+    for _, inbound in ipairs(v2ray_config.inbounds or {}) do
+        table.insert(nodes, inbound)
+    end
+    return nodes
+end
+
+-- 获取下一个可用的监听端口（从10000开始）
+function get_next_listen_port()
+    local port = 10000
+    local nodes = get_nodes_from_v2ray()
+    for _, node in ipairs(nodes) do
+        local listen_port = tonumber(node.listen_port or 0)
+        if listen_port >= port then
+            port = listen_port + 1
+        end
+    end
+    return port
+end
+
+local function get_next_id()
+    local port = 1
+    local nodes = get_nodes_from_v2ray()
+    for _, node in ipairs(nodes) do
+        port = port + 1
+    end
+    return port
+end
+
+-- 保存配置到 v2ray.config.json 并通知 v2ray 重新加载
+function save_v2ray_config(new_config)
+    -- 保存新配置到文件
+    fs.writefile(v2ray_config_path, json.stringify(new_config, {
+        indent = true
+    }))
+
+    -- 通知 v2ray 重新加载配置（不重启进程）
+    os.execute("kill -SIGHUP $(pidof v2ray) 2>/dev/null")
+    return true
+end
+
+-- 添加新节点到 v2ray 配置
+function add_node_to_v2ray(node)
+    local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+
+    -- 生成唯一的 inbound tag 和监听端口
+    local inbound_tag = node.id
+    local outbound_tag = node.id
+
+    -- 添加 outbound（设置代理信息）
+    table.insert(new_config.inbounds, {
+        protocol = "dokodemo-door",
+        tag = inbound_tag,
+        port = node.port,
+        settings = {
+            network = "tcp,udp",
+            followRedirect = true
+        }
+    })
+
+    -- 保存并通知 v2ray
+    return save_v2ray_config(new_config)
+end
+
+-- 删除节点配置
+function delete_node_from_v2ray(node_id)
+    local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+
+    -- 移除 outbound
+    for i, outbound in ipairs(new_config.inbounds) do
+        if outbound.tag == node_id then
+            table.remove(new_config.inbounds, i)
+            break
+        end
+    end
+
+    -- 保存并通知 v2ray
+    return save_v2ray_config(new_config)
+end
 -- 获取配置
 function M.get_config()
     local uci = require"luci.model.uci".cursor()
@@ -11,7 +104,6 @@ function M.get_config()
         return
     end
     local config = {
-        global = uci:get_all("ssid-proxy", "global") or {},
         configs = {}
     }
 
@@ -107,11 +199,11 @@ function M.update_global_config()
     end
 
     -- 应用配置
-    text=apply_configuration()
+    text = apply_configuration()
 
     http.write_json({
         success = true,
-        message=text
+        message = text
     })
 end
 
@@ -172,9 +264,6 @@ function M.update_config()
         return
     end
 
-    -- 应用配置
-    apply_configuration()
-
     http.write_json({
         success = true
     })
@@ -221,9 +310,9 @@ function M.add_config()
         return
     end
 
-    -- 应用配置
-    apply_configuration()
-
+    data.id = sid
+    data.port = get_next_listen_port()
+    add_node_to_v2ray(data)
     http.write_json({
         success = true,
         id = sid
@@ -232,7 +321,7 @@ end
 
 -- 删除配置
 function M.delete_config()
-    local uci = require "luci.model.uci".cursor()
+    local uci = require"luci.model.uci".cursor()
     local http = require "luci.http"
 
     if luci.http.cors() then
@@ -274,46 +363,9 @@ function M.delete_config()
         return
     end
 
-    -- 应用配置
-    text=apply_configuration()
-
     http.write_json({
-        success = true,
-        message=text
+        success = true
     })
-end
-
--- 应用配置
-function apply_configuration()
-    local uci = require"luci.model.uci".cursor()
-    local sys = require "luci.sys"
-    sys.exec("/etc/init.d/ssid-proxy stop >/dev/null 2>&1")
-
-    -- 检查服务是否启用
-    local enabled = uci:get("ssid-proxy", "global", "enabled") or "0"
-
-    if enabled == "1" then
-        -- 创建启用标志文件
-        sys.exec("touch /etc/ssid-proxy/enabled")
-    else
-        -- 删除启用标志文件
-        sys.exec("rm -f /etc/ssid-proxy/enabled")
-    end
-
-    -- 更新日志级别
-    local log_level = uci:get("ssid-proxy", "global", "log_level") or "info"
-    sys.exec("sed -i 's/^LOG_LEVEL=.*/LOG_LEVEL=\\\"" .. log_level .. "\\\"/' /usr/sbin/ssid-proxy 2>/dev/null")
-
-    -- 设置日志轮转
-    local retention = uci:get("ssid-proxy", "global", "log_retention") or "7"
-    sys.exec("sed -i 's/^rotate.*/rotate " .. retention .. "/' /etc/logrotate.d/ssid-proxy 2>/dev/null")
-
-    -- 验证配置
-    sys.exec("/usr/sbin/ssid-proxy-validate")
-
-    -- 重启服务
-    sys.exec("/etc/init.d/ssid-proxy start >/dev/null 2>&1")
-    return "aaaa"
 end
 
 return M
