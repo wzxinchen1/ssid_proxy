@@ -82,10 +82,24 @@ function api_nodes()
         return port
     end
 
+    local function get_next_id()
+        local port = 1
+        local nodes = get_nodes_from_v2ray()
+        for _, node in ipairs(nodes) do
+            local listen_port = tonumber(node.listen_port or 0)
+            if listen_port >= port then
+                port = listen_port + 1
+            end
+        end
+        return port
+    end
+
     -- 保存配置到 v2ray.config.json 并通知 v2ray 重新加载
     local function save_v2ray_config(new_config)
         -- 保存新配置到文件
-        fs.writefile(v2ray_config_path, json.stringify(new_config, { indent = true }))
+        fs.writefile(v2ray_config_path, json.stringify(new_config, {
+            indent = true
+        }))
 
         -- 通知 v2ray 重新加载配置（不重启进程）
         os.execute("kill -SIGHUP $(pidof v2ray) 2>/dev/null")
@@ -103,7 +117,7 @@ function api_nodes()
 
         -- 添加 inbound（设置监听端口）
         table.insert(new_config.inbounds, {
-            port = listen_port,  -- 仅在此处设置监听端口
+            port = listen_port, -- 仅在此处设置监听端口
             protocol = "dokodemo-door",
             tag = inbound_tag,
             settings = {
@@ -117,25 +131,21 @@ function api_nodes()
             protocol = "socks",
             tag = outbound_tag,
             settings = {
-                servers = {
-                    {
-                        address = node.address,
-                        port = tonumber(node.port),
-                        users = {
-                            {
-                                user = node.username,
-                                pass = node.password
-                            }
-                        }
-                    }
-                }
+                servers = {{
+                    address = node.address,
+                    port = tonumber(node.port),
+                    users = {{
+                        user = node.username,
+                        pass = node.password
+                    }}
+                }}
             }
         })
 
         -- 添加路由规则
         table.insert(new_config.routing.rules, {
             type = "field",
-            inboundTag = { inbound_tag },
+            inboundTag = {inbound_tag},
             outboundTag = outbound_tag
         })
 
@@ -207,6 +217,7 @@ function api_nodes()
             return
         end
 
+        data.id = get_next_id()
         -- 添加新节点
         if not add_node_to_v2ray(data) then
             http.status(500, "Internal Server Error")
