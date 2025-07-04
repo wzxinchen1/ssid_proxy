@@ -63,8 +63,7 @@ function api_nodes()
         local port = 1
         local nodes = get_nodes_from_v2ray()
         for _, node in ipairs(nodes) do
-                port = port + 1
-            end
+            port = port + 1
         end
         return port
     end
