@@ -61,7 +61,7 @@ end
 
 -- 添加新节点到 v2ray 配置
 function add_node_to_v2ray(node)
-    local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+    local new_config = v2ray_config
 
     -- 生成唯一的 inbound tag 和监听端口
     local inbound_tag = node.id
@@ -90,8 +90,7 @@ end
 
 -- 删除节点配置
 function delete_node_from_v2ray(nodeId)
-    local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
-
+    local new_config = v2ray_config
     -- 移除 outbound
     for i, inbound in ipairs(new_config.inbounds) do
         if inbound.tag == nodeId then
@@ -203,7 +202,7 @@ function M.update_global_config()
         })
         return
     end
-    uci:set("v2ray", "enabled", "enabled", v2ray.enabled.enabled)
+    uci:set("v2ray", "enabled", "enabled", v2ray_config.enabled.enabled)
     uci:commit("v2ray")
     http.write_json({
         success = true

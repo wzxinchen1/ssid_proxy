@@ -2,7 +2,8 @@
 /* 配置页面容器 */
 .config-page {
     padding: 20px;
-    min-height: calc(100vh - 130px); /* 减去header和footer高度 */
+    min-height: calc(100vh - 130px);
+    /* 减去header和footer高度 */
     background-color: var(--page-bg);
 }
 
@@ -68,12 +69,14 @@
 }
 
 .setting-group {
-    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .setting-label {
     display: block;
-    margin-bottom: 8px;
+    white-space: nowrap;
     font-weight: 500;
     color: var(--text-secondary);
 }
@@ -165,7 +168,9 @@
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .no-configs {
@@ -308,16 +313,8 @@
     fill: currentColor;
 }
 
-.setting-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    font-size: 14px;
-}
-
 /* 选择框和输入框美化 */
-.styled-select, 
+.styled-select,
 .styled-input {
     width: 100%;
     padding: 12px 15px 12px 38px;
@@ -330,7 +327,7 @@
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.styled-select:focus, 
+.styled-select:focus,
 .styled-input:focus {
     border-color: var(--primary-color);
     outline: none;
@@ -378,7 +375,7 @@
     .add-config-form {
         grid-template-columns: 1fr;
     }
-    
+
     .add-config-btn {
         width: 100%;
         margin-top: 10px;
@@ -428,7 +425,7 @@
     border-top: 1px solid var(--border-color);
 }
 
-.adv-header.active + .adv-content {
+.adv-header.active+.adv-content {
     display: block;
 }
 
@@ -541,11 +538,11 @@
     border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
     background-color: var(--success-color);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
     transform: translateX(26px);
 }
 
@@ -578,22 +575,22 @@ input:checked + .slider:before {
 }
 
 /* ====================== 响应式调整 ====================== */
-@media (max-width: 768px) {    
+@media (max-width: 768px) {
     .configs-table {
         display: block;
         overflow-x: auto;
     }
-    
+
     .save-actions {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .btn-reset {
         margin-right: 0;
         width: 100%;
     }
-    
+
     .btn-save {
         width: 100%;
     }
