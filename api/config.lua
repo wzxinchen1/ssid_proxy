@@ -106,6 +106,7 @@ function M.get_config()
         return
     end
     local config = {
+        global = uci:get_all("ssid-proxy", "global") or {},
         configs = {}
     }
 
