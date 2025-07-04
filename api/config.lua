@@ -299,7 +299,7 @@ function M.toggle_config()
         local cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " ..
                         port
     else
-        local cmd = "iptables -t nat -A PREROUTING -i " .. interface
+        local cmd = "iptables -t nat -D PREROUTING -i " .. interface
         success, exit_code, exit_signal = os.execute(cmd)
     end
 
