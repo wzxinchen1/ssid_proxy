@@ -131,8 +131,13 @@ window.saveNode = async function () {
             password
         });
 
-        document.getElementById('add-node-form').reset();
         document.getElementById('node-id').value = '';
+        document.getElementById('node-name').value = '';
+        document.getElementById('node-address').value = '';
+        document.getElementById('node-port').value = '';
+        document.getElementById('node-protocol').value = '';
+        document.getElementById('node-username').value = '';
+        document.getElementById('node-password').value = '';
         await loadNodesData();
         showToast(nodeId ? '节点更新成功' : '节点保存成功');
     } catch (error) {

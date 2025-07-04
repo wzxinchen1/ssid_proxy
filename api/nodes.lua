@@ -158,7 +158,7 @@ function api_nodes()
 
         -- 移除路由规则
         for i, rule in ipairs(new_config.routing.rules) do
-            if rule.inboundTag and rule.inboundTag[1] == node_id then
+            if rule.outboundTag and rule.outboundTag[1] == node_id then
                 table.remove(new_config.routing.rules, i)
                 break
             end
