@@ -299,9 +299,15 @@ function M.toggle_config()
         enabled = " 1"
         local cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " .. port
         success, exit_code, exit_signal = os.execute(cmd)
+        cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
+        success, exit_code, exit_signal = os.execute(cmd)
     else
         enabled = "0"
         local cmd = "iptables -t nat -D PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " .. port
+        success, exit_code, exit_signal = os.execute(cmd)
+        success, exit_code, exit_signal = os.execute(cmd)
+        cmd = "iptables -t nat -D PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
+        success, exit_code, exit_signal = os.execute(cmd)
         success, exit_code, exit_signal = os.execute(cmd)
     end
     uci:set("ssid-proxy", id, "enabled", enabled)
