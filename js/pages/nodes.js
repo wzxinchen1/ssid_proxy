@@ -108,7 +108,7 @@ window.deleteNode = async function deleteNode(nodeId) {
 /**
  * 保存节点
  */
-async function saveNode() {
+window.saveNode = async function () {
     const nodeId = document.getElementById('node-id').value;
     const name = document.getElementById('node-name').value.trim();
     const address = document.getElementById('node-address').value.trim();

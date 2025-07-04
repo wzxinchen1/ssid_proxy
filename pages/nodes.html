@@ -4,27 +4,25 @@
     </div>
     <div class="card-body">
         <div class="form-group">
-            <form id="add-node-form" class="form-inline">
-                <div class="form-row" style="display: flex; align-items: center; gap: 10px;">
-                    <input type="hidden" id="node-id" value="">
-                    <label for="node-name">节点名称</label>
-                    <input type="text" id="node-name" class="form-control" placeholder="节点名称" required>
-                    <label for="node-address">服务器地址</label>
-                    <input type="text" id="node-address" class="form-control" placeholder="服务器地址" required>
-                    <label for="node-port">端口号</label>
-                    <input type="number" id="node-port" class="form-control" placeholder="端口号" required>
-                    <label for="node-protocol">协议</label>
-                    <select id="node-protocol" class="form-control">
-                        <option value="socks5">SOCKS5</option>
-                        <option value="http">HTTP</option>
-                    </select>
-                    <label for="node-username">用户名</label>
-                    <input type="text" id="node-username" class="form-control" placeholder="用户名">
-                    <label for="node-password">密码</label>
-                    <input type="password" id="node-password" class="form-control" placeholder="密码">
-                    <button type="submit" class="btn btn-primary">添加</button>
-                </div>
-            </form>
+            <div class="form-row" style="display: flex; align-items: center; gap: 10px;">
+                <input type="hidden" id="node-id" value="">
+                <label for="node-name">节点名称</label>
+                <input type="text" id="node-name" class="form-control" placeholder="节点名称" required>
+                <label for="node-address">服务器地址</label>
+                <input type="text" id="node-address" class="form-control" placeholder="服务器地址" required>
+                <label for="node-port">端口号</label>
+                <input type="number" id="node-port" class="form-control" placeholder="端口号" required>
+                <label for="node-protocol">协议</label>
+                <select id="node-protocol" class="form-control">
+                    <option value="socks5">SOCKS5</option>
+                    <option value="http">HTTP</option>
+                </select>
+                <label for="node-username">用户名</label>
+                <input type="text" id="node-username" class="form-control" placeholder="用户名">
+                <label for="node-password">密码</label>
+                <input type="password" id="node-password" class="form-control" placeholder="密码">
+                <button type="submit" class="btn btn-primary" onclick="saveNode()">添加</button>
+            </div>
         </div>
         <div class="table-responsive">
             <table class="table table-striped table-hover">
@@ -85,18 +83,21 @@
                     </div>
                     <div class="form-group">
                         <label for="edit-node-protocol">协议</label>
-                        <select id="edit-node-protocol" class="form-control" required v-value="{{editNodeData.protocol}}">
+                        <select id="edit-node-protocol" class="form-control" required
+                            v-value="{{editNodeData.protocol}}">
                             <option value="socks5">SOCKS5</option>
                             <option value="http">HTTP</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="edit-node-username">用户名</label>
-                        <input type="text" id="edit-node-username" class="form-control" value="{{editNodeData.username || ''}}">
+                        <input type="text" id="edit-node-username" class="form-control"
+                            value="{{editNodeData.username || ''}}">
                     </div>
                     <div class="form-group">
                         <label for="edit-node-password">密码</label>
-                        <input type="password" id="edit-node-password" class="form-control" value="{{editNodeData.password || ''}}">
+                        <input type="password" id="edit-node-password" class="form-control"
+                            value="{{editNodeData.password || ''}}">
                     </div>
                     <div class="form-group">
                         <label for="edit-node-status">状态</label>
@@ -108,8 +109,7 @@
                 </form>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn btn-secondary"
-                    onclick="cancelEditNode()">取消</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelEditNode()">取消</button>
                 <button type="button" class="btn btn-primary" onclick="saveEditedNode()">保存</button>
             </div>
         </div>
