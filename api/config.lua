@@ -124,8 +124,14 @@ function M.get_config()
     }
 
     uci:foreach("ssid-proxy", "config", function(s)
-        local proxy_server = {}
-
+        local handle = io.popen("iptables -t nat -L -v -n | grep " .. s.interface)
+        local result = handle:read("*a") -- 读取所有输出
+        handle:close()
+        if result and result ~= "" then
+            s.enabled = "1"
+        else
+            s.enabled = "0"
+        end
         table.insert(config.configs, {
             id = s[".name"],
             enabled = s.enabled or "1",
@@ -300,9 +306,17 @@ function M.toggle_config()
         success, exit_code, exit_signal = os.execute(cmd)
         success, exit_code, exit_signal = os.execute(cmd)
     end
+
     uci:set("ssid-proxy", id, "enabled", enabled)
     uci:commit("ssid-proxy")
-
+    local handle = io.popen("iptables -t nat -L -v -n | grep " .. interface)
+    local result = handle:read("*a") -- 读取所有输出
+    handle:close()
+    if result and result ~= "" then
+        enabled = "1"
+    else
+        enabled = "0"
+    end
     http.write_json({
         success = true,
         enabled = enabled,
