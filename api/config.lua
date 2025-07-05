@@ -30,7 +30,7 @@ function get_next_listen_port()
     local port = 10000
     local nodes = get_nodes_from_v2ray()
     for _, node in ipairs(nodes) do
-        local listen_port = tonumber(node.listen_port or 0)
+        local listen_port = tonumber(node.port or 0)
         if listen_port >= port then
             port = listen_port + 1
         end
