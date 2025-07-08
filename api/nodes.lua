@@ -147,6 +147,7 @@ function api_nodes()
         if http.cors() then
             return
         end
+        local uci = require"luci.model.uci".cursor()
         local nodes = {}
         uci:foreach("ssid-proxy", "node", function(s)
             table.insert(nodes, {
