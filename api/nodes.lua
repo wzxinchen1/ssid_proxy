@@ -276,7 +276,6 @@ function M.toggle_node()
     local uci = require"luci.model.uci".cursor()
     local id = path:match("api/config/node/([^/]+)$")
     local http = require "luci.http"
-    v2ray_config.outbounds.
     local enabled = uci:get("ssid-proxy", id, "enabled")
     local port = uci:get("ssid-proxy", id, "port")
     local interface = uci:get("ssid-proxy", id, "interface")
