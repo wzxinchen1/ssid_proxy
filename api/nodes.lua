@@ -154,8 +154,8 @@ function api_nodes()
             for i, value in pairs(v2ray_config.outbounds) do
                 local server = value.settings.servers[1]
                 local user = server.users[1]
-                if s.ip == server.address and s.password == user.pass and tostring(s.port) == tostring(server.port) and s.account ==
-                    user.user then
+                if s.ip == server.address and s.password == user.pass and tostring(s.port) == tostring(server.port) and
+                    s.account == user.user then
                     status = "active"
                     name = value.tag
                     break
@@ -167,7 +167,8 @@ function api_nodes()
                 address = s.ip,
                 protocol = "socks",
                 status = status,
-                password = s.password
+                password = s.password,
+                name = name
             })
         end)
         http.prepare_content("application/json")
