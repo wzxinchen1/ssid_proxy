@@ -341,7 +341,7 @@ function api_toggle_node()
     end
     local path = http.getenv("PATH_INFO") or ""
     local uci = require"luci.model.uci".cursor()
-    local id = path:match("api/config/toggle/([^/]+)$")
+    local id = path:match("api/node/toggle/([^/]+)$")
     local node = uci:get("ssid-proxy", id)
     for i, value in pairs(v2ray_config.outbounds) do
         local server = value.settings.servers[1]
