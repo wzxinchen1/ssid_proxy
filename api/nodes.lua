@@ -59,8 +59,8 @@ function add_node_to_v2ray(node)
     local new_config = v2ray_config
 
     -- 生成唯一的 inbound tag 和监听端口
-    local inbound_tag = node.id
-    local outbound_tag = node.id
+    local inbound_tag = node[".name"]
+    local outbound_tag = node[".name"]
 
     -- 添加 outbound（设置代理信息）
     table.insert(new_config.outbounds, {
@@ -343,6 +343,11 @@ function api_toggle_node()
     local uci = require"luci.model.uci".cursor()
     local id = path:match("api/node/toggle/([^/]+)$")
     local node = uci:get("ssid-proxy", id)
+    http.write_json({
+        success = false,
+        node = node
+    })
+    return
     for i, value in pairs(v2ray_config.outbounds) do
         local server = value.settings.servers[1]
         local user = server.users[1]
