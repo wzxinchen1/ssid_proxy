@@ -258,6 +258,33 @@ function api_add_node_by_url()
     end
     local httpRequest = require("socket.http")
     local result = httpRequest.request(url)
+    local nodes = json.parse(result).obj
+
+    local uci = require"luci.model.uci".cursor()
+    for i, value in pairs(nodes) do
+        local found = false
+        uci:foreach("ssid-proxy", "node", function(s)
+            if found then
+                return
+            end
+            if s.ip == value.ip and s.password == value.password and s.port == value.port and s.account == value.account then
+                found = true
+                return
+            else
+
+            end
+        end)
+        if not found then
+            local sid = uci:section("ssid-proxy", "node")
+            config.port = get_next_listen_port()
+            uci:set("ssid-proxy", sid, "enabled", "0")
+            uci:set("ssid-proxy", sid, "ip", value.ip)
+            uci:set("ssid-proxy", sid, "password", value.password)
+            uci:set("ssid-proxy", sid, "port", value.port)
+            uci:set("ssid-proxy", sid, "account", value.account)
+            uci:commit("ssid-proxy")
+        end
+    end
     http.write_json({
         success = true,
         result = result
