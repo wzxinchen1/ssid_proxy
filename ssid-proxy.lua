@@ -62,7 +62,7 @@ function index()
     entry({"api", "service", "stop"}, call("api_service_stop"), nil, 90)
     entry({"api", "service", "toggle"}, call("api_service_toggle"), nil, 100)
     entry({"api", "nodes"}, call("api_nodes"), nil, 110)
-    entry({"api", "node", "add_by_url", call("api_add_node_by_url")}, nil, 110)
+    entry({"api", "node", "add_by_url", call("api_add_node_by_url")}, nil, 120)
 end
 
 function serve_index()
