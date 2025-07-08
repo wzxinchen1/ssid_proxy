@@ -247,6 +247,7 @@ function api_nodes()
 end
 function api_add_node_by_url()
     local http = require "luci.http"
+    local json = require "luci.jsonc"
     if luci.http.cors() then
         return
     end
