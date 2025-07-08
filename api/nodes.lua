@@ -256,8 +256,8 @@ function api_add_node_by_url()
     if content and #content > 0 then
         url = json.parse(content).url
     end
-    local http = require("socket.http")
-    local result = http.request(url)
+    local httpRequest = require("socket.http")
+    local result = httpRequest.request(url)
     http.write_json({
         success = true,
         result = result
