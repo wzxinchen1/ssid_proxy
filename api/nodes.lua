@@ -169,7 +169,7 @@ function api_nodes()
                 status = status,
                 password = s.password,
                 name = name,
-                id = s.id
+                id = s[".name"]
             })
         end)
         http.prepare_content("application/json")
