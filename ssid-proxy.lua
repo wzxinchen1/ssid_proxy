@@ -62,7 +62,7 @@ function index()
     entry({"api", "service", "stop"}, call("api_service_stop"), nil, 90)
     entry({"api", "service", "toggle"}, call("api_service_toggle"), nil, 100)
     entry({"api", "nodes"}, call("api_nodes"), nil, 110)
-    entry({"api", "node", "add_by_url", call("api_add_node_by_url")}, nil, 120)
+    entry({"api", "node", "add_by_url"}, call("api_add_node_by_url"), nil, 120)
 end
 
 function serve_index()
@@ -72,7 +72,7 @@ end
 api_monitor = monitor.api_monitor
 api_status = status.api_status
 api_nodes = nodes.api_nodes
-api_add_node_by_url = nodes.api_nodes
+api_add_node_by_url = nodes.api_add_node_by_url
 api_logs = logs.api_logs
 api_config = config.get_config
 api_config_get_global = config.get_global_config
