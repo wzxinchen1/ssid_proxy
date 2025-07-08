@@ -152,7 +152,7 @@ function api_nodes()
             local status = "inactive"
             local name = ""
             for i, value in pairs(v2ray_config.outbounds) do
-                local server = value.settings[1]
+                local server = value.settings.servers[1]
                 local user = server.users[1]
                 if s.ip == value.ip and s.password == user.pass and s.port == server.port and s.account == user.user then
                     status = "active"
