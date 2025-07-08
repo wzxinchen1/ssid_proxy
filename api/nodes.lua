@@ -144,7 +144,16 @@ function api_nodes()
     end
 
     if method == "GET" then
-        local nodes = get_nodes_from_v2ray()
+        local nodes = {}
+        uci:foreach("ssid-proxy", "node", function(s)
+            table.insert(nodes, {
+                username = s.account,
+                port = s.port,
+                address = s.ip,
+                protocol = "socks",
+                status = "active"
+            })
+        end)
         http.prepare_content("application/json")
         http.write_json({
             success = true,
@@ -276,7 +285,6 @@ function api_add_node_by_url()
         end)
         if not found then
             local sid = uci:section("ssid-proxy", "node")
-            uci:set("ssid-proxy", sid, "enabled", "0")
             uci:set("ssid-proxy", sid, "ip", value.ip)
             uci:set("ssid-proxy", sid, "password", value.password)
             uci:set("ssid-proxy", sid, "port", value.port)
