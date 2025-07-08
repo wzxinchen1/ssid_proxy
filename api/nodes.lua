@@ -149,12 +149,20 @@ function api_nodes()
         local uci = require"luci.model.uci".cursor()
         local nodes = {}
         uci:foreach("ssid-proxy", "node", function(s)
+            local status = "inactive"
+            for i, value in pairs(v2ray_config.outbounds) do
+                if s.ip == value.ip and s.password == value.password and s.port == value.port and s.account ==
+                    value.account then
+                    status = "active"
+                    return
+                end
+            end
             table.insert(nodes, {
                 username = s.account,
                 port = s.port,
                 address = s.ip,
                 protocol = "socks",
-                status = "active"
+                status = status
             })
         end)
         http.prepare_content("application/json")
