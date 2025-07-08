@@ -250,7 +250,15 @@ function api_add_node_by_url()
     if luci.http.cors() then
         return
     end
+    local content = http.content()
+    local url = ""
+    if content and #content > 0 then
+        url = json.parse(content).url
+    end
+    local http = require("socket.http")
+    local result = http.request(url)
     http.write_json({
-        success = true
+        success = true,
+        result = result
     })
 end
