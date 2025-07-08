@@ -158,7 +158,7 @@ function api_nodes()
                     user.user then
                     status = "active"
                     name = value.tag
-                    return
+                    break
                 end
             end
             table.insert(nodes, {
@@ -316,7 +316,7 @@ function api_add_node_by_url()
             end
             if s.ip == value.ip and s.password == value.password and s.port == value.port and s.account == value.account then
                 found = true
-                return
+                break
             else
 
             end
