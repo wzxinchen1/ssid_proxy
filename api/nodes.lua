@@ -1,125 +1,11 @@
 -- 文件路径: E:\桌面\ssid_proxy\api\nodes.lua
 module("luci.controller.ssid-proxy.api.nodes", package.seeall)
 
-
-local http = require "luci.http"
-local json = require "luci.jsonc"
-local fs = require "nixio.fs"
-local sys = require "luci.sys"
--- 读取 v2ray.config.json 文件
-local v2ray_config_path = "/mnt/usb/v2ray.config.json"
--- 从 v2ray.config.json 中提取节点信息
-function get_nodes_from_v2ray()
-    local nodes = {}
-    for _, outbound in ipairs(v2ray_config.outbounds or {}) do
-        local server = outbound.settings.servers[1]
-        table.insert(nodes, {
-            id = outbound.tag,
-            name = outbound.tag,
-            address = server.address,
-            port = server.port,
-            protocol = outbound.protocol,
-            username = server.users[1].user,
-            password = server.users[1].pass,
-            status = "active"
-        })
-    end
-    return nodes
-end
-function get_next_id()
-    local port = 1
-    local nodes = get_nodes_from_v2ray()
-    for _, node in ipairs(nodes) do
-        port = port + 1
-    end
-    return port
-end
-
--- 保存配置到 v2ray.config.json 并通知 v2ray 重新加载
-function save_v2ray_config(new_config)
-    -- 保存新配置到文件
-    fs.writefile(v2ray_config_path, json.stringify(new_config, {
-        indent = true
-    }))
-
-    -- 通知 v2ray 重新加载配置（不重启进程）
-    os.execute("kill -SIGHUP $(pidof v2ray) 2>/dev/null")
-    return true
-end
-
--- 添加新节点到 v2ray 配置
-function add_node_to_v2ray(node)
-    local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
-
-    -- 生成唯一的 inbound tag 和监听端口
-    local inbound_tag = "inbound_" .. node.id
-    local outbound_tag = "outbound_" .. node.id
-
-    -- 添加 outbound（设置代理信息）
-    table.insert(new_config.outbounds, {
-        protocol = "socks",
-        tag = outbound_tag,
-        settings = {
-            servers = {{
-                address = node.address,
-                port = tonumber(node.port),
-                users = {{
-                    user = node.username,
-                    pass = node.password
-                }}
-            }}
-        }
-    })
-
-    -- 保存并通知 v2ray
-    return save_v2ray_config(new_config)
-end
-
--- 更新节点配置（仅修改出口信息）
-function update_node_in_v2ray(node_id, node)
-    local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
-
-    -- 查找并更新对应的 outbound（不修改 inbound 的端口）
-    for _, outbound in ipairs(new_config.outbounds) do
-        if outbound.tag == node_id then
-            outbound.settings.servers[1].address = node.address
-            outbound.settings.servers[1].port = tonumber(node.port)
-            outbound.settings.servers[1].users[1].user = node.username
-            outbound.settings.servers[1].users[1].pass = node.password
-            break
-        end
-    end
-
-    -- 保存并通知 v2ray
-    return save_v2ray_config(new_config)
-end
-
--- 删除节点配置
-function delete_node_from_v2ray(node_id)
-    local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
-
-    -- 移除 outbound
-    for i, outbound in ipairs(new_config.outbounds) do
-        if outbound.tag == node_id then
-            table.remove(new_config.outbounds, i)
-            break
-        end
-    end
-
-    -- 保存并通知 v2ray
-    return save_v2ray_config(new_config)
-end
-function api_add_node_by_url()
-    local http = require "luci.http"
-    if luci.http.cors() then
-        return
-    end
-    http.write_json({
-        success = true
-    })
-end
-
 function api_nodes()
+    local http = require "luci.http"
+    local json = require "luci.jsonc"
+    local fs = require "nixio.fs"
+    local sys = require "luci.sys"
 
     local method = http.getenv("REQUEST_METHOD")
     local path_info = http.getenv("PATH_INFO") or ""
@@ -134,9 +20,6 @@ function api_nodes()
         end
     end
 
-    if luci.http.cors() then
-        return
-    end
     -- 正确获取请求体内容
     local content = http.content()
     local data = nil
@@ -146,8 +29,122 @@ function api_nodes()
         data = json.parse(content)
     end
 
+    -- 读取 v2ray.config.json 文件
+    local v2ray_config_path = "/mnt/usb/v2ray.config.json"
+    local v2ray_config_content = fs.readfile(v2ray_config_path)
+    local v2ray_config = json.parse(v2ray_config_content)
+
+    if not v2ray_config.routing then
+        v2ray_config.routing = {}
+    end
+
+    if not v2ray_config.routing.rules then
+        v2ray_config.routing.rules = {}
+    end
+    -- 从 v2ray.config.json 中提取节点信息
+    local function get_nodes_from_v2ray()
+        local nodes = {}
+        for _, outbound in ipairs(v2ray_config.outbounds or {}) do
+            local server = outbound.settings.servers[1]
+            table.insert(nodes, {
+                id = outbound.tag,
+                name = outbound.tag,
+                address = server.address,
+                port = server.port,
+                protocol = outbound.protocol,
+                username = server.users[1].user,
+                password = server.users[1].pass,
+                status = "active"
+            })
+        end
+        return nodes
+    end
+    local function get_next_id()
+        local port = 1
+        local nodes = get_nodes_from_v2ray()
+        for _, node in ipairs(nodes) do
+            port = port + 1
+        end
+        return port
+    end
+
+    -- 保存配置到 v2ray.config.json 并通知 v2ray 重新加载
+    local function save_v2ray_config(new_config)
+        -- 保存新配置到文件
+        fs.writefile(v2ray_config_path, json.stringify(new_config, {
+            indent = true
+        }))
+
+        -- 通知 v2ray 重新加载配置（不重启进程）
+        os.execute("kill -SIGHUP $(pidof v2ray) 2>/dev/null")
+        return true
+    end
+
+    -- 添加新节点到 v2ray 配置
+    local function add_node_to_v2ray(node)
+        local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+
+        -- 生成唯一的 inbound tag 和监听端口
+        local inbound_tag = "inbound_" .. node.id
+        local outbound_tag = "outbound_" .. node.id
+
+        -- 添加 outbound（设置代理信息）
+        table.insert(new_config.outbounds, {
+            protocol = "socks",
+            tag = outbound_tag,
+            settings = {
+                servers = {{
+                    address = node.address,
+                    port = tonumber(node.port),
+                    users = {{
+                        user = node.username,
+                        pass = node.password
+                    }}
+                }}
+            }
+        })
+
+        -- 保存并通知 v2ray
+        return save_v2ray_config(new_config)
+    end
+
+    -- 更新节点配置（仅修改出口信息）
+    local function update_node_in_v2ray(node_id, node)
+        local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+
+        -- 查找并更新对应的 outbound（不修改 inbound 的端口）
+        for _, outbound in ipairs(new_config.outbounds) do
+            if outbound.tag == node_id then
+                outbound.settings.servers[1].address = node.address
+                outbound.settings.servers[1].port = tonumber(node.port)
+                outbound.settings.servers[1].users[1].user = node.username
+                outbound.settings.servers[1].users[1].pass = node.password
+                break
+            end
+        end
+
+        -- 保存并通知 v2ray
+        return save_v2ray_config(new_config)
+    end
+
+    -- 删除节点配置
+    local function delete_node_from_v2ray(node_id)
+        local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+
+        -- 移除 outbound
+        for i, outbound in ipairs(new_config.outbounds) do
+            if outbound.tag == node_id then
+                table.remove(new_config.outbounds, i)
+                break
+            end
+        end
+
+        -- 保存并通知 v2ray
+        return save_v2ray_config(new_config)
+    end
+
     if method == "GET" then
-        local nodes={}
+        local nodes = get_nodes_from_v2ray()
         http.prepare_content("application/json")
         http.write_json({
             success = true,
@@ -248,11 +245,12 @@ function api_nodes()
         })
     end
 end
-
-
-function toggle_node()
+function api_add_node_by_url()
     local http = require "luci.http"
     if luci.http.cors() then
         return
     end
+    http.write_json({
+        success = true
+    })
 end
