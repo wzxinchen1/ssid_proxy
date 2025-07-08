@@ -153,7 +153,8 @@ function api_nodes()
             local name = ""
             for i, value in pairs(v2ray_config.outbounds) do
                 local server = value.settings[1]
-                if s.ip == value.ip and s.password == server.pass and s.port == server.port and s.account == server.user then
+                local user = server.users[1]
+                if s.ip == value.ip and s.password == user.pass and s.port == server.port and s.account == user.user then
                     status = "active"
                     name = value.tag
                     return
