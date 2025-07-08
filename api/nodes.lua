@@ -342,12 +342,13 @@ function api_toggle_node()
     local path = http.getenv("PATH_INFO") or ""
     local uci = require"luci.model.uci".cursor()
     local id = path:match("api/node/toggle/([^/]+)$")
+    local n = uci:get("ssid-proxy", id)
     local node = {
         id = id,
-        username = uci.get("ssid-proxy", id, "username"),
-        password = uci.get("ssid-proxy", id, "password"),
-        address = uci.get("ssid-proxy", id, "address"),
-        port = uci.get("ssid-proxy", id, "port")
+        username = uci:get("ssid-proxy", id, "username"),
+        password = uci:get("ssid-proxy", id, "password"),
+        address = uci:get("ssid-proxy", id, "address"),
+        port = uci:get("ssid-proxy", id, "port")
     }
     for i, value in pairs(v2ray_config.outbounds) do
         local server = value.settings.servers[1]
@@ -360,4 +361,9 @@ function api_toggle_node()
     end
     add_node_to_v2ray(node)
     save_v2ray_config(v2ray_config)
+    http.write_json({
+        success = true,
+        node = node,
+        n = n
+    })
 end
