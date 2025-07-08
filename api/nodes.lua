@@ -59,8 +59,8 @@ function add_node_to_v2ray(node)
     local new_config = v2ray_config
 
     -- 生成唯一的 inbound tag 和监听端口
-    local inbound_tag = node[".name"]
-    local outbound_tag = node[".name"]
+    local inbound_tag = node.id
+    local outbound_tag = node.id
 
     -- 添加 outbound（设置代理信息）
     table.insert(new_config.outbounds, {
@@ -68,7 +68,7 @@ function add_node_to_v2ray(node)
         tag = outbound_tag,
         settings = {
             servers = {{
-                address = node.ip,
+                address = node.address,
                 port = tonumber(node.port),
                 users = {{
                     user = node.username,
@@ -342,7 +342,6 @@ function api_toggle_node()
     local path = http.getenv("PATH_INFO") or ""
     local uci = require"luci.model.uci".cursor()
     local id = path:match("api/node/toggle/([^/]+)$")
-    local n = uci:get("ssid-proxy", id)
     local node = {
         id = id,
         username = uci:get("ssid-proxy", id, "username"),
@@ -353,17 +352,18 @@ function api_toggle_node()
     for i, value in pairs(v2ray_config.outbounds) do
         local server = value.settings.servers[1]
         local user = server.users[1]
-        if node.tag == id then
+        if value.tag == id then
             delete_node_from_v2ray(id)
             save_v2ray_config(v2ray_config)
+            http.write_json({
+                success = true
+            })
             return
         end
     end
     add_node_to_v2ray(node)
     save_v2ray_config(v2ray_config)
     http.write_json({
-        success = true,
-        node = node,
-        n = n
+        success = true
     })
 end
