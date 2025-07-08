@@ -284,6 +284,24 @@ function api_add_node_by_url()
             uci:commit("ssid-proxy")
         end
     end
+    uci:foreach("ssid-proxy", "node", function(s)
+        local found = false
+        for i, value in pairs(nodes) do
+            if found then
+                return
+            end
+            if s.ip == value.ip and s.password == value.password and s.port == value.port and s.account == value.account then
+                found = true
+                return
+            else
+
+            end
+            if not found then
+                uci:delete("ssid-proxy", s.id)
+            end
+        end
+    end)
+    uci:commit("ssid-proxy")
     http.write_json({
         success = true,
         result = result
