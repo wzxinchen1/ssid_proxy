@@ -9,7 +9,7 @@ local sys = require "luci.sys"
 -- 读取 v2ray.config.json 文件
 local v2ray_config_path = "/mnt/usb/v2ray.config.json"
 -- 从 v2ray.config.json 中提取节点信息
-local function get_nodes_from_v2ray()
+function get_nodes_from_v2ray()
     local nodes = {}
     for _, outbound in ipairs(v2ray_config.outbounds or {}) do
         local server = outbound.settings.servers[1]
@@ -26,7 +26,7 @@ local function get_nodes_from_v2ray()
     end
     return nodes
 end
-local function get_next_id()
+function get_next_id()
     local port = 1
     local nodes = get_nodes_from_v2ray()
     for _, node in ipairs(nodes) do
@@ -36,7 +36,7 @@ local function get_next_id()
 end
 
 -- 保存配置到 v2ray.config.json 并通知 v2ray 重新加载
-local function save_v2ray_config(new_config)
+function save_v2ray_config(new_config)
     -- 保存新配置到文件
     fs.writefile(v2ray_config_path, json.stringify(new_config, {
         indent = true
@@ -48,7 +48,7 @@ local function save_v2ray_config(new_config)
 end
 
 -- 添加新节点到 v2ray 配置
-local function add_node_to_v2ray(node)
+function add_node_to_v2ray(node)
     local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
 
     -- 生成唯一的 inbound tag 和监听端口
@@ -76,7 +76,7 @@ local function add_node_to_v2ray(node)
 end
 
 -- 更新节点配置（仅修改出口信息）
-local function update_node_in_v2ray(node_id, node)
+function update_node_in_v2ray(node_id, node)
     local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
 
     -- 查找并更新对应的 outbound（不修改 inbound 的端口）
@@ -95,7 +95,7 @@ local function update_node_in_v2ray(node_id, node)
 end
 
 -- 删除节点配置
-local function delete_node_from_v2ray(node_id)
+function delete_node_from_v2ray(node_id)
     local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
 
     -- 移除 outbound
