@@ -144,6 +144,9 @@ function api_nodes()
     end
 
     if method == "GET" then
+        if http.cors() then
+            return
+        end
         local nodes = {}
         uci:foreach("ssid-proxy", "node", function(s)
             table.insert(nodes, {
