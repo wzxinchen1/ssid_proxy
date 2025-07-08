@@ -7,6 +7,10 @@ local v2ray_config_path = "/mnt/usb/v2ray.config.json"
 local v2ray_config_content = fs.readfile(v2ray_config_path)
 local v2ray_config = json.parse(v2ray_config_content)
 
+local http = require "luci.http"
+local json = require "luci.jsonc"
+local fs = require "nixio.fs"
+local sys = require "luci.sys"
 if not v2ray_config.routing then
     v2ray_config.routing = {}
 end
@@ -126,10 +130,6 @@ function api_add_node_by_url()
 end
 
 function api_nodes()
-    local http = require "luci.http"
-    local json = require "luci.jsonc"
-    local fs = require "nixio.fs"
-    local sys = require "luci.sys"
 
     local method = http.getenv("REQUEST_METHOD")
     local path_info = http.getenv("PATH_INFO") or ""
