@@ -144,6 +144,9 @@ function api_nodes()
         end
     end
 
+    if luci.http.cors() then
+        return
+    end
     -- 正确获取请求体内容
     local content = http.content()
     local data = nil
@@ -155,16 +158,6 @@ function api_nodes()
 
     if method == "GET" then
         local nodes={}
-
-        uci:foreach("ssid-proxy", "node", function(s)
-            table.insert(config.configs, {
-                id = s[".name"],
-                enabled = s.enabled or "1",
-                interface = s.interface or "",
-                mode = s.mode or "proxy",
-                proxy_server_id = s.proxy_server_id or ""
-            })
-        end)
         http.prepare_content("application/json")
         http.write_json({
             success = true,
