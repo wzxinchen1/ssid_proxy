@@ -8,16 +8,6 @@ local fs = require "nixio.fs"
 local sys = require "luci.sys"
 -- 读取 v2ray.config.json 文件
 local v2ray_config_path = "/mnt/usb/v2ray.config.json"
-local v2ray_config_content = fs.readfile(v2ray_config_path)
-local v2ray_config = json.parse(v2ray_config_content)
-
-if not v2ray_config.routing then
-    v2ray_config.routing = {}
-end
-
-if not v2ray_config.routing.rules then
-    v2ray_config.routing.rules = {}
-end
 -- 从 v2ray.config.json 中提取节点信息
 local function get_nodes_from_v2ray()
     local nodes = {}
