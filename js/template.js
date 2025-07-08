@@ -202,7 +202,7 @@ export class Template {
       const checkedElements = element.querySelectorAll('input[checked]');
       for (const checkedElement of checkedElements) {
         const checkedValue = checkedElement.getAttribute("checked");
-        if (checkedValue == "0" || checkedValue == 0 || !checkedValue) {
+        if (checkedValue == "0" || checkedValue == 0 || checkedValue == "false") {
           checkedElement.removeAttribute("checked");
         }
       }
