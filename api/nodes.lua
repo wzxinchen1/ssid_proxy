@@ -344,9 +344,9 @@ function api_toggle_node()
     local id = path:match("api/node/toggle/([^/]+)$")
     local node = {
         id = id,
-        username = uci:get("ssid-proxy", id, "username"),
+        username = uci:get("ssid-proxy", id, "account"),
         password = uci:get("ssid-proxy", id, "password"),
-        address = uci:get("ssid-proxy", id, "address"),
+        address = uci:get("ssid-proxy", id, "ip"),
         port = uci:get("ssid-proxy", id, "port")
     }
     for i, value in pairs(v2ray_config.outbounds) do
