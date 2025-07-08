@@ -150,10 +150,11 @@ function api_nodes()
         local nodes = {}
         uci:foreach("ssid-proxy", "node", function(s)
             local status = "inactive"
+            local name = ""
             for i, value in pairs(v2ray_config.outbounds) do
-                if s.ip == value.ip and s.password == value.password and s.port == value.port and s.account ==
-                    value.account then
+                if s.ip == value.ip and s.password == value.pass and s.port == value.port and s.account == value.user then
                     status = "active"
+                    name = value.tag
                     return
                 end
             end
