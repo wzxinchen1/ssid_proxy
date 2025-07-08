@@ -347,16 +347,16 @@ function api_toggle_node()
         success = false,
         node = node
     })
-    return
-    for i, value in pairs(v2ray_config.outbounds) do
-        local server = value.settings.servers[1]
-        local user = server.users[1]
-        if node.tag == id then
-            delete_node_from_v2ray(id)
-            save_v2ray_config(v2ray_config)
-            return
-        end
-    end
-    add_node_to_v2ray(node)
-    save_v2ray_config(v2ray_config)
+    -- return
+    -- for i, value in pairs(v2ray_config.outbounds) do
+    --     local server = value.settings.servers[1]
+    --     local user = server.users[1]
+    --     if node.tag == id then
+    --         delete_node_from_v2ray(id)
+    --         save_v2ray_config(v2ray_config)
+    --         return
+    --     end
+    -- end
+    -- add_node_to_v2ray(node)
+    -- save_v2ray_config(v2ray_config)
 end
