@@ -43,7 +43,7 @@ async function loadNodesData() {
 }
 
 window.handleToggleNode = async function (nodeId) {
-    await apiRequest(`config/node/${nodeId}`, 'POST');
+    await apiRequest(`config/node/toggle/${nodeId}`, 'POST');
     showToast('配置状态已更新');
     await loadNodesData();
 };

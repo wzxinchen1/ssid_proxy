@@ -56,11 +56,11 @@ end
 
 -- 添加新节点到 v2ray 配置
 function add_node_to_v2ray(node)
-    local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+    local new_config = v2ray_config
 
     -- 生成唯一的 inbound tag 和监听端口
-    local inbound_tag = "inbound_" .. node.id
-    local outbound_tag = "outbound_" .. node.id
+    local inbound_tag = node.id
+    local outbound_tag = node.id
 
     -- 添加 outbound（设置代理信息）
     table.insert(new_config.outbounds, {
@@ -68,7 +68,7 @@ function add_node_to_v2ray(node)
         tag = outbound_tag,
         settings = {
             servers = {{
-                address = node.address,
+                address = node.ip,
                 port = tonumber(node.port),
                 users = {{
                     user = node.username,
@@ -103,7 +103,7 @@ end
 
 -- 删除节点配置
 function delete_node_from_v2ray(node_id)
-    local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
+    local new_config = v2ray_config
 
     -- 移除 outbound
     for i, outbound in ipairs(new_config.outbounds) do
@@ -168,7 +168,8 @@ function api_nodes()
                 protocol = "socks",
                 status = status,
                 password = s.password,
-                name = name
+                name = name,
+                id = s.id
             })
         end)
         http.prepare_content("application/json")
@@ -331,4 +332,26 @@ function api_add_node_by_url()
         success = true,
         result = result
     })
+end
+
+function api_toggle_node()
+    local http = require "luci.http"
+    if http.cors() then
+        return
+    end
+    local path = http.getenv("PATH_INFO") or ""
+    local uci = require"luci.model.uci".cursor()
+    local id = path:match("api/config/toggle/([^/]+)$")
+    local node = uci:get("ssid-proxy", id)
+    for i, value in pairs(v2ray_config.outbounds) do
+        local server = value.settings.servers[1]
+        local user = server.users[1]
+        if node.tag == id then
+            delete_node_from_v2ray(id)
+            save_v2ray_config(v2ray_config)
+            return
+        end
+    end
+    add_node_to_v2ray(node)
+    save_v2ray_config(v2ray_config)
 end

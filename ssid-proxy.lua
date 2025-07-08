@@ -63,6 +63,7 @@ function index()
     entry({"api", "service", "toggle"}, call("api_service_toggle"), nil, 100)
     entry({"api", "nodes"}, call("api_nodes"), nil, 110)
     entry({"api", "node", "add_by_url"}, call("api_add_node_by_url"), nil, 120)
+    entry({"api", "node", "toggle"}, call("api_toggle_node"), nil, 120)
 end
 
 function serve_index()
@@ -81,3 +82,4 @@ api_config_add = config.add_config
 api_config_delete = config.delete_config
 api_config_update = config.update_config
 api_config_toggle = config.toggle_config
+api_toggle_node = nodes.api_toggle_node
