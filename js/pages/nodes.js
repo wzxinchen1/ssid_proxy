@@ -10,7 +10,8 @@ let componentContext = null;
 export const viewData = {
     editNodeData: {},
     nodes: [],
-    showEditModal: false
+    showEditModal: false,
+    activeTab: "tabByUrl"
 };
 
 /**
@@ -23,7 +24,13 @@ export const onInit = async function (ctx) {
     await loadNodesData();
 }
 
-
+window.addNodeByUrl = async () => {
+    const url = $("#txtUrl").val();
+    await apiRequest('node/addbyurl', 'POST', {
+        url
+    });
+    await loadNodesData();
+}
 /**
  * 加载节点数据
  */
@@ -35,6 +42,16 @@ async function loadNodesData() {
     componentContext.render();
 }
 
+window.handleToggleNode = async function (nodeId) {
+    await apiRequest(`config/node/${nodeId}`, 'POST');
+    showToast('配置状态已更新');
+    await loadNodesData();
+};
+
+window.switchTab = function (tabId) {
+    viewData.activeTab = tabId;
+    componentContext.render();
+};
 /**
  * 编辑节点
  * @param {string} nodeId - 节点ID

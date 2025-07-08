@@ -365,7 +365,6 @@
 .tabs {
     display: flex;
     border-bottom: 1px solid #e9ecef;
-    margin-bottom: 20px;
 }
 
 .tab {

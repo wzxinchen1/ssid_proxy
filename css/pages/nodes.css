@@ -71,3 +71,25 @@
     gap: 10px;
     margin-top: 20px;
 }
+
+.tab-btn {
+    padding: 8px 15px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.tab-btn.active {
+    border-bottom-color: #3498db;
+    color: #3498db;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: flex;
+}
