@@ -173,7 +173,8 @@ function api_nodes()
         http.prepare_content("application/json")
         http.write_json({
             success = true,
-            data = nodes
+            data = nodes,
+            outBounds = v2ray_config.outbounds
         })
     elseif method == "POST" then
         if http.cors() then
