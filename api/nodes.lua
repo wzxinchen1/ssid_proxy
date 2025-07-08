@@ -267,47 +267,9 @@ function api_nodes()
 end
 
 
-function M.toggle_node()
+function toggle_node()
     local http = require "luci.http"
     if luci.http.cors() then
         return
     end
-    local path = http.getenv("PATH_INFO") or ""
-    local uci = require"luci.model.uci".cursor()
-    local id = path:match("api/config/node/([^/]+)$")
-    local http = require "luci.http"
-    local enabled = uci:get("ssid-proxy", id, "enabled")
-    local port = uci:get("ssid-proxy", id, "port")
-    local interface = uci:get("ssid-proxy", id, "interface")
-    if enabled == "0" then
-        enabled = " 1"
-        local cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " .. port
-        success, exit_code, exit_signal = os.execute(cmd)
-        cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
-        success, exit_code, exit_signal = os.execute(cmd)
-    else
-        enabled = "0"
-        local cmd = "iptables -t nat -D PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " .. port
-        success, exit_code, exit_signal = os.execute(cmd)
-        success, exit_code, exit_signal = os.execute(cmd)
-        cmd = "iptables -t nat -D PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
-        success, exit_code, exit_signal = os.execute(cmd)
-        success, exit_code, exit_signal = os.execute(cmd)
-    end
-
-    uci:set("ssid-proxy", id, "enabled", enabled)
-    uci:commit("ssid-proxy")
-    local handle = io.popen("iptables -t nat -L -v -n | grep " .. interface)
-    local result = handle:read("*a") -- 读取所有输出
-    handle:close()
-    if result and result ~= "" then
-        enabled = "1"
-    else
-        enabled = "0"
-    end
-    http.write_json({
-        success = true,
-        enabled = enabled,
-        id = id
-    })
 end
