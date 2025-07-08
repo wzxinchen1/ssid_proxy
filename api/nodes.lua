@@ -276,7 +276,6 @@ function api_add_node_by_url()
         end)
         if not found then
             local sid = uci:section("ssid-proxy", "node")
-            config.port = get_next_listen_port()
             uci:set("ssid-proxy", sid, "enabled", "0")
             uci:set("ssid-proxy", sid, "ip", value.ip)
             uci:set("ssid-proxy", sid, "password", value.password)
