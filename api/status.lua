@@ -26,8 +26,8 @@ function get_status(ip)
     local connections = {}
     for line in result:gmatch("[^\r\n]+") do
         -- 匹配源IP、目标IP、源端口、目标端口、包数、字节数
-        local state = string.find(result, "TIME_WAIT") || string.find(result, "CLOSE_WAIT")
-        if state ~= nil then
+        local state = nil
+        if string.find(result, "TIME_WAIT") or string.find(result, "CLOSE_WAIT") then
             state = "CLOSE"
         elseif string.find(result, "ESTABLISHED") then
             state="Connected"
