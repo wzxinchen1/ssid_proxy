@@ -26,7 +26,13 @@ function get_status(ip)
     local connections = {}
     for line in result:gmatch("[^\r\n]+") do
         -- 匹配源IP、目标IP、源端口、目标端口、包数、字节数
-        local state = result:gmatch("\d+ (.*?) src=");
+        local state = string.find(result, "TIME_WAIT") || string.find(result, "CLOSE_WAIT")
+        if state ~= nil then
+            state = "CLOSE"
+        elseif string.find(result, "ESTABLISHED") then
+            state="Connected"
+        end
+
         local src_ip, dst_ip, sport, dport, packets, bytes = line:match(
             "src=([^%s]+) dst=([^%s]+) sport=([^%s]+) dport=([^%s]+) packets=([^%s]+) bytes=([^%s]+)")
         if src_ip and dst_ip and sport and not contains(hiddenPorts, tonumber(dport)) then
