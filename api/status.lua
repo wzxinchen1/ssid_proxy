@@ -76,31 +76,21 @@ function get_interface_status()
         return
     end
 
-    if method == "GET" then
-        if not interface then
-            http.status(400, "Bad Request")
-            http.write_json({
-                success = false,
-                error = "Interface parameter is missing"
-            })
-            return
-        end
-
-        local connections = get_status(interface)
-        http.prepare_content("application/json")
-        http.write_json({
-            success = true,
-            data = connections
-        })
-    elseif method == "OPTIONS" then
-        http.cors()
-    else
-        http.status(405, "Method Not Allowed")
+    if not interface then
+        http.status(400, "Bad Request")
         http.write_json({
             success = false,
-            error = "Method not allowed: " .. method
+            error = "Interface parameter is missing"
         })
+        return
     end
+
+    local connections = get_status(interface)
+    http.prepare_content("application/json")
+    http.write_json({
+        success = true,
+        data = connections
+    })
 end
 
 -- 处理 /api/status/game_clients 请求
