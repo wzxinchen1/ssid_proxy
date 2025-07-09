@@ -35,7 +35,7 @@ end
 
 -- 获取指定接口的所有客户端IP
 function get_clients(interface)
-    local cmd = "cat /proc/net/arp | grep " .. interface .. " | awk '{print $1}' | grep -v 'Address'"
+    local cmd = "cat /proc/net/arp | grep " .. interface .. " | grep 0x2 | awk '{print $1}' | grep -v 'Address'"
     local handle = io.popen(cmd)
     local result = handle:read("*a")
     handle:close()
@@ -45,7 +45,7 @@ function get_clients(interface)
         table.insert(clients, ip)
     end
 
-    return result
+    return clients
 end
 
 -- 处理 /api/status/{interface} 请求
