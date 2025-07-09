@@ -7,25 +7,24 @@ local http = require "luci.http"
 local sys = require "luci.sys"
 
 -- 获取指定接口的连接状态
-function get_status(interface)
-    local conntrack_cmd = "conntrack -L | grep " .. interface ..
-                              " | awk '{print $4,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20}'"
+function get_status(ip)
+    local conntrack_cmd = "conntrack -L"
     local handle = io.popen(conntrack_cmd)
     local result = handle:read("*a")
     handle:close()
 
     local connections = {}
     for line in result:gmatch("[^\r\n]+") do
-        local parts = {}
-        for part in line:gmatch("%S+") do
-            table.insert(parts, part)
-        end
-
-        if #parts >= 3 then
+        -- 匹配源IP、目标IP、源端口、目标端口、包数、字节数
+        local src_ip, dst_ip, sport, dport, packets, bytes = line:match("src=([^%s]+) dst=([^%s]+) sport=([^%s]+) dport=([^%s]+) packets=([^%s]+) bytes=([^%s]+)")
+        if src_ip and dst_ip and sport and dport and packets and bytes then
             table.insert(connections, {
-                src_ip = parts[1],
-                dst_ip = parts[2],
-                duration = parts[3]
+                src_ip = src_ip,
+                dst_ip = dst_ip,
+                sport = sport,
+                dport = dport,
+                packets = packets,
+                bytes = bytes
             })
         end
     end
