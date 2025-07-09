@@ -161,10 +161,12 @@ function api_nodes()
                     break
                 end
             end
-            local interfaces = ""
+            local interfaces = {}
             for index, value in pairs(v2ray_config.routing.rules) do
                 if value.outboundTag == s[".name"] then
-                    interfaces = table.concat(value.inboundTag, ",")
+                    for inboundIndex, tag in pairs(value.inboundTag) do
+                        table.insert(interfaces, uci:get("ssid-proxy", tag, "interface"))
+                    end
                     break
                 end
             end
@@ -177,7 +179,7 @@ function api_nodes()
                 password = s.password,
                 name = name,
                 id = s[".name"],
-                interfaces = interfaces
+                interfaces = table.concat(interfaces, ",")
             })
         end)
         http.prepare_content("application/json")
