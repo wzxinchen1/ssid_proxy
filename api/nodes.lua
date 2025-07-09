@@ -161,6 +161,13 @@ function api_nodes()
                     break
                 end
             end
+            local interfaces = ""
+            for index, value in pairs(v2ray_config.routing.rules) do
+                if value.outboundTag == s[".name"] then
+                    interfaces = table.concat(value.inboundTag, ",")
+                    break
+                end
+            end
             table.insert(nodes, {
                 username = s.account,
                 port = s.port,
@@ -169,7 +176,8 @@ function api_nodes()
                 status = status,
                 password = s.password,
                 name = name,
-                id = s[".name"]
+                id = s[".name"],
+                interfaces = interfaces
             })
         end)
         http.prepare_content("application/json")
@@ -363,6 +371,7 @@ function api_toggle_node()
     end
     add_node_to_v2ray(node)
     save_v2ray_config(v2ray_config)
+    luci.sys.init.start("v2ray")
     http.write_json({
         success = true
     })

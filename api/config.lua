@@ -132,19 +132,12 @@ function M.get_config()
         else
             s.enabled = "0"
         end
-        local interfaces = ""
-        for index, value in pairs(v2ray_config.routing.rules) do
-            if value.outboundTag == s[".name"] then
-                interfaces = table.concat(value.inboundTag, ",")
-            end
-        end
         table.insert(config.configs, {
             id = s[".name"],
             enabled = s.enabled or "1",
             interface = s.interface or "",
             mode = s.mode or "proxy",
-            proxy_server_id = s.proxy_server_id or "",
-            interfaces = interfaces
+            proxy_server_id = s.proxy_server_id or ""
         })
     end)
 
@@ -218,7 +211,7 @@ function M.update_global_config()
     uci:set("v2ray", "enabled", "enabled", config.global.enabled)
     uci:commit("v2ray")
     local sys = require "luci.sys"
-    sys.init.restart("v2ray")
+    sys.init.start("v2ray")
     http.write_json({
         success = true
     })
