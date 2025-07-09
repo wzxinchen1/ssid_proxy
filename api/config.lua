@@ -279,6 +279,15 @@ function M.update_config()
     })
 end
 
+function deleteIPTablesRule(interface, port)
+    local cmd = "iptables -t nat -D PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " .. port
+    success, exit_code, exit_signal = os.execute(cmd)
+    success, exit_code, exit_signal = os.execute(cmd)
+    cmd = "iptables -t nat -D PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
+    success, exit_code, exit_signal = os.execute(cmd)
+    success, exit_code, exit_signal = os.execute(cmd)
+end
+
 function M.toggle_config()
     local http = require "luci.http"
     if luci.http.cors() then
@@ -299,12 +308,7 @@ function M.toggle_config()
         success, exit_code, exit_signal = os.execute(cmd)
     else
         enabled = "0"
-        local cmd = "iptables -t nat -D PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " .. port
-        success, exit_code, exit_signal = os.execute(cmd)
-        success, exit_code, exit_signal = os.execute(cmd)
-        cmd = "iptables -t nat -D PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
-        success, exit_code, exit_signal = os.execute(cmd)
-        success, exit_code, exit_signal = os.execute(cmd)
+        deleteIPTablesRule(interface, port)
     end
 
     uci:set("ssid-proxy", id, "enabled", enabled)
@@ -321,7 +325,8 @@ function M.toggle_config()
         success = true,
         enabled = enabled,
         id = id,
-        reslt = result
+        reslt = result,
+        port = port
     })
 end
 
@@ -407,6 +412,19 @@ function M.delete_config()
     end
 
     -- 删除配置
+    local port = uci:get("ssid-proxy", id, "port")
+    local interface = uci:get("ssid-proxy", id, "interface")
+    deleteIPTablesRule(interface, port)
+    local handle = io.popen("iptables -t nat -L -v -n | grep " .. interface)
+    local result = handle:read("*a") -- 读取所有输出
+    handle:close()
+    if result and result ~= "" then
+        http.write_json({
+            success = false,
+            message = result
+        })
+        return
+    end
     uci:delete("ssid-proxy", id)
 
     local success, err = pcall(function()
