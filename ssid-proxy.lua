@@ -48,6 +48,7 @@ function index()
 
     -- API路由
     entry({"api", "status"}, call("get_interface_status"), nil, 15)
+    entry({"api", "status","clients"}, call("get_game_clients"), nil, 15)
     entry({"api", "config", "get"}, call("api_config"), nil, 20)
     entry({"api", "config", "get_global"}, call("api_config_get_global"), nil, 25)
     entry({"api", "config", "update_global"}, call("api_config_update_global"), nil, 30)
@@ -72,6 +73,7 @@ end
 
 api_monitor = monitor.api_monitor
 get_interface_status = status.get_interface_status
+get_game_clients = status.get_game_clients
 api_nodes = nodes.api_nodes
 api_add_node_by_url = nodes.api_add_node_by_url
 api_logs = logs.api_logs
