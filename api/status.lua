@@ -8,7 +8,7 @@ local sys = require "luci.sys"
 
 -- 获取指定接口的连接状态
 function get_status(ip)
-    local conntrack_cmd = "conntrack -L"
+    local conntrack_cmd = "conntrack -L -s "..ip
     local handle = io.popen(conntrack_cmd)
     local result = handle:read("*a")
     handle:close()
