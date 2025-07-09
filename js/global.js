@@ -108,12 +108,6 @@ function setupMonitorInterval() {
     if (monitorInterval) {
         clearInterval(monitorInterval);
     }
-
-    // 设置新定时器
-    const interval = globalState.userConfig.refreshInterval * 1000;
-    if (interval > 0) {
-        monitorInterval = setInterval(fetchGlobalMonitor, interval);
-    }
 }
 
 /**

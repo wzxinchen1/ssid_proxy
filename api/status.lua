@@ -5,6 +5,16 @@ local fs = require "nixio.fs"
 local json = require "luci.jsonc"
 local http = require "luci.http"
 local sys = require "luci.sys"
+local hiddenPorts={53}
+
+function contains(arr,item)
+    for k, v in pairs(arr) do
+        if item ==v then
+        return true
+        end
+    end
+    return false
+end
 
 -- 获取指定接口的连接状态
 function get_status(ip)
@@ -18,7 +28,7 @@ function get_status(ip)
         -- 匹配源IP、目标IP、源端口、目标端口、包数、字节数
         local src_ip, dst_ip, sport, dport, packets, bytes = line:match(
             "src=([^%s]+) dst=([^%s]+) sport=([^%s]+) dport=([^%s]+) packets=([^%s]+) bytes=([^%s]+)")
-        if src_ip and dst_ip and sport and dport and packets and bytes then
+        if src_ip and dst_ip and sport and not contains(hiddenPorts,tonumber(dport)) then
             table.insert(connections, {
                 src_ip = src_ip,
                 dst_ip = dst_ip,

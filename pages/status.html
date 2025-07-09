@@ -1,7 +1,7 @@
 <div class="status-page">
     <div class="card">
         <div class="card-header">
-            <h3>活跃连接 - 表1</h3>
+            <h3>br-game1</h3>
         </div>
         <div class="card-body">
             <table class="table table-striped">
@@ -9,14 +9,12 @@
                     <tr>
                         <th width="33%">源IP</th>
                         <th width="33%">目标IP</th>
-                        <th width="34%">连接时长</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="conn in connections1" v-for-empty="暂无数据">
-                        <td>{{conn.src_ip}}</td>
-                        <td>{{conn.dst_ip}}</td>
-                        <td>{{conn.duration || 'N/A'}}</td>
+                        <td>{{conn.src_ip +':'+conn.sport}}</td>
+                        <td>{{conn.dst_ip +':'+conn.dport}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -26,7 +24,7 @@
     <!-- 活跃连接表格2 -->
     <div class="card">
         <div class="card-header">
-            <h3>活跃连接 - 表2</h3>
+            <h3>br-game2</h3>
         </div>
         <div class="card-body">
             <table class="table table-striped">
@@ -34,14 +32,12 @@
                     <tr>
                         <th width="33%">源IP</th>
                         <th width="33%">目标IP</th>
-                        <th width="34%">连接时长</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="conn in connections2" v-for-empty="暂无数据">
-                        <td>{{conn.src_ip}}</td>
-                        <td>{{conn.dst_ip}}</td>
-                        <td>{{conn.duration || 'N/A'}}</td>
+                        <td>{{conn.src_ip +':'+conn.sport}}</td>
+                        <td>{{conn.dst_ip +':'+conn.dport}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -51,7 +47,7 @@
     <!-- 活跃连接表格3 -->
     <div class="card">
         <div class="card-header">
-            <h3>活跃连接 - 表3</h3>
+            <h3>br-game3</h3>
         </div>
         <div class="card-body">
             <table class="table table-striped">
@@ -59,14 +55,12 @@
                     <tr>
                         <th width="33%">源IP</th>
                         <th width="33%">目标IP</th>
-                        <th width="34%">连接时长</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="conn in connections3" v-for-empty="暂无数据">
-                        <td>{{conn.src_ip}}</td>
-                        <td>{{conn.dst_ip}}</td>
-                        <td>{{conn.duration || 'N/A'}}</td>
+                        <td>{{conn.src_ip +':'+conn.sport}}</td>
+                        <td>{{conn.dst_ip +':'+conn.dport}}</td>
                     </tr>
                 </tbody>
             </table>
