@@ -27,15 +27,27 @@ function get_status(ip)
     for line in result:gmatch("[^\r\n]+") do
         local src_ip, dst_ip, sport, dport, packets, bytes = line:match(
             "src=([^%s]+) dst=([^%s]+) sport=([^%s]+) dport=([^%s]+) packets=([^%s]+) bytes=([^%s]+)")
-        if string.find(result, "ESTABLISHED") and src_ip and dst_ip and sport and not contains(hiddenPorts, tonumber(dport)) then
-            table.insert(connections, {
-                src_ip = src_ip,
-                dst_ip = dst_ip,
-                sport = sport,
-                dport = dport,
-                packets = packets,
-                bytes = bytes
-            })
+        if string.find(result, "ESTABLISHED") and src_ip and dst_ip and sport and
+            not contains(hiddenPorts, tonumber(dport)) then
+            if tonumber(dport) > 6000 and tonumber(dport) < 7000 then
+                table.insert(connections, 0, {
+                    src_ip = src_ip,
+                    dst_ip = dst_ip,
+                    sport = sport,
+                    dport = dport,
+                    packets = packets,
+                    bytes = bytes
+                })
+            else
+                table.insert(connections, {
+                    src_ip = src_ip,
+                    dst_ip = dst_ip,
+                    sport = sport,
+                    dport = dport,
+                    packets = packets,
+                    bytes = bytes
+                })
+            end
         end
     end
 
