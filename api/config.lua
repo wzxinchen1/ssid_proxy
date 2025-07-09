@@ -306,7 +306,6 @@ function M.toggle_config()
         success, exit_code, exit_signal = os.execute(cmd)
         cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
         success, exit_code, exit_signal = os.execute(cmd)
-        luci.sys.init.start("v2ray")
     else
         enabled = "0"
         deleteIPTablesRule(interface, port)
@@ -314,6 +313,7 @@ function M.toggle_config()
 
     uci:set("ssid-proxy", id, "enabled", enabled)
     uci:commit("ssid-proxy")
+    luci.sys.init.start("v2ray")
     local handle = io.popen("iptables -t nat -L -v -n | grep " .. interface)
     local result = handle:read("*a") -- 读取所有输出
     handle:close()

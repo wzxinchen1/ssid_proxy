@@ -365,6 +365,7 @@ function api_toggle_node()
         if value.tag == id then
             delete_node_from_v2ray(id)
             save_v2ray_config(v2ray_config)
+            luci.sys.init.start("v2ray")
             http.write_json({
                 success = true
             })
