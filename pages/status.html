@@ -15,7 +15,7 @@
                 <tbody>
                     <tr v-for="conn in connections1" v-for-empty="暂无数据">
                         <td>{{conn.dst_ip +':'+conn.dport}}</td>
-                        <td>{{conn.state}}</td>
+                        <td>{{conn.state || ''}}</td>
                         <td>{{conn.src_ip +':'+conn.sport}}</td>
                     </tr>
                 </tbody>
@@ -40,7 +40,7 @@
                 <tbody>
                     <tr v-for="conn in connections2" v-for-empty="暂无数据">
                         <td>{{conn.dst_ip +':'+conn.dport}}</td>
-                        <td>{{conn.state}}</td>
+                        <td>{{conn.state || ''}}</td>
                         <td>{{conn.src_ip +':'+conn.sport}}</td>
                     </tr>
                 </tbody>
@@ -65,7 +65,7 @@
                 <tbody>
                     <tr v-for="conn in connections3" v-for-empty="暂无数据">
                         <td>{{conn.dst_ip +':'+conn.dport}}</td>
-                        <td>{{conn.state}}</td>
+                        <td>{{conn.state || ''}}</td>
                         <td>{{conn.src_ip +':'+conn.sport}}</td>
                     </tr>
                 </tbody>
