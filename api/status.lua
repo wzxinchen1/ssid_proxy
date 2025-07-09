@@ -41,7 +41,7 @@ function get_clients(interface)
     handle:close()
 
     local clients = {}
-    for ip in result:gmatch("[^\r\n]+") do
+    for ip in result:gmatch("[^\n]+") do
         table.insert(clients, ip)
     end
 
