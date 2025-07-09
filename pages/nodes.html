@@ -44,6 +44,7 @@
                         <th>端口</th>
                         <th>协议</th>
                         <th>用户名</th>
+                        <th>接口</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
@@ -56,7 +57,8 @@
                         <td>{{node.address}}</td>
                         <td>{{node.port}}</td>
                         <td>{{node.protocol}}</td>
-                        <td>{{node.username || '-'}}</td>
+                        <td>{{node.username}}</td>
+                        <td>{{node.interfaces}}</td>
                         <td><span
                                 class="status-indicator {{node.status === 'active' ? 'status-active' : 'status-inactive'}}"></span>
                         </td>

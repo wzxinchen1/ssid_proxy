@@ -105,6 +105,8 @@ html, body {
 
 .main-nav li {
     margin: 0 15px;
+    white-space: nowrap;
+}
 }
 
 .nav-link {
