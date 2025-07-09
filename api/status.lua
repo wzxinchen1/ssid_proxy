@@ -5,12 +5,12 @@ local fs = require "nixio.fs"
 local json = require "luci.jsonc"
 local http = require "luci.http"
 local sys = require "luci.sys"
-local hiddenPorts={53}
+local hiddenPorts = {53}
 
-function contains(arr,item)
+function contains(arr, item)
     for k, v in pairs(arr) do
-        if item ==v then
-        return true
+        if item == v then
+            return true
         end
     end
     return false
@@ -26,16 +26,18 @@ function get_status(ip)
     local connections = {}
     for line in result:gmatch("[^\r\n]+") do
         -- 匹配源IP、目标IP、源端口、目标端口、包数、字节数
+        local state = line:match("(%a+_%a+) src=")
         local src_ip, dst_ip, sport, dport, packets, bytes = line:match(
             "src=([^%s]+) dst=([^%s]+) sport=([^%s]+) dport=([^%s]+) packets=([^%s]+) bytes=([^%s]+)")
-        if src_ip and dst_ip and sport and not contains(hiddenPorts,tonumber(dport)) then
+        if src_ip and dst_ip and sport and not contains(hiddenPorts, tonumber(dport)) then
             table.insert(connections, {
                 src_ip = src_ip,
                 dst_ip = dst_ip,
                 sport = sport,
                 dport = dport,
                 packets = packets,
-                bytes = bytes
+                bytes = bytes,
+                state = state
             })
         end
     end
