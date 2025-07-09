@@ -320,7 +320,8 @@ function M.toggle_config()
     http.write_json({
         success = true,
         enabled = enabled,
-        id = id
+        id = id,
+        reslt = result
     })
 end
 
