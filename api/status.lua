@@ -29,15 +29,14 @@ function get_status(ip)
             "src=([^%s]+) dst=([^%s]+) sport=([^%s]+) dport=([^%s]+) packets=([^%s]+) bytes=([^%s]+)")
         if string.find(result, "ESTABLISHED") and src_ip and dst_ip and sport and
             not contains(hiddenPorts, tonumber(dport)) then
-                table.insert(connections, {
-                    src_ip = src_ip,
-                    dst_ip = dst_ip,
-                    sport = tonumber(sport),
-                    dport = tonumber(dport),
-                    packets = packets,
-                    bytes = bytes
-                })
-            end
+            table.insert(connections, {
+                src_ip = src_ip,
+                dst_ip = dst_ip,
+                sport = tonumber(sport),
+                dport = tonumber(dport),
+                packets = packets,
+                bytes = bytes
+            })
         end
     end
 
