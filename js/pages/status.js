@@ -22,7 +22,17 @@ export const onInit = function (ctx) {
 
 // 获取连接数据
 async function fetchConnections() {
-    viewData.connections1 = await apiRequest('status/192.168.10.100');
-    viewData.connections2 = await apiRequest('status/192.168.30.103');
+    const clients=await apiRequest('status/clients');
+    clients.forEach(async client => {
+        if (client.interface=="br-game1"){
+    viewData.connections1 = await apiRequest('status/'+client.clients[0]);
     componentContext.render();
+        }else if(client.interface=="br-game2"){
+    viewData.connections2 = await apiRequest('status/'+client.clients[0]);
+    componentContext.render();
+        }else if(client.interface=="br-game3"){
+    viewData.connections3 = await apiRequest('status/'+client.clients[0]);
+    componentContext.render();
+        }
+    });
 }

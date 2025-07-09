@@ -116,8 +116,7 @@ export class Template {
       const [itemVar, listVar] = vForValue.split(' in ');
       let list = data[listVar.trim()] || [];
       if (!Array.isArray(list)) {
-        console.error(`v-for 数据 ${listVar} 不是数组`);
-        continue;
+        list = [];
       }
 
       // 移除 v-for 和 v-for-empty 属性
