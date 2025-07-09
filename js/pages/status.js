@@ -8,31 +8,14 @@ import { showToast, formatBytes } from '../global.js';
 import { apiRequest, showError } from "../utils.js"
 
 // 页面状态对象
-const statusPageState = {
-    initialized: false,
-    refreshInterval: null,
-    currentConnections: [],
-    currentFilter: ''
-};
+export const viewData={
 
+}
+
+let componentContext;
 // 页面初始化函数 (SPA适配)
-window.initStatusPage = function initStatusPage() {
-    // 如果已经初始化，只刷新数据
-    if (statusPageState.initialized) {
-        refreshStatusData();
-        return;
-    }
-
-    console.log("初始化状态页面");
-
-    // 绑定事件监听器
-    bindEventListeners();
-
-    // 标记为已初始化
-    statusPageState.initialized = true;
-
-    // 加载初始数据
-    refreshStatusData();
+export const onInit= function(ctx) {
+    componentContext=ctx;
 }
 
 // 页面卸载函数 (SPA适配)
@@ -378,8 +361,3 @@ function formatDuration(seconds) {
 
     return parts.join(' ');
 }
-
-window.statusPage = {
-    init: initStatusPage,
-    cleanup: cleanupStatusPage
-};
