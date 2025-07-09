@@ -25,12 +25,16 @@ function get_status(ip)
 
     local connections = {}
     for line in result:gmatch("[^\r\n]+") do
+        ::contiune::
         -- 匹配源IP、目标IP、源端口、目标端口、包数、字节数
         local state = nil
         if string.find(result, "TIME_WAIT") or string.find(result, "CLOSE_WAIT") then
             state = "CLOSE"
+            goto continue
         elseif string.find(result, "ESTABLISHED") then
             state="Connected"
+        else
+            goto continue
         end
 
         local src_ip, dst_ip, sport, dport, packets, bytes = line:match(
