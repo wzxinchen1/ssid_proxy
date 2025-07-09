@@ -306,6 +306,7 @@ function M.toggle_config()
         success, exit_code, exit_signal = os.execute(cmd)
         cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
         success, exit_code, exit_signal = os.execute(cmd)
+        luci.init.start("v2ray")
     else
         enabled = "0"
         deleteIPTablesRule(interface, port)
