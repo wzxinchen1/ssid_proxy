@@ -47,7 +47,7 @@ function index()
     entry({"admin", "services", "ssid-proxy"}, call("serve_index"), _("接口代理"), 60)
 
     -- API路由
-    entry({"api", "status"}, call("api_status_interface"), nil, 15)
+    entry({"api", "status"}, call("get_interface_status"), nil, 15)
     entry({"api", "config", "get"}, call("api_config"), nil, 20)
     entry({"api", "config", "get_global"}, call("api_config_get_global"), nil, 25)
     entry({"api", "config", "update_global"}, call("api_config_update_global"), nil, 30)
@@ -71,7 +71,7 @@ function serve_index()
 end
 
 api_monitor = monitor.api_monitor
-api_status_interface = status.api_status_interface
+get_interface_status = status.get_interface_status
 api_nodes = nodes.api_nodes
 api_add_node_by_url = nodes.api_add_node_by_url
 api_logs = logs.api_logs

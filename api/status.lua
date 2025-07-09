@@ -7,7 +7,7 @@ local http = require "luci.http"
 local sys = require "luci.sys"
 
 -- 获取指定接口的连接状态
-function get_interface_status(interface)
+function get_status(interface)
     local conntrack_cmd = "conntrack -L | grep " .. interface ..
                               " | awk '{print $4,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20}'"
     local handle = io.popen(conntrack_cmd)
