@@ -8,14 +8,12 @@
                 <thead>
                     <tr>
                         <th width="150px">目标IP</th>
-                        <th width="20px">状态</th>
                         <th>源IP</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="conn in connections1" v-for-empty="暂无数据">
                         <td>{{conn.dst_ip +':'+conn.dport}}</td>
-                        <td>{{conn.state || ''}}</td>
                         <td>{{conn.src_ip +':'+conn.sport}}</td>
                     </tr>
                 </tbody>
@@ -33,14 +31,12 @@
                 <thead>
                     <tr>
                         <th width="150px">目标IP</th>
-                        <th width="20px">状态</th>
                         <th>源IP</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="conn in connections2" v-for-empty="暂无数据">
                         <td>{{conn.dst_ip +':'+conn.dport}}</td>
-                        <td>{{conn.state || ''}}</td>
                         <td>{{conn.src_ip +':'+conn.sport}}</td>
                     </tr>
                 </tbody>
@@ -58,14 +54,12 @@
                 <thead>
                     <tr>
                         <th width="150px">目标IP</th>
-                        <th width="20px">状态</th>
                         <th>源IP</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="conn in connections3" v-for-empty="暂无数据">
                         <td>{{conn.dst_ip +':'+conn.dport}}</td>
-                        <td>{{conn.state || ''}}</td>
                         <td>{{conn.src_ip +':'+conn.sport}}</td>
                     </tr>
                 </tbody>
