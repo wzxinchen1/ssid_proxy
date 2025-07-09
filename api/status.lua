@@ -35,7 +35,7 @@ end
 
 -- 获取指定接口的所有客户端IP
 function get_clients(interface)
-    local cmd = "ls"
+    local cmd = "arp -n -i " .. interface .. " | awk '{print $1}' | grep -v 'Address'"
     local handle = io.popen(cmd)
     local result = handle:read("*a")
     handle:close()
@@ -45,7 +45,7 @@ function get_clients(interface)
         table.insert(clients, ip)
     end
 
-    return cmd..result
+    return result
 end
 
 -- 处理 /api/status/{interface} 请求
@@ -104,12 +104,16 @@ function get_game_clients()
         local clients = {}
         local interfaces = {"br-game1", "br-game2", "br-game3"}
 
+        local arp_table = sys.net.arptable()
         for _, interface in ipairs(interfaces) do
-            local interface_clients = get_clients(interface)
-            table.insert(clients, {
-                interface = interface,
-                clients = interface_clients
-            })
+            for _, entry in ipairs(arp_table) do
+                if entry.Device == iface then
+                    table.insert(clients, {
+                        interface = iface,
+                        ip = entry["IP address"]
+                    })
+                end
+            end
         end
 
         http.prepare_content("application/json")
