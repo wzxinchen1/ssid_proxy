@@ -103,6 +103,11 @@ html, body {
     list-style: none;
 }
 
+.form-row{
+    display: flex;
+    gap: 10px;
+}
+
 .main-nav li {
     margin: 0 15px;
     white-space: nowrap;

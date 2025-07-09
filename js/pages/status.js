@@ -8,12 +8,21 @@ import { showToast, formatBytes } from '../global.js';
 import { apiRequest, showError } from "../utils.js"
 
 // 页面状态对象
-export const viewData={
-
+export const viewData = {
+    connections: []
 }
 
 let componentContext;
+
 // 页面初始化函数 (SPA适配)
-export const onInit= function(ctx) {
-    componentContext=ctx;
+export const onInit = function (ctx) {
+    componentContext = ctx;
+    fetchConnections();
+}
+
+// 获取连接数据
+async function fetchConnections() {
+    viewData.connections1 = await apiRequest('status/192.168.10.100');
+    viewData.connections2 = await apiRequest('status/192.168.30.103');
+    componentContext.render();
 }

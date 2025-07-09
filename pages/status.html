@@ -1,5 +1,9 @@
 <div class="status-page">
-    <!-- 活跃连接表格1 -->
+    <div class="form-group">
+    <div class="form-row">
+        <input type="text" class="form-control" />
+        <button class="btn btn-primary" onclick="addNodeByUrl()">刷新</button>
+    </div></div>    <!-- 活跃连接表格1 -->
     <div class="card">
         <div class="card-header">
             <h3>活跃连接 - 表1</h3>
@@ -13,12 +17,11 @@
                         <th width="34%">连接时长</th>
                     </tr>
                 </thead>
-                <tbody id="connections-list-1">
-                    <tr>
-                        <td colspan="3" class="loading-row">
-                            <div class="loading-spinner small"></div>
-                            正在加载连接数据...
-                        </td>
+                <tbody>
+                    <tr v-for="conn in connections1" v-for-empty="暂无数据">
+                        <td>{{conn.src_ip}}</td>
+                        <td>{{conn.dst_ip}}</td>
+                        <td>{{conn.duration || 'N/A'}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -39,12 +42,11 @@
                         <th width="34%">连接时长</th>
                     </tr>
                 </thead>
-                <tbody id="connections-list-2">
-                    <tr>
-                        <td colspan="3" class="loading-row">
-                            <div class="loading-spinner small"></div>
-                            正在加载连接数据...
-                        </td>
+                <tbody>
+                    <tr v-for="conn in connections2" v-for-empty="暂无数据">
+                        <td>{{conn.src_ip}}</td>
+                        <td>{{conn.dst_ip}}</td>
+                        <td>{{conn.duration || 'N/A'}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -65,12 +67,11 @@
                         <th width="34%">连接时长</th>
                     </tr>
                 </thead>
-                <tbody id="connections-list-3">
-                    <tr>
-                        <td colspan="3" class="loading-row">
-                            <div class="loading-spinner small"></div>
-                            正在加载连接数据...
-                        </td>
+                <tbody>
+                    <tr v-for="conn in connections3" v-for-empty="暂无数据">
+                        <td>{{conn.src_ip}}</td>
+                        <td>{{conn.dst_ip}}</td>
+                        <td>{{conn.duration || 'N/A'}}</td>
                     </tr>
                 </tbody>
             </table>
