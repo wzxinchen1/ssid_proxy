@@ -8,7 +8,6 @@
  * 5. v-value 支持（v-value="xxx"，用于 select 标签选中匹配的 option）
  * 6. 三目运算符支持（{{条件 ? 值1 : 值2}}）
  */
-
 export class Template {
   constructor(templateString, module) {
     this.rawTemplateString = templateString;
@@ -55,7 +54,7 @@ export class Template {
   render() {
     const data = this.module.viewData;
     if (!data) {
-      return;
+      data = {};
     }
     const templateElement = this.renderBindings(this.rawTemplateString, data);
     this.domTree = templateElement.content.firstElementChild;
@@ -88,6 +87,7 @@ export class Template {
     const walk = (node) => {
       if (node.hasAttribute('v-for')) {
         vForElements.push(node);
+        return;
       }
 
       // 遍历子节点
@@ -114,7 +114,13 @@ export class Template {
       const vForValue = element.getAttribute('v-for');
       const vForEmpty = element.getAttribute('v-for-empty');
       const [itemVar, listVar] = vForValue.split(' in ');
-      let list = data[listVar.trim()] || [];
+      let list = [];
+      if (listVar.includes(".")) {
+        const listVarArray=listVar.split('.');
+        list = data[listVarArray[0]][listVarArray[1]];
+      } else {
+        list = data[listVar.trim()];
+      }
       if (!Array.isArray(list)) {
         list = [];
       }
@@ -139,7 +145,14 @@ export class Template {
         for (const item of list) {
           const context = { ...data, [itemVar.trim()]: item };
           const templateElement = this.renderBindings(element.outerHTML, context);
-          const newNode = templateElement.content.firstElementChild;
+          let newNode = templateElement.content.firstElementChild;
+          const hasFor = templateElement.innerHTML.includes("v-for");
+          if (hasFor) {
+            const vForElements = this._findVForElements(newNode);
+            const processedDom = this._processVForElements(templateElement.innerHTML, newNode, vForElements, context);
+            templateElement.innerHTML = processedDom.outerHTML;
+            newNode = templateElement.content.firstElementChild.cloneNode(true);
+          }
           // 处理事件绑定
           this._processBindings(newNode, context);
           fragment.appendChild(newNode);
@@ -159,51 +172,29 @@ export class Template {
    * @param {object} data - 数据对象
    */
   _processBindings(element, data) {
-    // 处理事件绑定（仅对元素节点操作）
-    if (element.nodeType === Node.ELEMENT_NODE) {
-      const elementsWithEvents = element.querySelectorAll('[onclick], [onchange], [oninput], [onsubmit]');
-      for (const el of elementsWithEvents) {
-        const attributes = Array.from(el.attributes);
-        for (const attr of attributes) {
-          if (attr.name.startsWith('on')) {
-            let handlerName = attr.value;
-            // 替换事件绑定中的模板变量
-            handlerName = handlerName.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
-              return this._safeEval(data, expr);
-            });
-            if (handlerName.startsWith("window.")) {
-              continue;
-            }
-            // 替换为 window.函数名
-            el.setAttribute(attr.name, `window.${handlerName}`);
-          }
+    // 处理 v-value 绑定（用于 select 标签）
+    const selectElements = element.querySelectorAll('select[v-value]');
+    for (const select of selectElements) {
+      const valuePath = select.getAttribute('v-value');
+      let value = valuePath;
+      if (valuePath.includes("{{")) {
+        value = this._safeEval(data, valuePath);
+      }
+      if (value !== undefined) {
+        const options = select.querySelectorAll('option');
+        for (const option of options) {
+          option.selected = option.value === value;
         }
       }
+      select.removeAttribute('v-value');
+    }
 
-      // 处理 v-value 绑定（用于 select 标签）
-      const selectElements = element.querySelectorAll('select[v-value]');
-      for (const select of selectElements) {
-        const valuePath = select.getAttribute('v-value');
-        let value = valuePath;
-        if (valuePath.includes("{{")) {
-          value = this._safeEval(data, valuePath);
-        }
-        if (value !== undefined) {
-          const options = select.querySelectorAll('option');
-          for (const option of options) {
-            option.selected = option.value === value;
-          }
-        }
-        select.removeAttribute('v-value');
-      }
-
-      // 对于 checked = “非True值”的，移除checked
-      const checkedElements = element.querySelectorAll('input[checked]');
-      for (const checkedElement of checkedElements) {
-        const checkedValue = checkedElement.getAttribute("checked");
-        if (checkedValue == "0" || checkedValue == 0 || checkedValue == "false") {
-          checkedElement.removeAttribute("checked");
-        }
+    // 对于 checked = “非True值”的，移除checked
+    const checkedElements = element.querySelectorAll('input[checked]');
+    for (const checkedElement of checkedElements) {
+      const checkedValue = checkedElement.getAttribute("checked");
+      if (checkedValue == "0" || checkedValue == 0 || checkedValue == "false") {
+        checkedElement.removeAttribute("checked");
       }
     }
   }

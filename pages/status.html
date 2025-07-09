@@ -1,7 +1,7 @@
 <div class="status-page">
-    <div class="card">
+    <div class="card" v-for="connectionsInfo in connectionsList">
         <div class="card-header">
-            <h3>br-game1</h3>
+            <h3>{{connectionsInfo.connections.length || 0}}条连接，{{connectionsInfo.iface}} - {{connectionsInfo.ip}}</h3>
         </div>
         <div class="card-body">
             <table class="table table-striped">
@@ -12,53 +12,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="conn in connections1" v-for-empty="暂无数据">
-                        <td>{{conn.dst_ip +':'+conn.dport}}</td>
-                        <td>{{conn.src_ip +':'+conn.sport}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- 活跃连接表格2 -->
-    <div class="card">
-        <div class="card-header">
-            <h3>br-game2</h3>
-        </div>
-        <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th width="150px">目标IP</th>
-                        <th>源IP</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="conn in connections2" v-for-empty="暂无数据">
-                        <td>{{conn.dst_ip +':'+conn.dport}}</td>
-                        <td>{{conn.src_ip +':'+conn.sport}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- 活跃连接表格3 -->
-    <div class="card">
-        <div class="card-header">
-            <h3>br-game3</h3>
-        </div>
-        <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th width="150px">目标IP</th>
-                        <th>源IP</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="conn in connections3" v-for-empty="暂无数据">
+                    <tr v-for="conn in connectionsInfo.connections" v-for-empty="暂无数据">
                         <td>{{conn.dst_ip +':'+conn.dport}}</td>
                         <td>{{conn.src_ip +':'+conn.sport}}</td>
                     </tr>

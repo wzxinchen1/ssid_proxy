@@ -114,19 +114,19 @@ function setupMonitorInterval() {
  * 获取全局监控数据
  */
 export async function fetchGlobalMonitor() {
-    const data = await apiRequest('monitor', 'GET');
-    updateGlobalState('monitorData', data);
-    globalState.lastUpdate = new Date();
+    // const data = await apiRequest('monitor', 'GET');
+    // updateGlobalState('monitorData', data);
+    // globalState.lastUpdate = new Date();
 }
 
 /**
  * 获取服务状态
  */
 export async function fetchServiceStatus() {
-    const data = await apiRequest('status', 'GET');
-    const serviceRunning = data.service === 'running';
-    updateGlobalState('serviceRunning', serviceRunning);
-    await fetchServiceEnabledStatus();
+    // const data = await apiRequest('status', 'GET');
+    // const serviceRunning = data.service === 'running';
+    // updateGlobalState('serviceRunning', serviceRunning);
+    // await fetchServiceEnabledStatus();
 }
 
 /**

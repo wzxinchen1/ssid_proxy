@@ -9,7 +9,6 @@ import { apiRequest, showError } from "../utils.js"
 
 // 页面状态对象
 export const viewData = {
-    connections: []
 }
 
 let componentContext;
@@ -23,20 +22,32 @@ export const onInit = function (ctx) {
 // 获取连接数据
 async function fetchConnections() {
     const clients = await apiRequest('status/clients');
-    const [connections1, connections2, connections3] = await Promise.all(clients.map(async client => {
-        if (client.interface == "br-game1") {
-            return apiRequest('status/' + client.clients[0]);
-        } else if (client.interface == "br-game2") {
-            return apiRequest('status/' + client.clients[0]);
-        } else if (client.interface == "br-game3") {
-            return apiRequest('status/' + client.clients[0]);
+    const promiseList = clients.map(client => {
+        if (!Array.isArray(client.clients)) {
+            client.clients = [];
         }
-    }));
-    viewData.connections1 = connections1;
-    viewData.connections2 = connections2;
-    viewData.connections3 = connections3;
+        return client.clients.map(ip => {
+            const promise = apiRequest('status/' + ip);
+            if (!promise) {
+                return {
+                    iface: client.interface,
+                    ip,
+                    connections: Promise.resolve([])
+                }
+            }
+            return promise.then((connections) => {
+                return {
+                    iface: client.interface,
+                    connections,
+                    ip
+                }
+            });
+        });
+    });
+    const promiseResults = await Promise.all(promiseList.flat())
+    viewData.connectionsList = promiseResults;
     componentContext.render();
-    setTimeout(() => {
-        fetchConnections()
-    }, 1000);
+    // setTimeout(() => {
+    //     fetchConnections()
+    // }, 1000);
 }

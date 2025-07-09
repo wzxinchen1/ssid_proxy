@@ -1,8 +1,15 @@
 /* ====================== 状态页面布局 ====================== */
 .status-page {
     display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
-.status-page .card{
-    min-width: 400px;
+.status-page .card {
+    width: 400px;
+    height: 400px;
+}
+
+.status-page .card-body{
+    padding: 0;
 }
