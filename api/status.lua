@@ -32,8 +32,8 @@ function get_status(ip)
                 table.insert(connections, {
                     src_ip = src_ip,
                     dst_ip = dst_ip,
-                    sport = sport,
-                    dport = dport,
+                    sport = tonumber(sport),
+                    dport = tonumber(dport),
                     packets = packets,
                     bytes = bytes
                 })
