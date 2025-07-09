@@ -313,7 +313,7 @@ function M.toggle_config()
 
     uci:set("ssid-proxy", id, "enabled", enabled)
     uci:commit("ssid-proxy")
-    luci.sys.init.start("v2ray")
+    luci.sys.init.restart("v2ray")
     local handle = io.popen("iptables -t nat -L -v -n | grep " .. interface)
     local result = handle:read("*a") -- 读取所有输出
     handle:close()
