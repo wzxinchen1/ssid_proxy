@@ -45,7 +45,7 @@ function get_clients(interface)
         table.insert(clients, ip)
     end
 
-    return cmd+result
+    return cmd..result
 end
 
 -- 处理 /api/status/{interface} 请求
