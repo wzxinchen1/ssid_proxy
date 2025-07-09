@@ -61,7 +61,7 @@ function get_interface_status()
             return
         end
 
-        local connections = get_interface_status(interface)
+        local connections = get_status(interface)
         http.prepare_content("application/json")
         http.write_json({
             success = true,
