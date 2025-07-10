@@ -302,7 +302,7 @@ function get.Index()
         })
     end
 end
-function api_add_node_by_url()
+function post.refresh_url()
     local http = require "luci.http"
     local json = require "luci.jsonc"
     if luci.http.cors() then
@@ -363,7 +363,7 @@ function api_add_node_by_url()
         end
     end)
     uci:commit("ssid-proxy")
-    http.write_json({
+    return ({
         success = true,
         result = result
     })

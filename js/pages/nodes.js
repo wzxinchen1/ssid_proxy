@@ -26,7 +26,7 @@ export const onInit = async function (ctx) {
 
 window.addNodeByUrl = async () => {
     const url = $("#txtUrl").val();
-    await apiRequest('node/add_by_url', 'POST', {
+    await apiRequest('node/refresh_url', 'POST', {
         url
     });
     await loadNodesData();
