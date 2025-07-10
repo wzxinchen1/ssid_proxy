@@ -69,7 +69,7 @@ function index()
     entry({"api", "node", "toggle"}, call("api_toggle_node"), nil, 120)
 end
 function handle_api()
-     local http = require "luci.http"
+    local http = require "luci.http"
     local json = require "luci.jsonc"
     local dispatcher = require "luci.dispatcher"
 
@@ -86,41 +86,45 @@ function handle_api()
     if #parts < 3 then
         http.status(400, "Bad Request")
         http.prepare_content("application/json")
-        http.write(json.stringify({ status = "error", message = "Invalid API path" }))
+        http.write(json.stringify({
+            status = "error",
+            message = "Invalid API path"
+        }))
         return
     end
 
     local controller_name = parts[2]
     local action = parts[3]
+    http.write(controller_name)
+    return
+    -- -- 动态加载 controller
+    -- local controller, err = load_controller(controller_name)
+    -- if not controller then
+    --     http.prepare_content("application/json")
+    --     http.write(json.stringify({ status = "error", message = "Controller not found: " .. err }))
+    --     return
+    -- end
 
-    -- 动态加载 controller
-    local controller, err = load_controller(controller_name)
-    if not controller then
-        http.prepare_content("application/json")
-        http.write(json.stringify({ status = "error", message = "Controller not found: " .. err }))
-        return
-    end
+    -- -- 检查 action 是否存在
+    -- local handler = controller[action]
+    -- if not handler then
+    --     http.prepare_content("application/json")
+    --     http.write(json.stringify({ status = "error", message = "Action not found" }))
+    --     return
+    -- end
 
-    -- 检查 action 是否存在
-    local handler = controller[action]
-    if not handler then
-        http.prepare_content("application/json")
-        http.write(json.stringify({ status = "error", message = "Action not found" }))
-        return
-    end
+    -- -- 执行处理函数
+    -- local ok, response = pcall(handler)
+    -- if not ok then
+    --     http.status(500, "Internal Server Error")
+    --     http.prepare_content("application/json")
+    --     http.write(json.stringify({ status = "error", message = response }))
+    --     return
+    -- end
 
-    -- 执行处理函数
-    local ok, response = pcall(handler)
-    if not ok then
-        http.status(500, "Internal Server Error")
-        http.prepare_content("application/json")
-        http.write(json.stringify({ status = "error", message = response }))
-        return
-    end
-
-    -- 返回响应
-    http.prepare_content("application/json")
-    http.write(json.stringify(response))
+    -- -- 返回响应
+    -- http.prepare_content("application/json")
+    -- http.write(json.stringify(response))
 end
 function load_controller(name)
     local ok, controller = pcall(require, "luci.controller.ssid-proxy.api." .. name)
