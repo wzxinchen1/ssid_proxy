@@ -337,6 +337,7 @@ function api_add_node_by_url()
             uci:commit("ssid-proxy")
         end
     end
+    local deleteing = false
     uci:foreach("ssid-proxy", "node", function(s)
         local found = false
         for i, value in pairs(nodes) do
@@ -350,6 +351,7 @@ function api_add_node_by_url()
 
             end
             if not found then
+                deleteing = true
                 uci:delete("ssid-proxy", s.id)
                 delete_node_from_v2ray(id)
                 save_v2ray_config(v2ray_config)
@@ -360,7 +362,8 @@ function api_add_node_by_url()
     uci:commit("ssid-proxy")
     http.write_json({
         success = true,
-        result = result
+        result = result,
+        deleteing = deleteing
     })
 end
 
