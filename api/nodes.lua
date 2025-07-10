@@ -351,7 +351,7 @@ function api_add_node_by_url()
 
             end
             if not found then
-                deleteing = true
+                deleteing = value.password
                 uci:delete("ssid-proxy", s.id)
                 delete_node_from_v2ray(id)
                 save_v2ray_config(v2ray_config)
