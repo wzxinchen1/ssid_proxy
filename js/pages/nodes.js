@@ -114,13 +114,9 @@ window.saveEditedNode = async () => {
  */
 window.deleteNode = async function deleteNode(nodeId) {
     if (confirm('确定要删除此节点吗？')) {
-        try {
-            await apiRequest(`nodes/${nodeId}`, 'DELETE');
-            await loadNodesData();
-            showToast('节点删除成功');
-        } catch (error) {
-            showError(error.message);
-        }
+        await apiRequest(`node/${nodeId}`, 'DELETE');
+        await loadNodesData();
+        showToast('节点删除成功');
     }
 }
 

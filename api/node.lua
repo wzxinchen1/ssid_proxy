@@ -267,18 +267,10 @@ function get.Index()
             success = true,
             id = id
         })
-    elseif method == "DELETE" then
-        -- 确保有有效数据
-        if not nodeId then
-            http.status(400, "Bad Request")
-            http.write_json({
-                success = false,
-                error = "没有NodeID"
-            })
-            return
-        end
-
-        -- 删除节点
+    end
+end
+delete.node = {
+    function(id)
         if not delete_node_from_v2ray(nodeId) then
             http.status(500, "Internal Server Error")
             http.write_json({
@@ -290,19 +282,12 @@ function get.Index()
         uci:delete("ssid-proxy", nodeId)
         uci:commit()
         http.prepare_content("application/json")
-        http.write_json({
+        return ({
             success = true
         })
-    elseif method == "OPTIONS" then
-        http.cors()
-    else
-        http.status(405, "Method Not Allowed")
-        http.write_json({
-            success = false,
-            error = "Method not allowed: " .. method
-        })
-    end
-end
+    end,
+    path = "api/{controller}/{action}/{id}"
+}
 function post.refresh_url(body_content)
     local url = body_content.url
     local httpRequest = require("socket.http")
@@ -332,7 +317,6 @@ function post.refresh_url(body_content)
             uci:commit("ssid-proxy")
         end
     end
-    local deleteing = false
     uci:foreach("ssid-proxy", "node", function(s)
         local found = false
         for i, value in pairs(nodes) do
