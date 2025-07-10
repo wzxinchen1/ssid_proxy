@@ -211,26 +211,20 @@ function extract_path_params(template, path)
             table.insert(template_parts, part)
         end
     end
-    return template_parts
-    -- local path_parts = {}
-    -- for part in path:gmatch("[^/]+") do
-    --     table.insert(path_parts, part)
-    -- end
+    local path_parts = {}
+    for part in path:gmatch("[^/]+") do
+        table.insert(path_parts, part)
+    end
 
-    -- -- 确保模板和路径的部分数量一致
-    -- if #template_parts ~= #path_parts then
-    --     return nil, "Path segment count mismatch"
-    -- end
+    -- 提取动态参数
+    for i, part in ipairs(template_parts) do
+        if part:match("^{.+}$") then
+            local param_name = part:sub(2, -2)  -- 去掉花括号
+            params[param_name] = path_parts[i]
+        end
+    end
 
-    -- -- 提取动态参数
-    -- for i, part in ipairs(template_parts) do
-    --     if part:match("^{.+}$") then
-    --         local param_name = part:sub(2, -2)  -- 去掉花括号
-    --         params[param_name] = path_parts[i]
-    --     end
-    -- end
-
-    -- return params
+    return params
 end
 
 -- 返回 JSON 响应
