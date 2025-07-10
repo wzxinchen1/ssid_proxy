@@ -283,7 +283,8 @@ delete.node = {
         uci:commit()
         http.prepare_content("application/json")
         return ({
-            success = true
+            success = true,
+            deleted = id
         })
     end,
     path = "api/{controller}/{action}/{id}"
