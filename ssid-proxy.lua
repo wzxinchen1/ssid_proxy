@@ -150,13 +150,8 @@ function handle_api()
         -- 从 Body 提取参数（POST/PUT）
         if method == "POST" or method == "PUT" then
             local content_type = http.getenv("CONTENT_TYPE")
-            if content_type and content_type:find("application/json") then
-                local data = http.read()
-                if data and #data > 0 then
-                    local body_params = json.parse(data) or {}
-                    args["body_content"] = body_params
-                end
-            end
+            http.write(content_type)
+            return
         end
 
         -- 调用处理函数
