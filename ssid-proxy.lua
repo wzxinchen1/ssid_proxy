@@ -71,8 +71,59 @@ end
 function handle_api()
     local http = require "luci.http"
     local json = require "luci.jsonc"
-    http.write("xxxxx")
-    
+    local dispatcher = require "luci.dispatcher"
+
+    -- 获取请求方法和路径
+    local method = http.getenv("REQUEST_METHOD")
+    local path = http.getenv("PATH_INFO")
+
+    -- 解析路径
+    local parts = {}
+    for part in path:gmatch("[^/]+") do
+        table.insert(parts, part)
+    end
+
+    -- 定义路由表
+    local routes = {
+        ["GET"] = {
+            ["ping"] = function()
+                return {
+                    status = "ok",
+                    message = "pong"
+                }
+            end,
+            ["info"] = function()
+                return {
+                    status = "ok",
+                    data = {
+                        version = "1.0",
+                        author = "OpenWrt"
+                    }
+                }
+            end
+        },
+        ["POST"] = {
+            ["echo"] = function()
+                local data = json.parse(http.read())
+                return {
+                    status = "ok",
+                    echoed = data
+                }
+            end
+        }
+    }
+
+    -- 路由匹配
+    local action = parts[3] -- 假设路径格式为 /api/v1/<action>
+    local handler = routes[method] and routes[method][action]
+
+    if handler then
+        local response = handler()
+        http.prepare_content("application/json")
+        http.write(json.stringify(response))
+    else
+        http.write("没匹配到")
+    end
 end
 function serve_index()
     http.redirect("/luci-static/resources/ssid-proxy/index.html")
