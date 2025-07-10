@@ -1,5 +1,5 @@
 -- 文件路径: E:\桌面\ssid_proxy\api\nodes.lua
-module("luci.controller.ssid-proxy.api.nodes", package.seeall)
+module("luci.controller.ssid-proxy.api.node", package.seeall)
 local get = {}
 local post = {}
 local delete = {}
