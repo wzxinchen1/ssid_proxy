@@ -114,7 +114,7 @@ function handle_api()
     }
 
     -- 路由匹配
-    local action = parts[3] -- 假设路径格式为 /api/v1/<action>
+    local action = parts[2] -- 假设路径格式为 /api/<action>
     local handler = routes[method] and routes[method][action]
 
     if handler then
