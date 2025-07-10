@@ -42,7 +42,8 @@ function get_status(ip)
         end
     end
     table.sort(connections, function(a, b)
-        if a.dport > 6000 and a.dport < 7000 then
+        local c = a or b
+        if c.dport > 6000 and c.dport < 7000 then
             return 1
         end
         return 0
