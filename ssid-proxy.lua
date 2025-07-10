@@ -165,7 +165,7 @@ function handle_api()
         -- 调用处理函数
         local ok, response
         if path_template then
-            ok, response = pcall(handler, unpack(call_args))
+            ok, response = pcall(handler, unpack(args))
         else
             -- 无 path 模板，直接调用
             ok, response = pcall(handler)
