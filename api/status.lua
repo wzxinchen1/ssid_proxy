@@ -42,11 +42,21 @@ function get_status(ip)
         end
     end
     table.sort(connections, function(a, b)
-        local c = a or b
-        if c.dport > 6000 and c.dport < 7000 then
-            return 1
+        -- 检查 a 的 dport 是否在 6000 到 7000 之间
+        local a_in_range = a.dport >= 6000 and a.dport <= 7000
+        -- 检查 b 的 dport 是否在 6000 到 7000 之间
+        local b_in_range = b.dport >= 6000 and b.dport <= 7000
+
+        -- 如果 a 在范围内而 b 不在，a 排在前面
+        if a_in_range and not b_in_range then
+            return true
+            -- 如果 b 在范围内而 a 不在，b 排在前面
+        elseif b_in_range and not a_in_range then
+            return false
+            -- 如果都在范围内或都不在范围内，保持原有顺序（或按其他条件排序）
+        else
+            return a.dport > b.dport -- 例如按 dport 升序排序
         end
-        return 0
     end)
     return connections
 end
