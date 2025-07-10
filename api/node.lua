@@ -3,6 +3,7 @@ module("luci.controller.ssid-proxy.api.node", package.seeall)
 local get = {}
 local post = {}
 local delete = {}
+local http = require "luci.http"
 local json = require "luci.jsonc"
 local uci = require"luci.model.uci".cursor()
 local fs = require "nixio.fs"
@@ -138,7 +139,6 @@ function delete_node_from_v2ray(node_id)
     return save_v2ray_config(new_config)
 end
 function get.Index()
-    local http = require "luci.http"
     local sys = require "luci.sys"
 
     local method = http.getenv("REQUEST_METHOD")
