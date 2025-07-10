@@ -141,7 +141,7 @@ function handle_api()
 
     local content_type = http.getenv("CONTENT_TYPE")
     if content_type and content_type:find("application/json") then
-        local data = http.read()
+        local data = http.content()
         if data and #data > 0 then
             local body_params = json.parse(data) or {}
             table.insert(args, body_params);
