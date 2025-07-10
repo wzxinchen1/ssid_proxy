@@ -350,13 +350,13 @@ function api_add_node_by_url()
             else
 
             end
-            if not found then
-                deleteing = value
-                uci:delete("ssid-proxy", s.id)
-                delete_node_from_v2ray(id)
-                save_v2ray_config(v2ray_config)
-                luci.sys.init.restart("v2ray")
-            end
+        end
+        if not found then
+            deleteing = s
+            uci:delete("ssid-proxy", s.id)
+            delete_node_from_v2ray(id)
+            save_v2ray_config(v2ray_config)
+            luci.sys.init.restart("v2ray")
         end
     end)
     uci:commit("ssid-proxy")
