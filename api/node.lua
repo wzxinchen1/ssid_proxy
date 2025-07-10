@@ -271,7 +271,7 @@ function get.Index()
 end
 delete.node = {
     function(id)
-        if not delete_node_from_v2ray(nodeId) then
+        if not delete_node_from_v2ray(id) then
             http.status(500, "Internal Server Error")
             http.write_json({
                 success = false,
@@ -279,7 +279,7 @@ delete.node = {
             })
             return
         end
-        uci:delete("ssid-proxy", nodeId)
+        uci:delete("ssid-proxy", id)
         uci:commit()
         http.prepare_content("application/json")
         return ({
