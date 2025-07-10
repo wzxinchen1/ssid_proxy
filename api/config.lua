@@ -1,7 +1,7 @@
 -- 文件路径: /usr/lib/lua/luci/controller/ssid-proxy/api/config.lua
 module("luci.controller.ssid-proxy.api.config", package.seeall)
 local M = {}
-
+local Get = {}
 local uci = require"luci.model.uci".cursor()
 local json = require "luci.jsonc"
 local fs = require "nixio.fs"
@@ -18,7 +18,7 @@ if not v2ray_config.routing.rules then
     v2ray_config.routing.rules = {}
 end
 -- 从 v2ray.config.json 中提取节点信息
-function get_nodes_from_v2ray()
+function Get.get_nodes_from_v2ray()
     local nodes = {}
     for _, inbound in ipairs(v2ray_config.inbounds or {}) do
         table.insert(nodes, inbound)
@@ -444,4 +444,7 @@ function M.delete_config()
     })
 end
 
-return M
+return {
+    M = M,
+    Get = Get
+}
