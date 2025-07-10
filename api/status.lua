@@ -7,6 +7,8 @@ local http = require "luci.http"
 local sys = require "luci.sys"
 local hiddenPorts = {53}
 
+local get = {}
+local post = {}
 function contains(arr, item)
     for k, v in pairs(arr) do
         if item == v then
@@ -59,71 +61,37 @@ function get_clients(interface)
 end
 
 -- 处理 /api/status/{interface} 请求
-function get_interface_status()
-    local method = http.getenv("REQUEST_METHOD")
-    local path_info = http.getenv("PATH_INFO") or ""
-
-    -- 从路径中提取接口名
-    local interface = nil
-    local pattern = "/api/status/([^/]+)$"
-    if path_info then
-        local match = path_info:match(pattern)
-        if match then
-            interface = match
-        end
-    end
-    if http.cors() then
-        return
-    end
-
-    if not interface then
-        http.status(400, "Bad Request")
-        http.write_json({
-            success = false,
-            error = "Interface parameter is missing"
+get.ip = {
+    function(ip)
+        local connections = get_status(ip)
+        return ({
+            success = true,
+            data = connections
         })
-        return
+    end,
+    path = "api/{controller}/{action}/{ip}"
+}
+
+function get.clients()
+    local clients = {}
+    local interfaces = {"br-game1", "br-game2", "br-game3"}
+
+    for _, interface in ipairs(interfaces) do
+        local interface_clients = get_clients(interface)
+        table.insert(clients, {
+            interface = interface,
+            clients = interface_clients
+        })
     end
 
-    local connections = get_status(interface)
-    http.prepare_content("application/json")
-    http.write_json({
+    return ({
         success = true,
-        data = connections
+        data = clients
     })
 end
 
--- 处理 /api/status/game_clients 请求
-function get_game_clients()
-    local method = http.getenv("REQUEST_METHOD")
-    if http.cors() then
-        return
-    end
+return {
+    get = get,
+    post = post
 
-    if method == "GET" then
-        local clients = {}
-        local interfaces = {"br-game1", "br-game2", "br-game3"}
-
-        for _, interface in ipairs(interfaces) do
-            local interface_clients = get_clients(interface)
-            table.insert(clients, {
-                interface = interface,
-                clients = interface_clients
-            })
-        end
-
-        http.prepare_content("application/json")
-        http.write_json({
-            success = true,
-            data = clients
-        })
-    elseif method == "OPTIONS" then
-        http.cors()
-    else
-        http.status(405, "Method Not Allowed")
-        http.write_json({
-            success = false,
-            error = "Method not allowed: " .. method
-        })
-    end
-end
+}

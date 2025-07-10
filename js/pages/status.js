@@ -4,7 +4,6 @@
  * 功能: 实现状态页面的数据加载、渲染和交互逻辑
  */
 
-import { showToast, formatBytes } from '../global.js';
 import { apiRequest, showError } from "../utils.js"
 
 // 页面状态对象
@@ -27,7 +26,7 @@ async function fetchConnections() {
             client.clients = [];
         }
         return client.clients.map(ip => {
-            const promise = apiRequest('status/' + ip);
+            const promise = apiRequest('status/ip/' + ip);
             if (!promise) {
                 return {
                     iface: client.interface,
