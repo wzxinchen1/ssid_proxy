@@ -125,8 +125,8 @@ function handle_api()
         http.prepare_content("application/json")
         http.write(json.stringify({
             status = "error",
-            message = "Action not found "..action_name,
-            method_table=method_table
+            message = "Action not found " .. action_name,
+            method_table = method_table
         }))
         return
     end
@@ -148,7 +148,7 @@ function handle_api()
         local args = {}
         if path_template then
             args = extract_path_params(path_template, path)
-            htt.write_json(args)
+            http.write_json(args)
             return
         end
 
@@ -202,7 +202,6 @@ function handle_api()
     return json_error(400, "Invalid action type")
 end
 
-
 -- 从路径模板提取参数
 function extract_path_params(template, path)
     local params = {}
@@ -238,7 +237,10 @@ function json_error(code, message)
     local http = require "luci.http"
     http.status(code, message)
     http.prepare_content("application/json")
-    http.write_json({ status = "error", message = message })
+    http.write_json({
+        status = "error",
+        message = message
+    })
 end
 function load_controller(name)
     local ok, controller = pcall(require, "luci.controller.ssid-proxy.api." .. name)
