@@ -271,13 +271,17 @@ function get.Index()
 end
 delete.node = {
     function(id)
+        if not id then
+            return ({
+                success = false,
+                error = "没有id"
+            })
+        end
         if not delete_node_from_v2ray(id) then
-            http.status(500, "Internal Server Error")
-            http.write_json({
+            return ({
                 success = false,
                 error = "Failed to delete node from v2ray config"
             })
-            return
         end
         uci:delete("ssid-proxy", id)
         uci:commit()
