@@ -31,11 +31,7 @@ function get_status(ip)
             "src=([^%s]+) dst=([^%s]+) sport=([^%s]+) dport=([^%s]+) packets=([^%s]+) bytes=([^%s]+)")
         local targetPort = tonumber(dport)
         if string.find(result, "ESTABLISHED") and src_ip and dst_ip and sport and not contains(hiddenPorts, targetPort) then
-            local index = 1000
-            if targetPort > 6000 and targetPort < 7000 then
-                index = 1
-            end
-            table.insert(connections, index, {
+            table.insert(connections, {
                 src_ip = src_ip,
                 dst_ip = dst_ip,
                 sport = tonumber(sport),
@@ -45,7 +41,12 @@ function get_status(ip)
             })
         end
     end
-
+    table.sort(connections, function(a, b)
+        if a.dport > 6000 and a.dport < 7000 then
+            return 1
+        end
+        return 0
+    end)
     return connections
 end
 
