@@ -96,7 +96,6 @@ function handle_api()
     -- 动态加载 controller
     local controller, err = load_controller(controller_name)
     if not controller then
-        http.status(404, "Not Found")
         http.prepare_content("application/json")
         http.write(json.stringify({ status = "error", message = "Controller not found: " .. err }))
         return
@@ -105,7 +104,6 @@ function handle_api()
     -- 检查 action 是否存在
     local handler = controller[action]
     if not handler then
-        http.status(404, "Not Found")
         http.prepare_content("application/json")
         http.write(json.stringify({ status = "error", message = "Action not found" }))
         return
