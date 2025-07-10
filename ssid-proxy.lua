@@ -74,7 +74,7 @@ function handle_api()
     local dispatcher = require "luci.dispatcher"
 
     -- 获取请求方法和路径
-    local method = http.getenv("REQUEST_METHOD")
+    local method = string.lower(http.getenv("REQUEST_METHOD"))
     local path = http.getenv("PATH_INFO")
 
     -- 解析路径，格式为 /api/<controller>/<action>
@@ -119,7 +119,7 @@ function handle_api()
     end
 
     -- 检查 action 是否存在
-    local handler = method_table[string.lower(action)]
+    local handler = method_table[action]
     if not handler then
         http.prepare_content("application/json")
         http.write(json.stringify({
