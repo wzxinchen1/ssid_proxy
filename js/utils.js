@@ -277,7 +277,7 @@ export function apiRequest(endpoint, method = 'GET', data = null) {
         $.ajax({
             url: `/cgi-bin/luci/api/${endpoint}`,
             method: method,
-            data: method === 'GET' ? data : JSON.stringify(data),
+            data: data && JSON.stringify(data),
             contentType: 'application/json',
             dataType: 'json'
         })
