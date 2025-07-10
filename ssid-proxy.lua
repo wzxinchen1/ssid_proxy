@@ -209,7 +209,7 @@ function extract_path_params(template, path)
     for part in template:gmatch("[^/]+") do
         table.insert(template_parts, part)
     end
-    return table
+    return template_parts
     -- local path_parts = {}
     -- for part in path:gmatch("[^/]+") do
     --     table.insert(path_parts, part)
