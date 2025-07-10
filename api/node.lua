@@ -403,7 +403,7 @@ post.toggle = {
             success = true
         })
     end,
-    path = "{controller}/{action}/{id}"
+    path = "api/{controller}/{action}/{id}"
 }
 
 return {

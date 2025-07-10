@@ -207,9 +207,7 @@ function extract_path_params(template, path)
     -- 分割模板和路径为部分
     local template_parts = {}
     for part in template:gmatch("[^/]+") do
-        if part ~= "{controller}" and part ~= "{action}" then
-            table.insert(template_parts, part)
-        end
+        table.insert(template_parts, part)
     end
     local path_parts = {}
     for part in path:gmatch("[^/]+") do
@@ -219,8 +217,10 @@ function extract_path_params(template, path)
     -- 提取动态参数
     for i, part in ipairs(template_parts) do
         if part:match("^{.+}$") then
-            local param_name = part:sub(2, -2)  -- 去掉花括号
-            params[param_name] = path_parts[i]
+            if part ~= "{controller}" and part ~= "{action}" then
+                local param_name = part:sub(2, -2) -- 去掉花括号
+                params[param_name] = path_parts[i]
+            end
         end
     end
 
