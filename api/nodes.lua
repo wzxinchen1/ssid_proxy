@@ -95,7 +95,7 @@ function available_nodes()
     http.write_json({
         success = true,
         data = nodes,
-        result=result
+        result = result
     })
 end
 
@@ -351,6 +351,9 @@ function api_add_node_by_url()
             end
             if not found then
                 uci:delete("ssid-proxy", s.id)
+                delete_node_from_v2ray(id)
+                save_v2ray_config(v2ray_config)
+                luci.sys.init.restart("v2ray")
             end
         end
     end)
