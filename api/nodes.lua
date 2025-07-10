@@ -90,11 +90,12 @@ function available_nodes()
     local httpRequest = require("socket.http")
     local result = httpRequest.request("http://www.xiongmaodaili.com/xiongmao-web/yxOrder/getAreaNodeShareN",
         "{pid:912}")
-    local nodes = json.parse(result).obj
+    local nodes = json.parse(result)
 
     http.write_json({
         success = true,
-        data = nodes
+        data = nodes,
+        result=result
     })
 end
 
