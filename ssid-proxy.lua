@@ -95,16 +95,18 @@ function handle_api()
 
     local controller_name = parts[2]
     local action = parts[3]
-    http.write(controller_name)
+    -- 动态加载 controller
+    local controller, err = load_controller(controller_name)
+    if not controller then
+        http.prepare_content("application/json")
+        http.write(json.stringify({
+            status = "error",
+            message = "Controller not found: " .. err
+        }))
+        return
+    end
+    http.write_json(controller)
     return
-    -- -- 动态加载 controller
-    -- local controller, err = load_controller(controller_name)
-    -- if not controller then
-    --     http.prepare_content("application/json")
-    --     http.write(json.stringify({ status = "error", message = "Controller not found: " .. err }))
-    --     return
-    -- end
-
     -- -- 检查 action 是否存在
     -- local handler = controller[action]
     -- if not handler then
