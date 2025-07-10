@@ -403,7 +403,7 @@ post.toggle = {
             success = true
         })
     end,
-    path = "node/toggle/{id}"
+    path = "{controller}/{action}/{id}"
 }
 
 return {
