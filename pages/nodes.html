@@ -53,7 +53,7 @@
                     <tr v-for="node in nodes" v-for-empty="没有数据">
                         <td><input type="checkbox" checked="{{node.status === 'active'}}" value="active"
                                 onclick="handleToggleNode('{{node.id}}')" /></td>
-                        <td>{{node.name}}</td>
+                        <td>{{node.id}}</td>
                         <td>{{node.address}}</td>
                         <td>{{node.port}}</td>
                         <td>{{node.protocol}}</td>

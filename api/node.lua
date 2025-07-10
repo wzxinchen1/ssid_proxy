@@ -373,10 +373,9 @@ post.toggle = {
                 delete_node_from_v2ray(id)
                 save_v2ray_config(v2ray_config)
                 luci.sys.init.restart("v2ray")
-                http.write_json({
+                return ({
                     success = true
                 })
-                return
             end
         end
         add_node_to_v2ray(node)

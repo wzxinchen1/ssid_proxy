@@ -2,6 +2,7 @@
 module("luci.controller.ssid-proxy.api.config", package.seeall)
 local M = {}
 local Get = {}
+local post = {}
 local uci = require"luci.model.uci".cursor()
 local json = require "luci.jsonc"
 local fs = require "nixio.fs"
@@ -331,24 +332,9 @@ function M.toggle_config()
 end
 
 -- 添加新配置
-function M.add_config()
+function post.add(config)
     local uci = require"luci.model.uci".cursor()
     local http = require "luci.http"
-
-    if luci.http.cors() then
-        return
-    end
-    local data = http.content()
-    local json = require "luci.jsonc"
-    local config = json.parse(data)
-
-    if not config then
-        http.status(400, "Bad Request")
-        http.write_json({
-            error = "Invalid JSON data"
-        })
-        return
-    end
 
     -- 添加新配置
     local sid = uci:section("ssid-proxy", "config")
@@ -358,24 +344,12 @@ function M.add_config()
     uci:set("ssid-proxy", sid, "interface", config.interface or "")
     uci:set("ssid-proxy", sid, "mode", config.mode or "proxy")
     uci:set("ssid-proxy", sid, "port", config.port or "")
+    uci:set("ssid-proxy", sid, "proxy_server_id", config.proxy_server_id)
 
-    if config.mode == "proxy" and config.proxy_server_id then
-        uci:set("ssid-proxy", sid, "proxy_server_id", config.proxy_server_id)
-    end
-
-    local success, err = pcall(function()
-        uci:commit("ssid-proxy")
-    end)
-    if not success then
-        http.status(500, "Internal Server Error")
-        http.write_json({
-            error = tostring(err)
-        })
-        return
-    end
+    uci:commit("ssid-proxy")
 
     add_node_to_v2ray(config)
-    http.write_json({
+    return ({
         success = true,
         id = sid
     })
@@ -445,5 +419,6 @@ end
 
 return {
     M = M,
-    get = Get
+    get = Get,
+    post = post
 }
