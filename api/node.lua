@@ -404,7 +404,6 @@ post.toggle_node = {
         })
     end,
     path = "user/profile/{id}/{name}", -- 路径模板
-    params = {"path|id", "path|name"} -- 参数来源
 }
 
 return {

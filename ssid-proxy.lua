@@ -125,7 +125,7 @@ function handle_api()
         http.prepare_content("application/json")
         http.write(json.stringify({
             status = "error",
-            message = "Action not found"
+            message = "Action not found "..action_name
         }))
         return
     end
