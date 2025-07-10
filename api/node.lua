@@ -1,8 +1,8 @@
 -- 文件路径: E:\桌面\ssid_proxy\api\nodes.lua
 module("luci.controller.ssid-proxy.api.nodes", package.seeall)
-local get={}
-local post={}
-local delete={}
+local get = {}
+local post = {}
+local delete = {}
 local uci = require"luci.model.uci".cursor()
 local fs = require "nixio.fs"
 local json = require "luci.jsonc"
@@ -406,5 +406,7 @@ function api_toggle_node()
 end
 
 return {
-    get,post,delete
+    get = get,
+    post = post,
+    delete = delete
 }

@@ -172,6 +172,6 @@ window.saveNode = async function () {
  * @returns {Promise<Array>} 代理服务器列表
  */
 export const getProxyServers = async function () {
-    const nodes = await apiRequest('nodes', 'GET');
+    const nodes = await apiRequest('node', 'Get');
     return nodes;
 };
