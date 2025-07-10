@@ -148,17 +148,6 @@ function handle_api()
         local args = {}
         if path_template then
             args = extract_path_params(path_template, path)
-            http.write_json(args)
-            return
-        end
-
-        -- 从查询字符串提取参数（GET/DELETE）
-        if method == "GET" or method == "DELETE" then
-            if query then
-                for key, value in query:gmatch("([^&=]+)=([^&=]+)") do
-                    args[key] = value
-                end
-            end
         end
 
         -- 从 Body 提取参数（POST/PUT）
@@ -168,9 +157,7 @@ function handle_api()
                 local data = http.read()
                 if data and #data > 0 then
                     local body_params = json.parse(data) or {}
-                    for k, v in pairs(body_params) do
-                        args[k] = v
-                    end
+                    args["body_content"] = body_params
                 end
             end
         end
@@ -178,15 +165,6 @@ function handle_api()
         -- 调用处理函数
         local ok, response
         if path_template then
-            -- 按 path 定义的顺序传递参数
-            local param_order = {}
-            for param in path_template:gmatch("{(.-)}") do
-                table.insert(param_order, param)
-            end
-            local call_args = {}
-            for _, param in ipairs(param_order) do
-                table.insert(call_args, args[param])
-            end
             ok, response = pcall(handler, unpack(call_args))
         else
             -- 无 path 模板，直接调用
