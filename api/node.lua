@@ -348,6 +348,7 @@ function post.refresh_url(body_content)
             uci:commit("ssid-proxy")
             add_node_to_v2ray(value)
             save_v2ray_config(v2ray_config)
+            luci.sys.init.start("v2ray")
         end
     end
     uci:commit("ssid-proxy")
