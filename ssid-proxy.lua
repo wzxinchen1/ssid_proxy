@@ -119,7 +119,7 @@ function handle_api()
     end
 
     -- 检查 action 是否存在
-    local handler = method_table[action]
+    local handler = method_table[string.lower(action)]
     if not handler then
         http.prepare_content("application/json")
         http.write(json.stringify({
