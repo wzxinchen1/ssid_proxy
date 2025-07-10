@@ -139,14 +139,12 @@ function handle_api()
         end
     end
 
-    if method == "POST" or method == "PUT" then
-        local content_type = http.getenv("CONTENT_TYPE")
-        if content_type and content_type:find("application/json") then
-            local data = http.read()
-            if data and #data > 0 then
-                local body_params = json.parse(data) or {}
-                table.insert(args, body_params);
-            end
+    local content_type = http.getenv("CONTENT_TYPE")
+    if content_type and content_type:find("application/json") then
+        local data = http.read()
+        if data and #data > 0 then
+            local body_params = json.parse(data) or {}
+            table.insert(args, body_params);
         end
     end
     -- 调用处理函数
