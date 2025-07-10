@@ -284,7 +284,8 @@ function api_nodes()
             })
             return
         end
-
+        uci:delete("ssid-proxy", nodeId)
+        uci:commit()
         http.prepare_content("application/json")
         http.write_json({
             success = true
