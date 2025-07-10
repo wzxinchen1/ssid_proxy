@@ -18,7 +18,7 @@ if not v2ray_config.routing.rules then
     v2ray_config.routing.rules = {}
 end
 -- 从 v2ray.config.json 中提取节点信息
-function Get.get_nodes_from_v2ray()
+function get_nodes_from_v2ray()
     local nodes = {}
     for _, inbound in ipairs(v2ray_config.inbounds or {}) do
         table.insert(nodes, inbound)
@@ -112,7 +112,7 @@ function delete_node_from_v2ray(nodeId)
     return save_v2ray_config(new_config)
 end
 -- 获取配置
-function M.get_config()
+function Get.Index()
     local http = require "luci.http"
 
     if luci.http.cors() then
@@ -148,8 +148,7 @@ function M.get_config()
         table.insert(config.interfaces, iface)
     end
 
-    luci.http.prepare_content("application/json")
-    luci.http.write_json({
+    return ({
         success = true,
         data = config
     })

@@ -83,7 +83,7 @@ function handle_api()
         table.insert(parts, part)
     end
 
-    if #parts < 3 then
+    if #parts < 2 then
         http.status(400, "Bad Request")
         http.prepare_content("application/json")
         http.write(json.stringify({
@@ -94,7 +94,7 @@ function handle_api()
     end
 
     local controller_name = parts[2]
-    local action = parts[3]
+    local action = parts[3] or "Index"
     -- 动态加载 controller
     local controller, err = load_controller(controller_name)
     if not controller then
@@ -105,28 +105,45 @@ function handle_api()
         }))
         return
     end
-    http.write_json(controller)
-    return
-    -- -- 检查 action 是否存在
-    -- local handler = controller[action]
-    -- if not handler then
-    --     http.prepare_content("application/json")
-    --     http.write(json.stringify({ status = "error", message = "Action not found" }))
-    --     return
-    -- end
 
-    -- -- 执行处理函数
-    -- local ok, response = pcall(handler)
-    -- if not ok then
-    --     http.status(500, "Internal Server Error")
-    --     http.prepare_content("application/json")
-    --     http.write(json.stringify({ status = "error", message = response }))
-    --     return
-    -- end
+    -- 检查请求方法是否支持
+    local method_table = controller[method]
+    if not method_table then
+        http.status(405, "Method Not Allowed")
+        http.prepare_content("application/json")
+        http.write(json.stringify({
+            status = "error",
+            message = "Method not allowed"
+        }))
+        return
+    end
 
-    -- -- 返回响应
-    -- http.prepare_content("application/json")
-    -- http.write(json.stringify(response))
+    -- 检查 action 是否存在
+    local handler = method_table[action]
+    if not handler then
+        http.prepare_content("application/json")
+        http.write(json.stringify({
+            status = "error",
+            message = "Action not found"
+        }))
+        return
+    end
+
+    -- 执行处理函数
+    local ok, response = pcall(handler)
+    if not ok then
+        http.status(500, "Internal Server Error")
+        http.prepare_content("application/json")
+        http.write(json.stringify({
+            status = "error",
+            message = response
+        }))
+        return
+    end
+
+    -- 返回响应
+    http.prepare_content("application/json")
+    http.write(json.stringify(response))
 end
 function load_controller(name)
     local ok, controller = pcall(require, "luci.controller.ssid-proxy.api." .. name)
