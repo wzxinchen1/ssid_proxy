@@ -84,6 +84,9 @@ end
 
 function available_nodes()
     local http = require "luci.http"
+    if http.cors() then
+        return
+    end
     local httpRequest = require("socket.http")
     local result = httpRequest.request(url)
     local nodes = json.parse(result).obj

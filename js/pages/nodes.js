@@ -53,8 +53,8 @@ window.switchTab = function (tabId) {
     componentContext.render();
 };
 
-window.switchNode = (nodeId) => {
-    const availableNodes = await("node/available", "GET");
+window.switchNode = async (nodeId) => {
+    const availableNodes = await apiRequest("node/available", "GET");
     console.log(availableNodes)
 }
 /**
