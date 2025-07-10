@@ -1,6 +1,7 @@
 -- 文件路径: E:\桌面\ssid_proxy\api\nodes.lua
 module("luci.controller.ssid-proxy.api.nodes", package.seeall)
 
+local uci = require"luci.model.uci".cursor()
 local fs = require "nixio.fs"
 local json = require "luci.jsonc"
 -- 读取 v2ray.config.json 文件
