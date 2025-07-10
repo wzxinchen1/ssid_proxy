@@ -300,28 +300,7 @@ function post.refresh_url(body_content)
     local nodes = json.parse(result).obj
 
     local uci = require"luci.model.uci".cursor()
-    for i, value in pairs(nodes) do
-        local found = false
-        uci:foreach("ssid-proxy", "node", function(s)
-            if found then
-                return
-            end
-            if s.ip == value.ip and s.password == value.password and s.port == value.port and s.account == value.account then
-                found = true
-                return
-            else
-
-            end
-        end)
-        if not found then
-            local sid = uci:section("ssid-proxy", "node")
-            uci:set("ssid-proxy", sid, "ip", value.ip)
-            uci:set("ssid-proxy", sid, "password", value.password)
-            uci:set("ssid-proxy", sid, "port", value.port)
-            uci:set("ssid-proxy", sid, "account", value.account)
-            uci:commit("ssid-proxy")
-        end
-    end
+    local deleted_ids = {}
     uci:foreach("ssid-proxy", "node", function(s)
         local found = false
         for i, value in pairs(nodes) do
@@ -337,12 +316,35 @@ function post.refresh_url(body_content)
         end
         if not found then
             local id = s[".name"]
-            uci:delete("ssid-proxy", id)
+            table.insert(deleted_ids, id)
             delete_node_from_v2ray(id)
-            save_v2ray_config(v2ray_config)
-            luci.sys.init.restart("v2ray")
         end
     end)
+    for i, value in pairs(nodes) do
+        local found = false
+        uci:foreach("ssid-proxy", "node", function(s)
+            if found then
+                return
+            end
+            if s.ip == value.ip and s.password == value.password and s.port == value.port and s.account == value.account then
+                found = true
+                return
+            else
+
+            end
+        end)
+        if not found then
+            local sid = table.remove(deleted_ids, 1);
+            if not sid then
+                sid = uci:section("ssid-proxy", "node")
+            end
+            uci:set("ssid-proxy", sid, "ip", value.ip)
+            uci:set("ssid-proxy", sid, "password", value.password)
+            uci:set("ssid-proxy", sid, "port", value.port)
+            uci:set("ssid-proxy", sid, "account", value.account)
+            uci:commit("ssid-proxy")
+        end
+    end
     uci:commit("ssid-proxy")
     return ({
         success = true,

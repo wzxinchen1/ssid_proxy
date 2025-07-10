@@ -88,6 +88,7 @@
 
 .tab-content {
     display: none;
+    gap: 10px;
 }
 
 .tab-content.active {
