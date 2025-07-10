@@ -281,60 +281,55 @@ end
 
 function deleteIPTablesRule(interface, port)
     local cmd = "iptables -t nat -D PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " .. port
-    success, exit_code, exit_signal = os.execute(cmd)
-    success, exit_code, exit_signal = os.execute(cmd)
+    os.execute(cmd)
+    os.execute(cmd)
     cmd = "iptables -t nat -D PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
-    success, exit_code, exit_signal = os.execute(cmd)
-    success, exit_code, exit_signal = os.execute(cmd)
+    os.execute(cmd)
+    os.execute(cmd)
 end
 
-function M.toggle_config()
-    local http = require "luci.http"
-    if luci.http.cors() then
-        return
-    end
-    local path = http.getenv("PATH_INFO") or ""
-    local uci = require"luci.model.uci".cursor()
-    local id = path:match("api/config/toggle/([^/]+)$")
-    local http = require "luci.http"
-    local enabled = uci:get("ssid-proxy", id, "enabled")
-    local port = uci:get("ssid-proxy", id, "port")
-    local interface = uci:get("ssid-proxy", id, "interface")
-    if enabled == "0" then
-        enabled = " 1"
-        local cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " .. port
-        success, exit_code, exit_signal = os.execute(cmd)
-        cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
-        success, exit_code, exit_signal = os.execute(cmd)
-    else
-        enabled = "0"
-        deleteIPTablesRule(interface, port)
-    end
+post.toggle = {
+    function(id)
+        local uci = require"luci.model.uci".cursor()
+        local enabled = uci:get("ssid-proxy", id, "enabled")
+        local port = uci:get("ssid-proxy", id, "port")
+        local interface = uci:get("ssid-proxy", id, "interface")
+        if enabled == "0" then
+            enabled = " 1"
+            local cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p tcp -j REDIRECT --to-port " .. port
+            os.execute(cmd)
+            cmd = "iptables -t nat -A PREROUTING -i " .. interface .. " -p udp -j REDIRECT --to-port " .. port
+            os.execute(cmd)
+        else
+            enabled = "0"
+            deleteIPTablesRule(interface, port)
+        end
 
-    uci:set("ssid-proxy", id, "enabled", enabled)
-    uci:commit("ssid-proxy")
-    luci.sys.init.restart("v2ray")
-    local handle = io.popen("iptables -t nat -L -v -n | grep " .. interface)
-    local result = handle:read("*a") -- 读取所有输出
-    handle:close()
-    if result and result ~= "" then
-        enabled = "1"
-    else
-        enabled = "0"
-    end
-    http.write_json({
-        success = true,
-        enabled = enabled,
-        id = id,
-        reslt = result,
-        port = port
-    })
-end
+        uci:set("ssid-proxy", id, "enabled", enabled)
+        uci:commit("ssid-proxy")
+        luci.sys.init.restart("v2ray")
+        local handle = io.popen("iptables -t nat -L -v -n | grep " .. interface)
+        local result = handle:read("*a") -- 读取所有输出
+        handle:close()
+        if result and result ~= "" then
+            enabled = "1"
+        else
+            enabled = "0"
+        end
+        return ({
+            success = true,
+            enabled = enabled,
+            id = id,
+            reslt = result,
+            port = port
+        })
+    end,
+    path = "api/{controller}/{action}/{id}"
+}
 
 -- 添加新配置
 function post.add(config)
     local uci = require"luci.model.uci".cursor()
-    local http = require "luci.http"
 
     -- 添加新配置
     local sid = uci:section("ssid-proxy", "config")

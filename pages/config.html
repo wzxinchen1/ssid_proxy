@@ -3,58 +3,6 @@
         <span>接口代理配置</span>
     </div>
 
-    <!-- 全局设置卡片 -->
-    <div class="config-card">
-        <div class="config-header">
-            <div class="config-title">全局设置</div>
-        </div>
-        <div class="config-body">
-            <div class="global-settings">
-                <div class="setting-group">
-                    <div class="setting-control">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="global-enabled" checked="{{global.enabled}}"
-                                value="1">
-                            <label for="global-enabled">启用基于网络接口的代理功能</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="setting-group">
-                    <label class="setting-label">日志级别</label>
-                    <div class="setting-control">
-                        <select id="log-level" v-value="{{global.log_level}}">
-                            <option value="error">错误</option>
-                            <option value="warning">警告</option>
-                            <option value="info">信息</option>
-                            <option value="debug">调试</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="setting-group">
-                    <label class="setting-label">日志保留时间</label>
-                    <div class="setting-control">
-                        <select id="log-retention" v-value="{{global.log_retention}}">
-                            <option value="3">3天</option>
-                            <option value="7">7天 (推荐)</option>
-                            <option value="14">14天</option>
-                            <option value="30">30天</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 保存操作栏 -->
-            <div class="save-actions">
-                <button class="btn-reset" id="reset-btn" onclick="handleReset()">重置更改</button>
-                <button class="btn-save" id="save-btn" onclick="handleSave()">保存并应用</button>
-            </div>
-        </div>
-
-
-    </div>
-
     <!-- 规则配置卡片 -->
     <div class="config-card">
         <div class="config-header">
