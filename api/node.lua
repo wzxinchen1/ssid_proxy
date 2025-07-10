@@ -3,6 +3,7 @@ module("luci.controller.ssid-proxy.api.nodes", package.seeall)
 local get = {}
 local post = {}
 local delete = {}
+local json = require "luci.jsonc"
 local uci = require"luci.model.uci".cursor()
 local fs = require "nixio.fs"
 local json = require "luci.jsonc"
@@ -302,17 +303,8 @@ function get.Index()
         })
     end
 end
-function post.refresh_url()
-    local http = require "luci.http"
-    local json = require "luci.jsonc"
-    if luci.http.cors() then
-        return
-    end
-    local content = http.content()
-    local url = ""
-    if content and #content > 0 then
-        url = json.parse(content).url
-    end
+post.refresh_url = {function(body_content)
+    local url = body_content.url
     local httpRequest = require("socket.http")
     local result = httpRequest.request(url)
     local nodes = json.parse(result).obj
@@ -367,7 +359,7 @@ function post.refresh_url()
         success = true,
         result = result
     })
-end
+end}
 
 post.toggle = {
     function(id)

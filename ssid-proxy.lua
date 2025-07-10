@@ -1,12 +1,6 @@
 -- SSID代理系统 - 主控制器
 -- 文件路径: /usr/lib/lua/luci/controller/ssid-proxy/ssid-proxy.lua
 module("luci.controller.ssid-proxy.ssid-proxy", package.seeall)
--- 引入API模块
-local status = require "luci.controller.ssid-proxy.api.status"
-local config = require "luci.controller.ssid-proxy.api.config"
-local monitor = require "luci.controller.ssid-proxy.api.monitor"
-local nodes = require "luci.controller.ssid-proxy.api.nodes"
-local logs = require "luci.controller.ssid-proxy.api.logs"
 local http = require "luci.http"
 
 -- 封装原有的 http.prepare_content 方法，自动添加 CORS 头
@@ -70,6 +64,10 @@ function index()
 end
 function handle_api()
     local http = require "luci.http"
+
+    if http.cors() then
+        return
+    end
     local json = require "luci.jsonc"
     local dispatcher = require "luci.dispatcher"
 
@@ -118,7 +116,6 @@ function handle_api()
         }))
         return
     end
-
     -- 检查 action 是否存在
     local action = method_table[action_name]
     if not action then
@@ -232,19 +229,3 @@ end
 function serve_index()
     http.redirect("/luci-static/resources/ssid-proxy/index.html")
 end
-
-api_monitor = monitor.api_monitor
-get_interface_status = status.get_interface_status
-get_game_clients = status.get_game_clients
-api_nodes = nodes.api_nodes
-available_nodes = nodes.available_nodes
-api_add_node_by_url = nodes.api_add_node_by_url
-api_logs = logs.api_logs
-api_config = config.get_config
-api_config_get_global = config.get_global_config
-api_config_update_global = config.update_global_config
-api_config_add = config.add_config
-api_config_delete = config.delete_config
-api_config_update = config.update_config
-api_config_toggle = config.toggle_config
-api_toggle_node = nodes.api_toggle_node
