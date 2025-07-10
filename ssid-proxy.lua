@@ -46,7 +46,7 @@ function index()
     -- 主菜单入口
     entry({"admin", "services", "ssid-proxy"}, call("serve_index"), _("接口代理"), 60)
 
-    entry({"api"}, call("handle_api"), nil, 10)
+    entry({"api"}, call("handle_api"), nil, 0)
     -- API路由
     entry({"api", "status"}, call("get_interface_status"), nil, 15)
     entry({"api", "status", "clients"}, call("get_game_clients"), nil, 15)
