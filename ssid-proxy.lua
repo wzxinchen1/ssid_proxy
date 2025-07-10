@@ -94,7 +94,7 @@ function handle_api()
     end
 
     local controller_name = parts[2]
-    local action = parts[3] or "Index"
+    local action_name = parts[3] or "Index"
     -- 动态加载 controller
     local controller, err = load_controller(controller_name)
     if not controller then
@@ -108,6 +108,7 @@ function handle_api()
 
     -- 检查请求方法是否支持
     local method_table = controller[method]
+    local query = http.getenv("QUERY_STRING")
     if not method_table then
         http.status(405, "Method Not Allowed")
         http.prepare_content("application/json")
@@ -119,8 +120,8 @@ function handle_api()
     end
 
     -- 检查 action 是否存在
-    local handler = method_table[action]
-    if not handler then
+    local action = method_table[action_name]
+    if not action then
         http.prepare_content("application/json")
         http.write(json.stringify({
             status = "error",
@@ -128,35 +129,80 @@ function handle_api()
         }))
         return
     end
-    -- 解析请求参数
-    local args = {}
-
-    -- 1. 从路径中提取参数（根据 handler.path 的模板）
-    if handler.path then
-        local path_params = extract_path_params(handler.path, path)
-        for k, v in pairs(path_params) do
-            args[k] = v
+    -- 处理无参数路由（直接调用函数）
+    if type(action) == "function" then
+        local ok, response = pcall(action)
+        if not ok then
+            return json_error(500, response)
         end
-        http.write_json(args)
-        return
-    end
-    -- 执行处理函数
-    local ok, response = pcall(handler)
-    if not ok then
-        http.status(500, "Internal Server Error")
-        http.prepare_content("application/json")
-        http.write(json.stringify({
-            status = "error",
-            message = response
-        }))
-        return
+        return json_response(response)
     end
 
-    -- 返回响应
-    http.prepare_content("application/json")
-    http.write(json.stringify(response))
+    -- 处理带参数路由（通过 path 模板）
+    if type(action) == "table" then
+        local handler = action[1]
+        local path_template = action.path
+
+        -- 从路径提取参数
+        local args = {}
+        if path_template then
+            args = extract_path_params(path_template, path)
+            htt.write_json(args)
+            return
+        end
+
+        -- 从查询字符串提取参数（GET/DELETE）
+        if method == "GET" or method == "DELETE" then
+            if query then
+                for key, value in query:gmatch("([^&=]+)=([^&=]+)") do
+                    args[key] = value
+                end
+            end
+        end
+
+        -- 从 Body 提取参数（POST/PUT）
+        if method == "POST" or method == "PUT" then
+            local content_type = http.getenv("CONTENT_TYPE")
+            if content_type and content_type:find("application/json") then
+                local data = http.read()
+                if data and #data > 0 then
+                    local body_params = json.parse(data) or {}
+                    for k, v in pairs(body_params) do
+                        args[k] = v
+                    end
+                end
+            end
+        end
+
+        -- 调用处理函数
+        local ok, response
+        if path_template then
+            -- 按 path 定义的顺序传递参数
+            local param_order = {}
+            for param in path_template:gmatch("{(.-)}") do
+                table.insert(param_order, param)
+            end
+            local call_args = {}
+            for _, param in ipairs(param_order) do
+                table.insert(call_args, args[param])
+            end
+            ok, response = pcall(handler, unpack(call_args))
+        else
+            -- 无 path 模板，直接调用
+            ok, response = pcall(handler)
+        end
+
+        if not ok then
+            return json_error(500, response)
+        end
+        return json_response(response)
+    end
+
+    return json_error(400, "Invalid action type")
 end
--- 从路径模板中提取参数（如 "user/{id}/{name}"）
+
+
+-- 从路径模板提取参数
 function extract_path_params(template, path)
     local params = {}
     local template_parts = {}
@@ -170,8 +216,8 @@ function extract_path_params(template, path)
     end
 
     for i, part in ipairs(template_parts) do
-        if part:match("^{(.+)}$") then
-            local param_name = part:match("{(.+)}")
+        if part:match("^{.+}$") then
+            local param_name = part:sub(2, -2)
             params[param_name] = path_parts[i]
         end
     end
@@ -179,17 +225,19 @@ function extract_path_params(template, path)
     return params
 end
 
--- 解析参数描述（如 "path|id" -> "id", "path"）
-function parse_param_desc(desc)
-    local parts = {}
-    for part in desc:gmatch("[^|]+") do
-        table.insert(parts, part)
-    end
-    if #parts == 1 then
-        return parts[1], "query"  -- 默认从查询参数中获取
-    else
-        return parts[2], parts[1]
-    end
+-- 返回 JSON 响应
+function json_response(data)
+    local http = require "luci.http"
+    http.prepare_content("application/json")
+    http.write_json(data or {})
+end
+
+-- 返回 JSON 错误
+function json_error(code, message)
+    local http = require "luci.http"
+    http.status(code, message)
+    http.prepare_content("application/json")
+    http.write_json({ status = "error", message = message })
 end
 function load_controller(name)
     local ok, controller = pcall(require, "luci.controller.ssid-proxy.api." .. name)

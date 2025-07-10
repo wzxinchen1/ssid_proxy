@@ -369,40 +369,43 @@ function post.refresh_url()
     })
 end
 
-function post.toggle_node(id)
-    local http = require "luci.http"
-    if http.cors() then
-        return
-    end
-    local uci = require"luci.model.uci".cursor()
-    local node = {
-        id = id,
-        username = uci:get("ssid-proxy", id, "account"),
-        password = uci:get("ssid-proxy", id, "password"),
-        address = uci:get("ssid-proxy", id, "ip"),
-        port = uci:get("ssid-proxy", id, "port")
-    }
-    for i, value in pairs(v2ray_config.outbounds) do
-        local server = value.settings.servers[1]
-        local user = server.users[1]
-        if value.tag == id then
-            delete_node_from_v2ray(id)
-            save_v2ray_config(v2ray_config)
-            luci.sys.init.restart("v2ray")
-            http.write_json({
-                success = true
-            })
+post.toggle_node = {
+    function(id)
+        local http = require "luci.http"
+        if http.cors() then
             return
         end
-    end
-    add_node_to_v2ray(node)
-    save_v2ray_config(v2ray_config)
-    luci.sys.init.restart("v2ray")
-    return ({
-        success = true
-    })
-end
-post.toggle_node.path="node/toggle/{id}"
+        local uci = require"luci.model.uci".cursor()
+        local node = {
+            id = id,
+            username = uci:get("ssid-proxy", id, "account"),
+            password = uci:get("ssid-proxy", id, "password"),
+            address = uci:get("ssid-proxy", id, "ip"),
+            port = uci:get("ssid-proxy", id, "port")
+        }
+        for i, value in pairs(v2ray_config.outbounds) do
+            local server = value.settings.servers[1]
+            local user = server.users[1]
+            if value.tag == id then
+                delete_node_from_v2ray(id)
+                save_v2ray_config(v2ray_config)
+                luci.sys.init.restart("v2ray")
+                http.write_json({
+                    success = true
+                })
+                return
+            end
+        end
+        add_node_to_v2ray(node)
+        save_v2ray_config(v2ray_config)
+        luci.sys.init.restart("v2ray")
+        return ({
+            success = true
+        })
+    end,
+    path = "user/profile/{id}/{name}", -- 路径模板
+    params = {"path|id", "path|name"} -- 参数来源
+}
 
 return {
     get = get,
