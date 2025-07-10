@@ -369,7 +369,7 @@ function post.refresh_url()
     })
 end
 
-post.toggle_node = {
+post.toggle = {
     function(id)
         local http = require "luci.http"
         if http.cors() then
