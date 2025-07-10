@@ -209,7 +209,7 @@ end
 function json_response(data)
     local http = require "luci.http"
     http.prepare_content("application/json")
-    http.write_json(data or {})
+    http.write_json(data)
 end
 
 -- 返回 JSON 错误
