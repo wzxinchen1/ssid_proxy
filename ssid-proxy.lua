@@ -128,7 +128,18 @@ function handle_api()
         }))
         return
     end
+    -- 解析请求参数
+    local args = {}
 
+    -- 1. 从路径中提取参数（根据 handler.path 的模板）
+    if handler.path then
+        local path_params = extract_path_params(handler.path, path)
+        for k, v in pairs(path_params) do
+            args[k] = v
+        end
+        http.write_json(args)
+        return
+    end
     -- 执行处理函数
     local ok, response = pcall(handler)
     if not ok then
@@ -144,6 +155,41 @@ function handle_api()
     -- 返回响应
     http.prepare_content("application/json")
     http.write(json.stringify(response))
+end
+-- 从路径模板中提取参数（如 "user/{id}/{name}"）
+function extract_path_params(template, path)
+    local params = {}
+    local template_parts = {}
+    for part in template:gmatch("[^/]+") do
+        table.insert(template_parts, part)
+    end
+
+    local path_parts = {}
+    for part in path:gmatch("[^/]+") do
+        table.insert(path_parts, part)
+    end
+
+    for i, part in ipairs(template_parts) do
+        if part:match("^{(.+)}$") then
+            local param_name = part:match("{(.+)}")
+            params[param_name] = path_parts[i]
+        end
+    end
+
+    return params
+end
+
+-- 解析参数描述（如 "path|id" -> "id", "path"）
+function parse_param_desc(desc)
+    local parts = {}
+    for part in desc:gmatch("[^|]+") do
+        table.insert(parts, part)
+    end
+    if #parts == 1 then
+        return parts[1], "query"  -- 默认从查询参数中获取
+    else
+        return parts[2], parts[1]
+    end
 end
 function load_controller(name)
     local ok, controller = pcall(require, "luci.controller.ssid-proxy.api." .. name)

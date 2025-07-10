@@ -35,7 +35,7 @@ window.addNodeByUrl = async () => {
  * 加载节点数据
  */
 async function loadNodesData() {
-    viewData.nodes = await apiRequest('nodes', 'GET');
+    viewData.nodes = await apiRequest('nodes');
     if (!Array.isArray(viewData.nodes)) {
         viewData.nodes = [];
     }

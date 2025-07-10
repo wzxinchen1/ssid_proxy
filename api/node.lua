@@ -369,14 +369,13 @@ function post.refresh_url()
     })
 end
 
-function api_toggle_node()
+post.toggle_node.path="node/toggle/{id}"
+function post.toggle_node(id)
     local http = require "luci.http"
     if http.cors() then
         return
     end
-    local path = http.getenv("PATH_INFO") or ""
     local uci = require"luci.model.uci".cursor()
-    local id = path:match("api/node/toggle/([^/]+)$")
     local node = {
         id = id,
         username = uci:get("ssid-proxy", id, "account"),
@@ -400,7 +399,7 @@ function api_toggle_node()
     add_node_to_v2ray(node)
     save_v2ray_config(v2ray_config)
     luci.sys.init.restart("v2ray")
-    http.write_json({
+    return ({
         success = true
     })
 end
