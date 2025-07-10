@@ -129,10 +129,10 @@ function handle_api()
     end
 
     local args = {}
+    local handler = action
     if type(action) == "table" then
-        local handler = action[1]
         local path_template = action.path
-
+        handler = action[1]
         -- 从路径提取参数
         if path_template then
             args = extract_path_params(path_template, path)
