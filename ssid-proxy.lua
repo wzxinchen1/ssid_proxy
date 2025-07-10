@@ -147,7 +147,7 @@ function handle_api()
             table.insert(args, body_params);
         end
     end
-    http.write_json(args)
+    http.write_json(unpack(args))
     -- -- 调用处理函数
     -- local ok, response = pcall(handler, unpack(args))
 
