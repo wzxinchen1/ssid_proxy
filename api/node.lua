@@ -303,7 +303,7 @@ function get.Index()
         })
     end
 end
-post.refresh_url = {function(body_content)
+function post.refresh_url(body_content)
     local url = body_content.url
     local httpRequest = require("socket.http")
     local result = httpRequest.request(url)
@@ -359,7 +359,7 @@ post.refresh_url = {function(body_content)
         success = true,
         result = result
     })
-end}
+end
 
 post.toggle = {
     function(id)

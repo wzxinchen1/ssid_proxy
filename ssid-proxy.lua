@@ -127,49 +127,35 @@ function handle_api()
         }))
         return
     end
-    -- 处理无参数路由（直接调用函数）
-    if type(action) == "function" then
-        local ok, response = pcall(action)
-        if not ok then
-            return json_error(500, response)
-        end
-        return json_response(response)
-    end
 
-    -- 处理带参数路由（通过 path 模板）
+    local args = {}
     if type(action) == "table" then
         local handler = action[1]
         local path_template = action.path
 
         -- 从路径提取参数
-        local args = {}
         if path_template then
             args = extract_path_params(path_template, path)
         end
-
-        -- 从 Body 提取参数（POST/PUT）
-        if method == "POST" or method == "PUT" then
-            local content_type = http.getenv("CONTENT_TYPE")
-            http.write(content_type)
-            return
-        end
-
-        -- 调用处理函数
-        local ok, response
-        if path_template then
-            ok, response = pcall(handler, unpack(args))
-        else
-            -- 无 path 模板，直接调用
-            ok, response = pcall(handler)
-        end
-
-        if not ok then
-            return json_error(500, response)
-        end
-        return json_response(response)
     end
 
-    return json_error(400, "Invalid action type")
+    if method == "POST" or method == "PUT" then
+        local content_type = http.getenv("CONTENT_TYPE")
+        if content_type and content_type:find("application/json") then
+            local data = http.read()
+            if data and #data > 0 then
+                local body_params = json.parse(data) or {}
+                table.insert(args, body_params);
+            end
+        end
+    end
+    -- 调用处理函数
+    local ok, response = pcall(handler, unpack(args))
+
+    if not ok then
+        return json_error(500, response)
+    end
+    return json_response(response)
 end
 
 function extract_path_params(template, path)
