@@ -2,6 +2,7 @@
 module("luci.controller.ssid-proxy.api.config", package.seeall)
 local M = {}
 
+local uci = require"luci.model.uci".cursor()
 local json = require "luci.jsonc"
 local fs = require "nixio.fs"
 -- 读取 v2ray.config.json 文件
@@ -112,7 +113,6 @@ function delete_node_from_v2ray(nodeId)
 end
 -- 获取配置
 function M.get_config()
-    local uci = require"luci.model.uci".cursor()
     local http = require "luci.http"
 
     if luci.http.cors() then
