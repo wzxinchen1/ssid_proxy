@@ -338,6 +338,9 @@ function post.refresh_url(body_content)
             if not sid then
                 sid = uci:section("ssid-proxy", "node")
             end
+            value.address = value.ip
+            value.id = sid
+            value.username = value.account
             uci:set("ssid-proxy", sid, "ip", value.ip)
             uci:set("ssid-proxy", sid, "password", value.password)
             uci:set("ssid-proxy", sid, "port", value.port)
