@@ -1,6 +1,8 @@
 -- 文件路径: E:\桌面\ssid_proxy\api\nodes.lua
 module("luci.controller.ssid-proxy.api.nodes", package.seeall)
-
+local get={}
+local post={}
+local delete={}
 local uci = require"luci.model.uci".cursor()
 local fs = require "nixio.fs"
 local json = require "luci.jsonc"
@@ -134,7 +136,7 @@ function delete_node_from_v2ray(node_id)
     -- 保存并通知 v2ray
     return save_v2ray_config(new_config)
 end
-function api_nodes()
+function get.Index()
     local http = require "luci.http"
     local sys = require "luci.sys"
 
@@ -200,8 +202,7 @@ function api_nodes()
                 interfaces = table.concat(interfaces, ",")
             })
         end)
-        http.prepare_content("application/json")
-        http.write_json({
+        return ({
             success = true,
             data = nodes
         })
@@ -403,3 +404,7 @@ function api_toggle_node()
         success = true
     })
 end
+
+return {
+    get,post,delete
+}

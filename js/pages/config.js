@@ -62,7 +62,7 @@ window.getModeText = function (mode) {
 
 // 事件处理函数
 window.handleRefreshConfigs = async function () {
-  const config = await apiRequest('config/get');
+  const config = await apiRequest('config');
   if (!config.interfaces) {
     config.interfaces = [];
   }
