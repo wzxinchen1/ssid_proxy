@@ -343,6 +343,8 @@ function post.refresh_url(body_content)
             uci:set("ssid-proxy", sid, "port", value.port)
             uci:set("ssid-proxy", sid, "account", value.account)
             uci:commit("ssid-proxy")
+            add_node_to_v2ray(value)
+            save_v2ray_config(v2ray_config)
         end
     end
     uci:commit("ssid-proxy")
