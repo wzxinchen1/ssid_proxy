@@ -445,5 +445,5 @@ end
 
 return {
     M = M,
-    Get = Get
+    get = Get
 }
