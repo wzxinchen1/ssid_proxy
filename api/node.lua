@@ -403,7 +403,7 @@ post.toggle = {
             success = true
         })
     end,
-    path = "user/profile/{id}/{name}", -- 路径模板
+    path = "node/toggle/{id}"
 }
 
 return {
