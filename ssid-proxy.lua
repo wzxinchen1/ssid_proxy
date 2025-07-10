@@ -147,14 +147,13 @@ function handle_api()
             table.insert(args, body_params);
         end
     end
-    http.write_json(unpack(args))
-    -- -- 调用处理函数
-    -- local ok, response = pcall(handler, unpack(args))
+    -- 调用处理函数
+    local ok, response = pcall(handler, unpack(args))
 
-    -- if not ok then
-    --     return json_error(500, response)
-    -- end
-    -- return json_response(response)
+    if not ok then
+        return json_error(500, response)
+    end
+    return json_response(response)
 end
 
 function extract_path_params(template, path)
@@ -173,8 +172,7 @@ function extract_path_params(template, path)
     for i, part in ipairs(template_parts) do
         if part:match("^{.+}$") then
             if part ~= "{controller}" and part ~= "{action}" then
-                local param_name = part:sub(2, -2) -- 去掉花括号
-                params[param_name] = path_parts[i]
+                table.insert(params, path_parts[i])
             end
         end
     end
