@@ -148,13 +148,18 @@ function renderPage(page, htmlContent, module) {
 
     // 初始化页面脚本
     if (typeof module[`onInit`] === 'function') {
+        if (window.runningComponentContext) {
+            window.runningComponentContext.running = false;
+        }
         const componentContext = {
+            running: true,
             render: (data) => {
                 const rendered = engine.render();
                 $('#page-container').html(rendered);
             }
         };
         module[`onInit`](componentContext);
+        window.runningComponentContext = componentContext;
     }
 }
 

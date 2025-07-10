@@ -63,6 +63,7 @@ function index()
     entry({"api", "service", "stop"}, call("api_service_stop"), nil, 90)
     entry({"api", "service", "toggle"}, call("api_service_toggle"), nil, 100)
     entry({"api", "nodes"}, call("api_nodes"), nil, 110)
+    entry({"api", "node","available"}, call("available_nodes"), nil, 110)
     entry({"api", "node", "add_by_url"}, call("api_add_node_by_url"), nil, 120)
     entry({"api", "node", "toggle"}, call("api_toggle_node"), nil, 120)
 end
@@ -75,6 +76,7 @@ api_monitor = monitor.api_monitor
 get_interface_status = status.get_interface_status
 get_game_clients = status.get_game_clients
 api_nodes = nodes.api_nodes
+available_nodes = nodes.available_nodes
 api_add_node_by_url = nodes.api_add_node_by_url
 api_logs = logs.api_logs
 api_config = config.get_config

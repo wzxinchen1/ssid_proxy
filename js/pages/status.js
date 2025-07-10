@@ -45,9 +45,11 @@ async function fetchConnections() {
         });
     });
     const promiseResults = await Promise.all(promiseList.flat())
-    viewData.connectionsList = promiseResults;
-    componentContext.render();
-    setTimeout(() => {
-        fetchConnections()
-    }, 1000);
+    if (componentContext.running) {
+        viewData.connectionsList = promiseResults;
+        componentContext.render();
+        setTimeout(() => {
+            fetchConnections()
+        }, 1000);
+    }
 }

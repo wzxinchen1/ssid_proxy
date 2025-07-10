@@ -52,6 +52,11 @@ window.switchTab = function (tabId) {
     viewData.activeTab = tabId;
     componentContext.render();
 };
+
+window.switchNode = (nodeId) => {
+    const availableNodes = await("node/available", "GET");
+    console.log(availableNodes)
+}
 /**
  * 编辑节点
  * @param {string} nodeId - 节点ID

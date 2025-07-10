@@ -82,6 +82,18 @@ function add_node_to_v2ray(node)
     return save_v2ray_config(new_config)
 end
 
+function available_nodes()
+    local http = require "luci.http"
+    local httpRequest = require("socket.http")
+    local result = httpRequest.request(url)
+    local nodes = json.parse(result).obj
+
+    http.write_json({
+        success = true,
+        data = nodes
+    })
+end
+
 -- 更新节点配置（仅修改出口信息）
 function update_node_in_v2ray(node_id, node)
     local new_config = json.parse(json.stringify(v2ray_config)) -- 深拷贝
@@ -133,6 +145,9 @@ function api_nodes()
         end
     end
 
+    if http.cors() then
+        return
+    end
     -- 正确获取请求体内容
     local content = http.content()
     local data = nil
@@ -143,9 +158,6 @@ function api_nodes()
     end
 
     if method == "GET" then
-        if http.cors() then
-            return
-        end
         local uci = require"luci.model.uci".cursor()
         local nodes = {}
         uci:foreach("ssid-proxy", "node", function(s)
