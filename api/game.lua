@@ -8,5 +8,5 @@ function Get.IP()
 end
 
 return {
-    Get=Get
+    get=Get
 }
