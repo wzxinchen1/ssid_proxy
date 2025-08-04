@@ -6,3 +6,7 @@ function Get.IP()
     local client_ip = http.getenv("REMOTE_ADDR")
     return client_ip
 end
+
+return {
+    Get=Get
+}
